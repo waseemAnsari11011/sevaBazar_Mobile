@@ -5,7 +5,8 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+platform :ios, '12.4' # Updated to the required iOS version
+
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
@@ -22,6 +23,12 @@ target 'sevaBazarApp' do
     # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
+
+  # Add the required pods with modular headers
+  pod 'Firebase', :modular_headers => true
+  pod 'FirebaseCoreInternal', :modular_headers => true
+  pod 'GoogleUtilities', :modular_headers => true
+  pod 'FirebaseCore', :modular_headers => true
 
   target 'sevaBazarAppTests' do
     inherit! :complete
