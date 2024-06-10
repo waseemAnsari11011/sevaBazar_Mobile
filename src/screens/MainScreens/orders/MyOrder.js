@@ -15,7 +15,6 @@ const MyOrder = () => {
     dispatch(fetchOrdersByCustomerId(customerId));
   }, [dispatch, customerId]);
 
-  console.log("orders-->", orders)
 
   if (loading) {
     return (

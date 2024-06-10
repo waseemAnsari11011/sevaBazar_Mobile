@@ -18,6 +18,8 @@ import PhoneSignIn from '../screens/PhoneSignIn';
 import { useSelector } from 'react-redux';
 import OrderTacking from '../screens/MainScreens/orders/OrderTacking';
 import SubmitInquiry from '../screens/MainScreens/inquiry/Inquiry';
+import faqs from '../screens/MainScreens/faqs/Faqs';
+import Contactus from '../screens/MainScreens/contact/Contactus';
 
 
 const Stack = createNativeStackNavigator();
@@ -45,6 +47,9 @@ const StackNavigator = () => {
       <Stack.Screen options={{ headerShown: true }} name="otp" component={PhoneSignIn} />
       <Stack.Screen name="Add Location" options={{ headerShown: true }} component={LocationSearch} />
       <Stack.Screen name="Submit Inquiry" options={{ headerShown: true }} component={SubmitInquiry} />
+      <Stack.Screen name="Faqs" options={{ headerShown: true }} component={faqs} />
+      <Stack.Screen name="Contact us" options={{ headerShown: true }} component={Contactus} />
+
     </Stack.Navigator>
   );
 };

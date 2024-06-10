@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { createInquiry, fetchInquiries } from '../../../config/redux/actions/inquiryActions';
 import Icon from '../../../components/Icons/Icon';
+import ButtonComponent from '../../../components/Button';
+import { Card, Title, Paragraph } from 'react-native-paper';
 
 const Inquiry = () => {
   const [subject, setSubject] = useState('');
@@ -24,47 +26,59 @@ const Inquiry = () => {
     setSubject('');
     setMessage('');
   };
-  const inquiryListItem = ({ item }) => {
+  const InquiryListItem = ({ item, isLastItem }) => {
 
-    console.log("enquiry->", item)
 
-    // Parse the ISO 8601 date string into a Date object
     const createdAtDate = new Date(item.createdAt);
-    const responedDate = new Date(item.respondedAt);
+    const respondedDate = new Date(item.respondedAt);
 
-    // Format the date as desired (for example: "June 9, 2024 10:35 AM")
     const formattedCreatedDate = `${createdAtDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} ${createdAtDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
-    const formattedRespondedDate = `${responedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} ${createdAtDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+    const formattedRespondedDate = `${respondedDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} ${respondedDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
 
     return (
-      <View style={stylesListItem.inquiryItem}>
-        <View style={stylesListItem.userSection}>
-          <Text style={stylesListItem.userName}>{item.subject}</Text>
-          <Text style={stylesListItem.date}>• {formattedCreatedDate}</Text>
-        </View>
-        <Text style={stylesListItem.inquiryResponseText}>{item.message}</Text>
-        {item.response && <View style={stylesListItem.userComment}>
-          <Text style={stylesListItem.commentDate}>Response on {formattedRespondedDate}</Text>
-          <Text style={stylesListItem.commentText}>{item.response}</Text>
-        </View>}
-      </View>
-    )
+      <Card style={[stylesListItem.card, isLastItem && stylesListItem.lastCard]}>
+        <Card.Content>
+          <View style={stylesListItem.userSection}>
+            <Title style={stylesListItem.userName}>{item.subject}</Title>
+            <Text style={stylesListItem.date}>• {formattedCreatedDate}</Text>
+          </View>
+          <Paragraph style={stylesListItem.inquiryResponseText}>{item.message}</Paragraph>
+          {item.response && (
+            <View style={stylesListItem.userComment}>
+              <Text style={stylesListItem.commentDate}>Response on {formattedRespondedDate}</Text>
+              <Paragraph style={stylesListItem.commentText}>{item.response}</Paragraph>
+            </View>
+          )}
+        </Card.Content>
+      </Card>
+    );
   };
+
 
 
 
   return (
     <View style={styles.container}>
-      <Button title="Open Inquiry Form" onPress={() => setModalVisible(true)} />
+      <ButtonComponent title="Open Inquiry Form" onPress={() => setModalVisible(true)} color={'green'} />
 
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <FlatList
-          data={inquiries}
-          keyExtractor={(item) => item._id.toString()}
-          renderItem={inquiryListItem}
-        />
+        <View style={{ marginTop: 20, paddingBottom:30 }}>
+          <FlatList
+            data={inquiries}
+            keyExtractor={(item) => item._id.toString()}
+            renderItem={({ item, index }) => (
+              <InquiryListItem
+                item={item}
+                index={index}
+                isLastItem={index === inquiries.length - 1}
+              />
+            )}
+          />
+        </View>
+
+
       )}
 
       <Modal
@@ -78,7 +92,7 @@ const Inquiry = () => {
             <View style={{ flexDirection: "row", justifyContent: 'space-between' }}>
               <Text style={styles.title}>Submit an Inquiry</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)} >
-              <Icon.MaterialIcons name="close" size={24} color="red" />
+                <Icon.MaterialIcons name="close" size={24} color="red" />
               </TouchableOpacity>
             </View>
 
@@ -100,7 +114,7 @@ const Inquiry = () => {
               numberOfLines={4}
             />
 
-            <Button title="Submit" onPress={handleSubmit} />
+            <ButtonComponent color={'green'} title="Submit" onPress={handleSubmit} />
 
           </View>
         </View>
@@ -112,11 +126,13 @@ const Inquiry = () => {
 export default Inquiry;
 
 const stylesListItem = StyleSheet.create({
-  inquiryItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    backgroundColor: '#f9f9f9',
+  card: {
+    marginBottom: 15,
+    borderRadius: 8,
+    backgroundColor: 'white',
+  },
+  lastCard: {
+    marginBottom: 16,
   },
   userSection: {
     flexDirection: 'row',
@@ -133,13 +149,6 @@ const stylesListItem = StyleSheet.create({
     color: '#666',
     marginRight: 8,
   },
-  responseLabel: {
-    fontSize: 14,
-    color: '#666',
-  },
-  designClass: {
-    color: '#0066cc',
-  },
   inquiryResponseText: {
     fontSize: 16,
     marginVertical: 8,
@@ -147,7 +156,7 @@ const stylesListItem = StyleSheet.create({
   userComment: {
     marginTop: 8,
     padding: 8,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: '#C7F6C770',
     borderRadius: 4,
   },
   commentDate: {
@@ -163,8 +172,7 @@ const stylesListItem = StyleSheet.create({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
+    padding: 15,
   },
   modalContainer: {
     flex: 1,

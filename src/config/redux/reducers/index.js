@@ -11,6 +11,8 @@ import discountedProductsReducer from './discountedProductsReducers';
 import searchReducer from './searchReducer';
 import ordersReducer from './orderReducer';
 import inquiryReducer from './inquiryReducer';
+import faqReducer from './faqReducer';
+import contactReducer from './contactReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -24,7 +26,9 @@ const rootReducer = combineReducers({
   discountedProducts: discountedProductsReducer,
   search: searchReducer,
   orders: ordersReducer,
-  inquiry: inquiryReducer
+  inquiry: inquiryReducer,
+  faq: faqReducer,
+  contact: contactReducer
 });
 
 export default rootReducer;

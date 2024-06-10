@@ -13,6 +13,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import LogoutButton from '../../utils/logout';
 import DeviceInfo from 'react-native-device-info';
 import { useSelector } from 'react-redux';
+import Icon from '../../components/Icons/Icon';
 
 // Check if device has a notch
 const hasNotch = DeviceInfo.hasNotch();
@@ -114,64 +115,44 @@ const ProfileScreen = ({ navigation }) => {
         </View>
         <AntDesign name="right" style={{ color: 'black' }} size={20} />
       </TouchableOpacity>
-      {/* <TouchableOpacity
-        onPress={() => navigation.navigate('Notifications')}
-        style={styles.itemContainer}>
-        <View style={styles.itemSubContainer}>
-          <Image
-            style={styles.itemImage}
-            source={require('../../assets/images/notification.png')}
-          />
-          <Text style={styles.itemTitle}>Notifications</Text>
-        </View>
-        <AntDesign name="right" style={{color: `#1e90ff`}} size={20} />
-      </TouchableOpacity> */}
-      {/* <View style={styles.borderBottom}></View>
-      <TouchableOpacity
-        onPress={() => navigation.navigate('Wallet')}
-        style={styles.itemContainer}>
-        <View style={styles.itemSubContainer}>
-          <Image
-            style={styles.itemImage}
-            source={require('../../assets/images/wallet.png')}
-          />
-          <Text style={styles.itemTitle}>Wallet</Text>
-          <View
-            style={{
-              marginLeft: 15,
-              backgroundColor: '#F88379',
-              padding: 5,
-              borderRadius: 5,
-            }}>
-          </View>
-        </View>
-        <AntDesign name="right" style={{color: `green`}} size={20} />
-      </TouchableOpacity>
-      <View style={styles.borderBottom}></View> */}
       <TouchableOpacity
         onPress={() => navigation.navigate('My order')}
         style={styles.itemContainer}>
         <View style={styles.itemSubContainer}>
-          <Image
-            style={styles.itemImage}
-            source={require('../../assets/images/my_orders.png')}
-          />
+          <Icon.Entypo name="shopping-cart" style={styles.itemIcon} size={24} color='green' />
           <Text style={styles.itemTitle}>My orders</Text>
         </View>
-        <AntDesign name="right" style={{ color: `green` }} size={20} />
+        <AntDesign name="right" style={{ color: 'green' }} size={20} />
       </TouchableOpacity>
       <View style={styles.borderBottom}></View>
       <TouchableOpacity
         onPress={() => navigation.navigate('Submit Inquiry')}
         style={styles.itemContainer}>
         <View style={styles.itemSubContainer}>
-          <Image
-            style={styles.itemImage}
-            source={require('../../assets/images/profile.png')}
-          />
+          <Icon.FontAwesome name="inbox" style={styles.itemIcon} size={24} color='green' />
           <Text style={styles.itemTitle}>Inquiries</Text>
         </View>
-        <AntDesign name="right" style={{ color: `green` }} size={20} />
+        <AntDesign name="right" style={{ color: 'green' }} size={20} />
+      </TouchableOpacity>
+      <View style={styles.borderBottom}></View>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Faqs')}
+        style={styles.itemContainer}>
+        <View style={styles.itemSubContainer}>
+          <Icon.AntDesign name="questioncircle" style={styles.itemIcon} size={24} color='green' />
+          <Text style={styles.itemTitle}>Faqs</Text>
+        </View>
+        <AntDesign name="right" style={{ color: 'green' }} size={20} />
+      </TouchableOpacity>
+      <View style={styles.borderBottom}></View>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Contact us')}
+        style={styles.itemContainer}>
+        <View style={styles.itemSubContainer}>
+          <Icon.Ionicons name="call" style={styles.itemIcon} size={24} color='green' />
+          <Text style={styles.itemTitle}>Contact Us</Text>
+        </View>
+        <AntDesign name="right" style={{ color: 'green' }} size={20} />
       </TouchableOpacity>
       <View style={styles.borderBottom}></View>
     </ScrollView>
@@ -199,7 +180,7 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     padding: 10,
   },
-  itemTitle: { color: 'black', fontSize: 16, fontWeight: '300' },
+  itemTitle: { color: 'black', fontSize: 16, fontWeight: '400', marginLeft: 10, },
   itemSubContainer: { flexDirection: 'row', alignItems: 'center' },
   needHelpContainer: {
     padding: 15,

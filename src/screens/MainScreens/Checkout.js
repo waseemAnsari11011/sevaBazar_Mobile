@@ -35,6 +35,17 @@ const CheckoutScreen = ({ navigation }) => {
         }
     };
 
+    const placeOrderRazorPay = async (orderData) => {
+        try {
+            const response = await api.post('/razorpay', orderData);
+
+            return response.data;
+        } catch (error) {
+            console.error('Error placing order:', error.message);
+            throw error;
+        }
+    };
+
 
     const handlePlaceOrderCod = () => {
         setloading(true)
@@ -84,19 +95,6 @@ const CheckoutScreen = ({ navigation }) => {
             })
     }
 
-    const placeOrderRazorPay = async (orderData) => {
-        try {
-            const response = await api.post('/razorpay', orderData);
-
-            return response.data;
-        } catch (error) {
-            console.error('Error placing order:', error.message);
-            throw error;
-        }
-    };
-
-
-
 
     const handlePlaceOrderRazorpay = () => {
         setloading(true)
@@ -131,8 +129,6 @@ const CheckoutScreen = ({ navigation }) => {
         placeOrderRazorPay(orderData)
             .then(savedOrder => {
 
-                console.log("razorpay component running!")
-
                 const { order, razorpayOrder } = savedOrder;
 
                 const options = {
@@ -141,7 +137,7 @@ const CheckoutScreen = ({ navigation }) => {
                     currency: razorpayOrder.currency,
                     key: 'rzp_test_nEIzO6bfk1HLkL', // Your Razorpay API key
                     amount: razorpayOrder.amount,
-                    name: 'Seva Bazar',
+                    name: 'Blue Kite',
                     order_id: razorpayOrder.id, // Razorpay order ID
                     prefill: {
                         email: 'email@example.com',
