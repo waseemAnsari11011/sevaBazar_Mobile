@@ -1,11 +1,15 @@
-import React, {useState} from 'react';
-import {View, Image, TouchableOpacity} from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import React, { useState } from 'react';
+import { View, Image, TouchableOpacity, Text } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
+import Icon from './Icons/Icon';
+import { useSelector } from 'react-redux';
+import { baseURL } from '../utils/api';
 
-const ImagePickerComponent = ({handleImage, url}) => {
+const ImagePickerComponent = ({ handleImage, url }) => {
+
   const [image, setImage] = useState(url);
 
-  const getImageTypeFromUri = uri => {
+  const getImageTypeFromUri = (uri) => {
     const extension = uri.split('.').pop(); // Extract the file extension from the URI
     const imageTypes = {
       png: 'image/png',
@@ -20,56 +24,51 @@ const ImagePickerComponent = ({handleImage, url}) => {
     return imageTypes[extension.toLowerCase()] || defaultType;
   };
 
-  // const pickImage = async () => {
-  //   const {status} = await ImagePicker.requestMediaLibraryPermissionsAsync();
-  //   if (status !== 'granted') {
-  //     alert('Sorry, we need camera roll permissions to make this work!');
-  //     return;
-  //   }
+  const pickImage = () => {
+    const options = {
+      mediaType: 'photo',
+      maxWidth: 300,
+      maxHeight: 300,
+      quality: 1,
+    };
 
-  //   const result = await ImagePicker.launchImageLibraryAsync({
-  //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
-  //     allowsEditing: true,
-  //     aspect: [4, 3],
-  //     quality: 1,
-  //   });
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else {
+        const source = response.assets[0];
+        setImage(source.uri);
+        handleImage({
+          uri: source.uri,
+          name: source.fileName || 'image.jpg',
+          type: getImageTypeFromUri(source.uri),
+        });
+      }
+    });
+  };
 
-  //   if (result.assets) {
-  //     setImage(result.assets[0].uri);
-  //     handleImage({
-  //       uri: result.assets[0].uri,
-  //       name: 'abc',
-  //       type: getImageTypeFromUri(result.assets[0].uri),
-  //     });
-  //   }
-  // };
+  console.log("image-->>", image)
 
-
-  const pickImage = ()=>{
-    console.log("hii")
-  }
   return (
-    <View style={{alignItems: 'center'}}>
-      <Text>image picker component</Text>
-      {/* <TouchableOpacity onPress={pickImage}>
+    <View style={{ alignItems: 'center' }}>
+      <TouchableOpacity onPress={pickImage}>
         {image ? (
           <View>
             <Image
               source={
-                image ===
-                'https://poon2.xonierconnect.com/storage/images/users/'
-                  ? require('../assets/images/default_profile.png')
-                  : {uri: image}
+                image.includes('uploads/customer') 
+                  ? { uri:  `${baseURL}${image}` }
+                  : { uri:  image }
               }
-              style={{width: 140, height: 140, borderRadius: 75}}
+              style={{ width: 140, height: 140, borderRadius: 75 }}
             />
-            {image && (
-              <TouchableOpacity
-                onPress={() => setImage(null)}
-                style={{position: 'absolute', right: 0, bottom: 0}}>
-                <Ionicons name="md-trash" size={32} color="red" />
-              </TouchableOpacity>
-            )}
+            <TouchableOpacity
+              onPress={() => setImage(null)}
+              style={{ position: 'absolute', right: 0, bottom: 0 }}>
+              <Icon.AntDesign name="closecircle" size={32} color="red" />
+            </TouchableOpacity>
           </View>
         ) : (
           <View>
@@ -82,15 +81,15 @@ const ImagePickerComponent = ({handleImage, url}) => {
                 borderWidth: 0.5,
               }}
             />
-            <Ionicons
-              name="md-add-circle"
+            <Icon.AntDesign
+              name="pluscircle"
               size={32}
               color="grey"
-              style={{position: 'absolute', right: 0, bottom: 0}}
+              style={{ position: 'absolute', right: 0, bottom: 0 }}
             />
           </View>
         )}
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </View>
   );
 };

@@ -1,20 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Switch, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import Icon from 'react-native-vector-icons/Ionicons'; // Assume using Ionicons from react-native-vector-icons
-import ButtonComponent from '../../components/Button';
-import { loadData, saveData } from '../../config/redux/actions/storageActions';
 import { useDispatch, useSelector } from 'react-redux';
-import api from '../../utils/api';
+import ManualLocationSearch from './ManualLocationSearch'; // Import the new component
+import ButtonComponent from '../../../components/Button';
+import api from '../../../utils/api';
+import { loadData, saveData } from '../../../config/redux/actions/storageActions';
+import { GOOGLE_API_KEY } from '@env';
 
-const GOOGLE_PLACES_API_KEY = 'AIzaSyA7_-ti7wWjitTNFUVP2VGrrVkfffulY4A';
+const GOOGLE_PLACES_API_KEY = GOOGLE_API_KEY;
 
 const LocationSearch = ({ navigation, route }) => {
-  console.log("route.params.isCheckout--->>>", route?.params?.isCheckOut)
   const dispatch = useDispatch()
   const { data } = useSelector(state => state?.local);
   const [selectedLocation, setSelectedLocation] = useState(null);
-  const [manualInput, setManualInput] = useState(false);
+  const [searchLocation, setSearchLocation] = useState(false);
   const [manualLocation, setManualLocation] = useState({
     description: '',
     pincode: '',
@@ -33,18 +34,32 @@ const LocationSearch = ({ navigation, route }) => {
 
   const handleLocation = async () => {
     try {
-      const location = manualInput ? manualLocation : selectedLocation;
+      const location = searchLocation ? selectedLocation : manualLocation;
       if (!location) {
         return; // If no location is selected, exit the function
       }
 
       const { description, city, state, country, pincode } = location;
+
+      // Check for missing fields
+      if (!description || !city || !state || !country || !pincode) {
+        let missingFields = [];
+        if (!description) missingFields.push('description');
+        if (!city) missingFields.push('city');
+        if (!state) missingFields.push('state');
+        if (!country) missingFields.push('country');
+        if (!pincode) missingFields.push('pincode');
+
+        Alert.alert('Missing Information', `Please enter the following: ${missingFields.join(', ')}`);
+        return; // Exit the function if any field is missing
+      }
+
       const availableLocalities = pincode;
+
+      console.log("pincode-->>", pincode);
 
       // Get the userId from your application's state or context
       const userId = data?.user?._id; // Replace 'user_id_here' with the actual userId
-
-      console.log("availableLocalities--->>>", availableLocalities)
 
       // Make a POST request to your server endpoint
       const response = await api.post(`/address/${userId}/`, {
@@ -59,7 +74,7 @@ const LocationSearch = ({ navigation, route }) => {
       if (response.status === 200) {
         dispatch(saveData('user', response.data.user));
         if (route?.params?.isCheckOut || route?.params?.goBack) {
-          console.log("Checkout location ran")
+          console.log("Checkout location ran");
           dispatch(loadData('user'));
           navigation.goBack();
         } else {
@@ -72,7 +87,6 @@ const LocationSearch = ({ navigation, route }) => {
       // Handle error
     }
   };
-
   const handleLocationSelect = (data, details) => {
     const pincode = details.address_components.find(
       (component) => component.types.includes('postal_code')
@@ -117,11 +131,11 @@ const LocationSearch = ({ navigation, route }) => {
       <View style={styles.switchContainer}>
         <Text>Manual Input</Text>
         <Switch
-          value={manualInput}
-          onValueChange={setManualInput}
+          value={searchLocation}
+          onValueChange={setSearchLocation}
         />
       </View>
-      {!manualInput ? (
+      {searchLocation ? (
         <GooglePlacesAutocomplete
           ref={googlePlacesRef}
           placeholder="Search for a location"
@@ -152,43 +166,15 @@ const LocationSearch = ({ navigation, route }) => {
           )}
         />
       ) : (
-        <ScrollView style={styles.manualInputContainer}>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Description"
-            value={manualLocation.description}
-            onChangeText={(text) => handleManualLocationChange('description', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="City"
-            value={manualLocation.city}
-            onChangeText={(text) => handleManualLocationChange('city', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="State"
-            value={manualLocation.state}
-            onChangeText={(text) => handleManualLocationChange('state', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Country"
-            value={manualLocation.country}
-            onChangeText={(text) => handleManualLocationChange('country', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Pincode"
-            value={manualLocation.pincode}
-            onChangeText={(text) => handleManualLocationChange('pincode', text)}
-          />
-        </ScrollView>
+        <ManualLocationSearch
+          manualLocation={manualLocation}
+          handleManualLocationChange={handleManualLocationChange}
+        />
       )}
-      {(selectedLocation || (manualInput && manualLocation.description)) && (
+      {(selectedLocation || (!searchLocation && manualLocation.description)) && (
         <View style={styles.selectedLocationContainer}>
-          <Text style={styles.locationText}>Location: {manualInput ? manualLocation.description : selectedLocation.description}</Text>
-          <Text style={styles.pincodeText}>Pincode: {manualInput ? manualLocation.pincode : selectedLocation.pincode}</Text>
+          <Text style={styles.locationText}>Location: {!searchLocation ? manualLocation.description : selectedLocation.description}</Text>
+          <Text style={styles.pincodeText}>Pincode: {!searchLocation ? manualLocation.pincode : selectedLocation.pincode}</Text>
           <View style={{ marginTop: 30 }}>
             <ButtonComponent title={'Confirm Location'} color={'green'} onPress={handleLocation} />
           </View>
@@ -267,9 +253,6 @@ const styles = StyleSheet.create({
   },
   rightIconContainer: {
     marginLeft: 10,
-  },
-  manualInputContainer: {
-    flex: 1,
   },
 });
 

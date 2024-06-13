@@ -24,6 +24,8 @@ import { baseURL } from '../../utils/api';
 import { fetchRecentlyAddedProducts, updateRecentlyAddedProductsPage, resetRecentlyAddedProducts } from '../../config/redux/actions/recentlyAddedActions';
 import { fetchCategories } from '../../config/redux/actions/categoryAction';
 import { fetchDiscountedProducts, updateDiscountedProductsPage, resetDiscountedProducts } from '../../config/redux/actions/discountedProductsActions';
+import { getBanners } from '../../config/redux/actions/bannerActions';
+
 
 const { width } = Dimensions.get('window');
 
@@ -32,10 +34,19 @@ const HomeScreen = ({ navigation }) => {
   const { loading: categoryLoading, category, error: categoryError } = useSelector(
     state => state.categories,
   );
+  const { loading: bannerLoading, banners, error: bannerError } = useSelector(state => state.banners);
+
   const { data } = useSelector(state => state?.local);
 
   const { loading: recentlyAddedLoading, products: recentlyAddedProducts, error: recentlyAddedError, } = useSelector(state => state.recentlyAddedProducts);
   const { loading: onDiscountLoading, products: onDiscountProducts, error: onDiscountError, } = useSelector(state => state.discountedProducts);
+
+  console.log("banners-->>", banners)
+
+  useEffect(() => {
+    dispatch(getBanners());
+  }, [dispatch]);
+
 
   const data2 = [
     {
@@ -122,7 +133,7 @@ const HomeScreen = ({ navigation }) => {
       <SearchBar />
       <View style={{ marginTop: 15 }}>
         <View style={{ marginHorizontal: -20 }}>
-          <CustomImageCarousal data={data2} autoPlay={true} pagination={true} />
+          <CustomImageCarousal data={banners} autoPlay={true} pagination={true} />
         </View>
       </View>
       <View style={{ marginBottom: 5, }}>

@@ -13,7 +13,7 @@ import CheckoutScreen from '../screens/MainScreens/Checkout';
 import DiscountedProducts from '../screens/MainScreens/DiscountedProducts';
 import RecentlyAddedProducts from '../screens/MainScreens/RecentlyAddedProducts';
 import SearchScreen from '../screens/MainScreens/Search';
-import LocationSearch from '../screens/MainScreens/LocationSearch';
+import LocationSearch from '../screens/MainScreens/location/LocationSearch';
 import PhoneSignIn from '../screens/PhoneSignIn';
 import { useSelector } from 'react-redux';
 import OrderTacking from '../screens/MainScreens/orders/OrderTacking';
@@ -35,7 +35,7 @@ const StackNavigator = () => {
       { !data?.user?.shippingAddresses && <Stack.Screen name="Search Location" options={{ headerShown: true }} component={LocationSearch} />}
       <Stack.Screen name="Main" component={MainTabNavigator} />
       <Stack.Screen options={{ headerShown: true }} name="Details" component={Details} />
-      <Stack.Screen name="Edit Profile" component={EditProfile} />
+      <Stack.Screen name="Edit Profile" options={{ headerShown: true }} component={EditProfile} />
       <Stack.Screen options={{ headerShown: true }} name="CategoryProducts" component={CategoryProducts} />
       <Stack.Screen name="Edit Address" component={EditAddress} />
       <Stack.Screen name="Notifications" component={Notifications} />

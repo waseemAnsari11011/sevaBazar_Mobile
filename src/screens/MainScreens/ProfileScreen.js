@@ -14,6 +14,7 @@ import LogoutButton from '../../utils/logout';
 import DeviceInfo from 'react-native-device-info';
 import { useSelector } from 'react-redux';
 import Icon from '../../components/Icons/Icon';
+import { baseURL } from '../../utils/api';
 
 // Check if device has a notch
 const hasNotch = DeviceInfo.hasNotch();
@@ -21,7 +22,7 @@ const phoneNumber = '8287076676'; // The phone number you want to call
 
 const ProfileScreen = ({ navigation }) => {
   const { data } = useSelector(state => state.local);
-  let url = data.user.image_url;
+  let url = data.user.image;
   // console.log('url', url);
 
   if (url?.startsWith('http:')) {
@@ -44,7 +45,17 @@ const ProfileScreen = ({ navigation }) => {
           paddingTop: hasNotch ? 80 : 20,
         }}>
         <View style={{ flexDirection: 'row' }}>
-          <Image
+          {url&&<Image
+            style={{
+              height: 50,
+              width: 50,
+              resizeMode: 'contain',
+              borderRadius: 25,
+              marginRight: 15,
+            }}
+            source={{uri:`${baseURL}${url}`}}
+          />}
+          {!url&&<Image
             style={{
               height: 50,
               width: 50,
@@ -53,7 +64,7 @@ const ProfileScreen = ({ navigation }) => {
               marginRight: 15,
             }}
             source={require('../../assets/images/default_profile.png')}
-          />
+          />}
           <View>
             <Text style={{ color: 'black', fontSize: 20, fontWeight: '600' }}>
               {data.user.name}
@@ -115,6 +126,16 @@ const ProfileScreen = ({ navigation }) => {
         </View>
         <AntDesign name="right" style={{ color: 'black' }} size={20} />
       </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('Edit Profile')}
+        style={styles.itemContainer}>
+        <View style={styles.itemSubContainer}>
+          <Icon.FontAwesome name="user" style={styles.itemIcon} size={24} color='green' />
+          <Text style={styles.itemTitle}>Edit Profile</Text>
+        </View>
+        <AntDesign name="right" style={{ color: 'green' }} size={20} />
+      </TouchableOpacity>
+      <View style={styles.borderBottom}></View>
       <TouchableOpacity
         onPress={() => navigation.navigate('My order')}
         style={styles.itemContainer}>
