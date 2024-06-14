@@ -15,14 +15,18 @@ const Details = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const {data} = useSelector(state => state?.local);
   const { loading, products, error, page, limit, reachedEnd } = useSelector(state => state.similarProducts);
-  const { name, images, description, price, _id, rating, discount } = route.params.product;
+  const { name, images, description, price, _id, rating, discount, variations } = route.params.product;
   const cartItems = useSelector(state => state.cart.cartItems);
   const existingItemIndex = cartItems.findIndex(i => i._id === _id);
   const quantity = existingItemIndex !== -1 ? cartItems[existingItemIndex].quantity : 0;
   const flatListRef = useRef(null); // Ref for FlatList
 
+
   const productId = _id
-  const product =route.params.product
+  const product = route.params.product
+
+  console.log("product-->>", product)
+  console.log("variations-->>", variations)
 
 
   useEffect(() => {

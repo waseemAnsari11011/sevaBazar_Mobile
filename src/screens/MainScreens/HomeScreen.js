@@ -41,27 +41,13 @@ const HomeScreen = ({ navigation }) => {
   const { loading: recentlyAddedLoading, products: recentlyAddedProducts, error: recentlyAddedError, } = useSelector(state => state.recentlyAddedProducts);
   const { loading: onDiscountLoading, products: onDiscountProducts, error: onDiscountError, } = useSelector(state => state.discountedProducts);
 
-  // console.log("banners-->>", banners)
+  console.log("onDiscountProducts-->>", onDiscountProducts)
 
   useEffect(() => {
     dispatch(getBanners());
   }, [dispatch]);
 
 
-  const data2 = [
-    {
-      image: require('../../assets/images/banner1.jpg'),
-    },
-    {
-      image: require('../../assets/images/banner2.jpg'),
-    },
-    {
-      image: require('../../assets/images/banner3.jpg'),
-    },
-    {
-      image: require('../../assets/images/banner4.jpg'),
-    },
-  ];
 
 
   useEffect(() => {
