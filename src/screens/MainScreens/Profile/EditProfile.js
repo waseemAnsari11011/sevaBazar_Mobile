@@ -49,7 +49,7 @@ const EditProfile = ({ navigation }) => {
 
       // const profileData = await getProfileDetails();
       // dispatch(saveData('user', profileData.response));
-      // navigation.goBack();
+      navigation.goBack();
     } catch (error) {
       console.log('Error status:', error);
       // Handle error if needed

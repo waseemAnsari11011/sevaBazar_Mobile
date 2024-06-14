@@ -26,11 +26,14 @@ const CheckoutScreen = ({ navigation }) => {
     const placeOrder = async (orderData) => {
         try {
             const response = await api.post('/order', orderData);
-
-
             return response.data;
         } catch (error) {
-            console.error('Error placing order:', error.message);
+            console.error('Error placing order:', error.response);
+            if (error.response && error.response.data && error.response.data.error) {
+                alert(`Error: ${error.response.data.error}`);
+            } else {
+                alert('An unexpected error occurred. Please try again.');
+            }
             throw error;
         }
     };
@@ -38,13 +41,18 @@ const CheckoutScreen = ({ navigation }) => {
     const placeOrderRazorPay = async (orderData) => {
         try {
             const response = await api.post('/razorpay', orderData);
-
             return response.data;
         } catch (error) {
-            console.error('Error placing order:', error.message);
+            console.error('Error placing order::', error.response.data.error);
+            if (error.response && error.response.data && error.response.data.error) {
+                alert(`Error: ${error.response.data.error}`);
+            } else {
+                alert('An unexpected error occurred. Please try again.');
+            }
             throw error;
         }
     };
+
 
 
     const handlePlaceOrderCod = () => {
@@ -86,8 +94,7 @@ const CheckoutScreen = ({ navigation }) => {
 
             })
             .catch(error => {
-                console.log("error---->>>", error.message)
-                alert(error.message)
+                console.log("error---->>>", error)
                 // Handle error
                 setloading(false)
             }).finally((f) => {
@@ -133,7 +140,7 @@ const CheckoutScreen = ({ navigation }) => {
 
                 const options = {
                     description: 'Payment for Order',
-                    image: 'https://i.imgur.com/3g7nmJC.png',
+                    image: 'https://drive.usercontent.google.com/download?id=1CKEbD5wlr531VVQwTazEuqky7ONA9MFU&authuser=0',
                     currency: razorpayOrder.currency,
                     key: 'rzp_test_nEIzO6bfk1HLkL', // Your Razorpay API key
                     amount: razorpayOrder.amount,
@@ -149,42 +156,37 @@ const CheckoutScreen = ({ navigation }) => {
 
                 RazorpayCheckout.open(options)
                     .then(async paymentSuccess => {
+
+
+
+                        const verifyBody = {
+                            "orderId": order._id,
+                            "razorpay_payment_id": paymentSuccess.razorpay_payment_id,
+                            "razorpay_order_id": razorpayOrder.id,
+                            "razorpay_signature": paymentSuccess.razorpay_signature,
+                            "vendors": Object.values(vendorMap)
+                        }
+                        console.log("verifyBody-->>", verifyBody)
+
+                        const response = await api.post('/razorpay-verify-payment', verifyBody);
+                        // console.log("response razorpay-verify-payment", response)
                         Alert.alert('Payment Successful', `Payment ID: ${paymentSuccess.razorpay_payment_id}`);
-                        // await fetch('http://your-backend-url/update-payment-status', {
+
+                    })
+                    .catch(async paymentError => {
+                        console.log("paymentError-->>", paymentError)
+                        Alert.alert('Payment Failed', `Error: ${paymentError.description}`);
+                        // await api.post('/razorpay-verify-payment', {
                         //     method: 'POST',
                         //     headers: {
                         //         'Content-Type': 'application/json'
                         //     },
                         //     body: JSON.stringify({
                         //         orderId: order._id,
-                        //         paymentId: paymentSuccess.razorpay_payment_id,
-                        //         status: 'success'
+                        //         paymentId: null,
+                        //         status: 'failed'
                         //     })
                         // });
-
-                        console.log("paymentSuccess-->>", paymentSuccess)
-
-                        const verifyBody = {
-                            "orderId": order._id,
-                            "razorpay_payment_id": paymentSuccess.razorpay_payment_id,
-                            "razorpay_order_id": razorpayOrder.id,
-                            "razorpay_signature": paymentSuccess.razorpay_signature
-                        }
-                        const response = await api.post('/razorpay-verify-payment', verifyBody);
-                    })
-                    .catch(async paymentError => {
-                        Alert.alert('Payment Failed', `Error: ${paymentError.description}`);
-                        await api.post('/razorpay-verify-payment', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                orderId: order._id,
-                                paymentId: null,
-                                status: 'failed'
-                            })
-                        });
                     });
 
 
@@ -326,7 +328,7 @@ const CheckoutScreen = ({ navigation }) => {
                 ListHeaderComponent={renderHeader}
                 ListFooterComponent={renderFooter}
             />
-            
+
             <StickyProceedButton navigation={navigation} PlaceOrderFunc={handlePlaceOrder} />
         </>
 

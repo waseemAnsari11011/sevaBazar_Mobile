@@ -5,7 +5,6 @@ import Geolocation from 'react-native-geolocation-service';
 import { request, PERMISSIONS } from 'react-native-permissions';
 import { GOOGLE_API_KEY } from '@env';
 
-
 // const GOOGLE_API_KEY = 'AIzaSyA7_-ti7wWjitTNFUVP2VGrrVkfffulY4A'
 
 const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) => {
@@ -29,8 +28,11 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
             Geolocation.getCurrentPosition(
                 async (position) => {
                     const { latitude, longitude } = position.coords;
+                    console.log("latitude, longitude-->>", latitude, longitude)
                     const location = await getPhysicalAddress(latitude, longitude);
+
                     if (location) {
+                        
                         handleManualLocationChange('description', location.description);
                         handleManualLocationChange('city', location.city);
                         handleManualLocationChange('state', location.state);
@@ -52,8 +54,6 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
     }, []);
 
     const getPhysicalAddress = async (latitude, longitude) => {
-        console.log("GOOGLE_API_KEY-->>", GOOGLE_API_KEY)
-
         // console.log("latitude, longitude", latitude, longitude)
         // const latitude = '28.634086496667226'
         // const longitude = '77.39088378887918'

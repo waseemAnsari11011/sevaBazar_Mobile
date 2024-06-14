@@ -25,10 +25,10 @@ function PhoneSignIn({ navigation }) {
   };
 
   const checkUserRestriction = async () => {
+    console.log("checkUserRestriction")
     try {
       const response = await api.post('/check-restricted', {
-        // email: email || undefined, // Send email only if it's provided
-        contactNumber: phoneNumber || undefined // Send contactNumber only if it's provided
+        contactNumber: `+91${phoneNumber}` || undefined // Send contactNumber only if it's provided
       });
 
       if (response.status === 200 ) {

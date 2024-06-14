@@ -129,7 +129,7 @@ const LocationSearch = ({ navigation, route }) => {
     <View style={styles.container}>
       <Text style={styles.headerText}>Select location</Text>
       <View style={styles.switchContainer}>
-        <Text>Manual Input</Text>
+        <Text>Search Location</Text>
         <Switch
           value={searchLocation}
           onValueChange={setSearchLocation}
