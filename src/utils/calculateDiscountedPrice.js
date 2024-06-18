@@ -1,4 +1,5 @@
 function calculateDiscountedPrice(price, discount) {
+  // console.log("price, discount-->>", price, discount)
     // Convert the price and discount from string to number
     const priceNumber = parseFloat(price);
     const discountNumber = parseFloat(discount);

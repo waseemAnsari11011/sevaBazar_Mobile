@@ -21,14 +21,14 @@ const CheckoutScreen = ({ navigation }) => {
     const { cartItems } = useSelector(state => state.cart);
     const subtotalPrice = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0)
     const [loading, setloading] = useState(false)
-    const [paymentMethod, setPaymentMethod] = useState('online');
+    const [paymentMethod, setPaymentMethod] = useState('cod');
 
     const placeOrder = async (orderData) => {
         try {
             const response = await api.post('/order', orderData);
             return response.data;
         } catch (error) {
-            console.error('Error placing order:', error.response);
+            // console.error('Error placing order:', error.response);
             if (error.response && error.response.data && error.response.data.error) {
                 alert(`Error: ${error.response.data.error}`);
             } else {
@@ -43,7 +43,7 @@ const CheckoutScreen = ({ navigation }) => {
             const response = await api.post('/razorpay', orderData);
             return response.data;
         } catch (error) {
-            console.error('Error placing order::', error.response.data.error);
+            // console.error('Error placing order::', error.response.data.error);
             if (error.response && error.response.data && error.response.data.error) {
                 alert(`Error: ${error.response.data.error}`);
             } else {
@@ -78,7 +78,8 @@ const CheckoutScreen = ({ navigation }) => {
                 product: item._id,
                 quantity: item.quantity,
                 price: item.price,
-                discount: item.discount
+                discount: item.discount,
+                variations: item.variations
             });
         });
 
@@ -126,7 +127,8 @@ const CheckoutScreen = ({ navigation }) => {
                 product: item._id,
                 quantity: item.quantity,
                 price: item.price,
-                discount: item.discount
+                discount: item.discount,
+                variations: item.variations
             });
         });
 
@@ -144,7 +146,7 @@ const CheckoutScreen = ({ navigation }) => {
                     currency: razorpayOrder.currency,
                     key: 'rzp_test_nEIzO6bfk1HLkL', // Your Razorpay API key
                     amount: razorpayOrder.amount,
-                    name: 'Blue Kite',
+                    name: 'Seva Bazar',
                     order_id: razorpayOrder.id, // Razorpay order ID
                     prefill: {
                         email: 'email@example.com',
@@ -269,7 +271,7 @@ const CheckoutScreen = ({ navigation }) => {
         const totalDiscount = cartItems.reduce((acc, item) => acc + (item.price * (item.discount / 100)) * item.quantity, 0);
 
         // Define the shipping fee (assuming a constant value)
-        const shippingFee = 0.00;
+        const shippingFee = 20.00;
 
         // Define the tax (assuming no tax for simplicity)
         const tax = 0.00;
@@ -311,10 +313,10 @@ const CheckoutScreen = ({ navigation }) => {
             <View style={{ padding: 16 }}>
                 <Text>Select Payment Method:</Text>
                 <RadioButton.Group onValueChange={value => setPaymentMethod(value)} value={paymentMethod}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <RadioButton value="online" />
                         <Text>Online Payment</Text>
-                    </View>
+                    </View> */}
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <RadioButton value="cod" />
                         <Text>Cash on Delivery (COD)</Text>

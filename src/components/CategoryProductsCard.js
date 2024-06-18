@@ -64,13 +64,13 @@ const CategoryProductsCard = ({ item, onPressNavigation }) => {
           <Text style={styles.originalPrice}>₹{item.price}</Text>
         </View>
         <Text style={styles.discountPercentage}>-{item.discount}%</Text>
-        <View style={styles.addContainer}>
+        {/* <View style={styles.addContainer}>
         {existingItemIndex === -1 ? (
           <AddToCartBtn product={item} />
         ) : (
           <QuantityUpdater quantity={quantity} item={item} />
         )}
-      </View>
+      </View> */}
       </View>
     </TouchableOpacity>
     </>

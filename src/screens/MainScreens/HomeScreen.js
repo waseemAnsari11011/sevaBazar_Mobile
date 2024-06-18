@@ -41,7 +41,7 @@ const HomeScreen = ({ navigation }) => {
   const { loading: recentlyAddedLoading, products: recentlyAddedProducts, error: recentlyAddedError, } = useSelector(state => state.recentlyAddedProducts);
   const { loading: onDiscountLoading, products: onDiscountProducts, error: onDiscountError, } = useSelector(state => state.discountedProducts);
 
-  console.log("onDiscountProducts-->>", onDiscountProducts)
+  // console.log("onDiscountProducts-->>", onDiscountProducts)
 
   useEffect(() => {
     dispatch(getBanners());

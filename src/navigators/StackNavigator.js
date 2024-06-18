@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import OrdersScreen from '../screens/MainScreens/OrdersScreen';
 import MainTabNavigator from './MainTabNavigator';
 import DrawerNavigator from './DrawerNavigator';
-import Details from '../screens/MainScreens/Details';
+import Details from '../screens/MainScreens/details/Details';
 import EditProfile from '../screens/MainScreens/Profile/EditProfile';
 import CategoryProducts from '../screens/MainScreens/CategoryProducts';
 import EditAddress from '../screens/MainScreens/Profile/EditAddress';

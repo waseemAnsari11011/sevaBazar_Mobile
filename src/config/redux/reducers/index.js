@@ -15,6 +15,7 @@ import faqReducer from './faqReducer';
 import contactReducer from './contactReducer';
 import customerReducer from './customerReducer';
 import bannerReducer from './bannerReducer';
+import productReducer from './productReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -32,7 +33,8 @@ const rootReducer = combineReducers({
   faq: faqReducer,
   contact: contactReducer,
   customer: customerReducer,
-  banners: bannerReducer
+  banners: bannerReducer,
+  product: productReducer
 });
 
 export default rootReducer;

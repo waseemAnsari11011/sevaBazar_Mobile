@@ -28,6 +28,13 @@ const OrdersScreen = ({ navigation }) => {
     0,
   );
 
+  // useEffect(() => {
+  //   console.log("quantity updated")
+  // console.log("cartItems-->>", cartItems)
+
+  // }, [cartItems]);
+
+
   const handleDelete = (item) => {
     dispatch(removeItem(item._id))
   };

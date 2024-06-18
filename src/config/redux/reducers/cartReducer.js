@@ -22,7 +22,21 @@ const cartReducer = (state = initialState, action) => {
       if (existingItemIndex !== -1) {
         // If item exists, update its quantity
         const updatedCartItems = [...state.cartItems];
-        updatedCartItems[existingItemIndex].quantity++;
+        const existingItem = updatedCartItems[existingItemIndex];
+
+        // Increase item quantity
+        existingItem.quantity++;
+
+        // Increase variation quantities
+        existingItem.variations = existingItem.variations.map(variation => {
+          if (variation.quantity > 0) {
+            return { ...variation, quantity: variation.quantity + 1 };
+          }
+          return variation;
+        });
+
+        updatedCartItems[existingItemIndex] = existingItem;
+
         return {
           ...state,
           cartItems: updatedCartItems,
@@ -37,19 +51,36 @@ const cartReducer = (state = initialState, action) => {
         };
       }
 
+
     case DECREASE_QUANTITY:
       return {
         ...state,
         cartItems: state.cartItems
-          .map((item, index) =>
-            item._id === action.payload && item.quantity > 1
-              ? { ...item, quantity: item.quantity - 1 }
-              : item._id === action.payload && item.quantity === 1
-                ? null
-                : item,
-          )
+          .map(item => {
+            if (item._id === action.payload) {
+              if (item.quantity > 1) {
+                // Decrease item quantity
+                const updatedItem = { ...item, quantity: item.quantity - 1 };
+
+                // Decrease variation quantities if they are greater than zero
+                updatedItem.variations = item.variations.map(variation => {
+                  if (variation.quantity > 0) {
+                    return { ...variation, quantity: variation.quantity - 1 };
+                  }
+                  return variation;
+                });
+
+                return updatedItem;
+              } else if (item.quantity === 1) {
+                // If quantity is 1, remove the item
+                return null;
+              }
+            }
+            return item;
+          })
           .filter(item => item !== null),
       };
+
 
     case REMOVE_ITEM:
       return {

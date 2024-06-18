@@ -45,7 +45,7 @@ if(loading){
         </View>
       </View>
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Blue Kite</Text>
+        <Text style={styles.footerText}>Seva Bazar</Text>
         <Text style={styles.footerSubText}>Since 2024</Text>
       </View>
     </View>
