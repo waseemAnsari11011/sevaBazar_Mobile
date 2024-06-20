@@ -14,7 +14,7 @@ export const getProductById = (id) => async (dispatch) => {
 
     try {
         const response = await api.get(`/single-product/${id}`);
-        console.log("details-->>", response.data.product)
+        // console.log("details-->>", response.data.product)
         dispatch({
             type: GET_PRODUCT_SUCCESS,
             payload: response.data.product

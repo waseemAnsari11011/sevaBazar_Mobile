@@ -37,12 +37,21 @@ export const filterUniqueVariations = (variations) => {
   export const processProductVariations = (variations) => {
     const result = {};
     const seenTypes = new Set();
+    const parentChildMap = new Map();
   
     for (const variation of variations) {
       const { selected, value } = variation.attributes;
-      if (!seenTypes.has(selected)) {
+      const { parentVariation } = variation;
+  
+      if (parentVariation === null && !seenTypes.has(selected)) {
+        // This is a parent variation and the type hasn't been seen yet
         seenTypes.add(selected);
         result[selected] = value;
+        parentChildMap.set(variation._id.toString(), false); // Store the parent variation ID
+      } else if (parentChildMap.has(parentVariation) && !parentChildMap.get(parentVariation)) {
+        // This is a child variation and its parent hasn't been assigned a child yet
+        result[`${selected}`] = value;
+        parentChildMap.set(parentVariation, true); // Mark this parent as having an assigned child
       }
     }
   

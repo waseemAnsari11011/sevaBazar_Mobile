@@ -36,7 +36,7 @@ const ProductDetails = ({ route, navigation }) => {
     fetchMoreProducts
   } = useProductVariations(productDetails, route);
 
-  console.log("selectedVariations-->>", selectedVariations)
+  // console.log("selectedVariations-->>", selectedVariations)
 
   if (productDetailsLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -50,36 +50,13 @@ const ProductDetails = ({ route, navigation }) => {
     return null
   }
 
-  console.log("product-->>", product)
-  console.log("productDetails-->>", productDetails)
 
 
-  const { name, images, description, price, discount, variations } = product ;
+
+  const { name, images, description, price, discount, variations } = product;
   const imagesData = images.map(item => ({
     image: item
   }));
-
-  // console.log("selectedVariations-->>", selectedVariations)
-
-  // let filteredVariationsArr = getFirstElementOfEachVariationType(productDetails.variations)
-
-
-  // filteredVariationsArr = filteredVariationsArr.map(variation => ({
-  //   ...variation,
-  //   quantity: quantity + 1
-  // }));
-
-  // const totalPrice = filteredVariationsArr.reduce((sum, variation) =>
-  //   sum + variation.price, 0);
-
-  // console.log("totalPrice-->>", totalPrice)
-
-  // const totalDiscount = filteredVariationsArr.reduce((sum, variation) =>
-  //   sum + variation.discount, 0);
-
-  // console.log("totalDiscount-->>", totalDiscount)
-
-  // const modifiedProduct = { ...productDetails, variations: filteredVariationsArr, price: totalPrice, discount: totalDiscount };
 
 
   const ListHeaderComponent = () => (
@@ -109,7 +86,7 @@ const ProductDetails = ({ route, navigation }) => {
               onValueChange={(value) => handleVariationChange(type, value)}
               style={styles.variationPicker}
             >
-              {getVariationOptions(type).map(option => (
+              {selectedVariations && getVariationOptions(type, selectedVariations).map(option => (
                 <Picker.Item key={option} label={option} value={option} />
               ))}
             </Picker>

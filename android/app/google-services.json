@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "933422390073",
-    "project_id": "multivendor-39149",
-    "storage_bucket": "multivendor-39149.appspot.com"
+    "project_number": "421777022672",
+    "project_id": "sevabazar-5d3f6",
+    "storage_bucket": "sevabazar-5d3f6.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:933422390073:android:24e9a412ca4e89e60026e8",
+        "mobilesdk_app_id": "1:421777022672:android:e29e5288630fe05df7c8d5",
         "android_client_info": {
           "package_name": "com.sevabazarapp"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyC0PT8omaV55xUv7NHH4Ih4qrB8kXXSLtE"
+          "current_key": "AIzaSyCZbzwQgmuhlEYS_iabxEqpEEq6mJbl26s"
         }
       ],
       "services": {
