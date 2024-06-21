@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, Modal, Image, } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomImageCarousal from '../../../components/CustomImageCarousalLandscape';
@@ -11,6 +11,8 @@ import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
 import useProductVariations from './useProductVariations';
 import { getProductById } from '../../../config/redux/actions/productAction';
 import { getFirstElementOfEachVariationType } from './utils';
+import DropDownPicker from 'react-native-dropdown-picker';
+import HorizontalSelector from './HorizontalSelector';
 
 const ProductDetails = ({ route, navigation }) => {
   const dispatch = useDispatch();
@@ -28,6 +30,7 @@ const ProductDetails = ({ route, navigation }) => {
     selectedVariations,
     handleVariationChange,
     getVariationOptions,
+    getColorVariationOptions,
     flatListRef,
     existingItemIndex,
     quantity,
@@ -36,7 +39,7 @@ const ProductDetails = ({ route, navigation }) => {
     fetchMoreProducts
   } = useProductVariations(productDetails, route);
 
-  // console.log("selectedVariations-->>", selectedVariations)
+  console.log("selectedVariations color, selectedVariations-->>",getVariationOptions('color', selectedVariations) )
 
   if (productDetailsLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -57,6 +60,20 @@ const ProductDetails = ({ route, navigation }) => {
   const imagesData = images.map(item => ({
     image: item
   }));
+
+  const getVariationOptions1 = (type) => {
+    if (type === 'Color') {
+      return [
+        { label: 'Red', value: 'red', icon: () => <Image source={{ uri: 'https://example.com/red.png' }} style={styles.icon} /> },
+        { label: 'Blue', value: 'blue', icon: () => <Image source={{ uri: 'https://example.com/blue.png' }} style={styles.icon} /> }
+      ];
+    } else if (type === 'Size') {
+      return [
+        { label: 'Small', value: 'small', icon: () => <Image source={{ uri: 'https://example.com/small.png' }} style={styles.icon} /> },
+        { label: 'Large', value: 'large', icon: () => <Image source={{ uri: 'https://example.com/large.png' }} style={styles.icon} /> }
+      ];
+    }
+  };
 
 
   const ListHeaderComponent = () => (
@@ -81,15 +98,25 @@ const ProductDetails = ({ route, navigation }) => {
         {getVariationTypes().map(type => (
           <View key={type} style={styles.variationContainer}>
             <Text style={styles.variationLabel}>{type}</Text>
-            <Picker
-              selectedValue={selectedVariations[type]}
-              onValueChange={(value) => handleVariationChange(type, value)}
-              style={styles.variationPicker}
-            >
-              {selectedVariations && getVariationOptions(type, selectedVariations).map(option => (
-                <Picker.Item key={option} label={option} value={option} />
-              ))}
-            </Picker>
+            {type === 'color'  ? (
+              <HorizontalSelector
+                items={getColorVariationOptions(type, selectedVariations)}
+                selectedValue={selectedVariations[type]}
+                onValueChange={(value) => handleVariationChange(type, value)}
+              />
+            ) : (
+              <Picker
+                selectedValue={selectedVariations[type]}
+                onValueChange={(value) => handleVariationChange(type, value)}
+                style={styles.variationPicker}
+              >
+                {selectedVariations && getVariationOptions(type, selectedVariations).map(option => (
+                  <Picker.Item key={option} label={option} value={option} />
+                ))}
+              </Picker>
+            )}
+
+
           </View>
         ))}
       </View>

@@ -1,10 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const baseURL = 'https://server.sevabazar.com/'
+// const baseURL = 'https://server.sevabazar.com/'
+const baseURL = 'http://10.0.2.2:8000/'
+
+// const api = axios.create({
+//   baseURL: 'https://server.sevabazar.com/', // Use http and local IP for development
+// });
 
 const api = axios.create({
-  baseURL: 'https://server.sevabazar.com/', // Use http and local IP for development
+  baseURL: 'http://10.0.2.2:8000/', // Use http and local IP for development
 });
 
 api.interceptors.request.use(

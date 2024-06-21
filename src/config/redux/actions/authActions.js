@@ -38,6 +38,7 @@ export const PhoneLogin = body => async dispatch => {
 
     return { success: true, message: 'Login success', user: response.data.customer, token: response.data.token};
   } catch (error) {
+    console.log("error-->>", error)
     const errorMessage = error.response?.data?.message || 'Login failed';
     alert(errorMessage);
     dispatch({ type: LOGIN_FAILURE, payload: { error: errorMessage } });

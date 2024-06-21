@@ -11,6 +11,7 @@ const MyOrder = () => {
   const { loading, orders, error } = useSelector(state => state.orders);
   const customerId = data.user._id; // Replace with actual customer ID or pass as a prop
 
+
   useEffect(() => {
     dispatch(fetchOrdersByCustomerId(customerId));
   }, [dispatch, customerId]);

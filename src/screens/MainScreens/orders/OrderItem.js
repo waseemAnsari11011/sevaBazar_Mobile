@@ -1,9 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Card, Paragraph } from 'react-native-paper';
+import { Card, Paragraph, Button } from 'react-native-paper';
 import Icon from '../../../components/Icons/Icon';
+import { fetchOrdersByCustomerId, updateOrderStatus } from '../../../config/redux/actions/orderActions';
+import { useDispatch, useSelector } from 'react-redux';
+
 
 const OrderItem = ({ order }) => {
+    const { data } = useSelector(state => state.local);
+    const customerId = data.user._id;
+    const dispatch = useDispatch();
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -22,6 +28,15 @@ const OrderItem = ({ order }) => {
         }
     };
 
+    const handleCancelOrder = async (orderId, vendorId) => {
+        try {
+            await dispatch(updateOrderStatus(orderId, vendorId, { newStatus: "Cancelled" }));
+            await dispatch(fetchOrdersByCustomerId(customerId)); // Assuming customerId is accessible here
+        } catch (error) {
+            console.error('Error cancelling order:', error);
+            // Handle error as needed, like showing a toast or message to the user
+        }
+    };
 
     return (
         <Card style={styles.orderContainer}>
@@ -33,7 +48,15 @@ const OrderItem = ({ order }) => {
                         <Paragraph style={[styles.orderStatus, { color: getStatusColor(vendorItem.orderStatus), fontWeight: 'bold' }]}>
                             <Icon.FontAwesome name="info-circle" size={16} /> Order Status: {vendorItem.orderStatus}
                         </Paragraph>
-
+                        {vendorItem.orderStatus !== 'Cancelled' && vendorItem.orderStatus !== 'Delivered' && vendorItem.orderStatus !== 'Shipped' && (
+                            <Button
+                                mode="outlined"
+                                onPress={()=>handleCancelOrder(order._id, vendorItem.vendor._id)}
+                                style={styles.cancelButton}
+                            >
+                                Cancel Order
+                            </Button>
+                        )}
 
                         {vendorItem.products.map((productItem) => (
                             <View key={productItem._id} style={styles.productContainer}>
@@ -60,6 +83,8 @@ const OrderItem = ({ order }) => {
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.city}, {order.shippingAddress.state}</Paragraph>
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.country} - {order.shippingAddress.postalCode}</Paragraph>
                 </View>
+
+
             </Card.Content>
         </Card>
     );
@@ -119,5 +144,9 @@ const styles = StyleSheet.create({
     shippingDetails: {
         fontSize: 14,
         color: '#666',
+    },
+    cancelButton: {
+        marginVertical: 5,
+        alignSelf: 'flex-start',
     },
 });

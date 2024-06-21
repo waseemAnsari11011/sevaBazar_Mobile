@@ -131,7 +131,7 @@ const useProductVariations = (productDetails, route) => {
     const getVariationOptions = (type, selectedVariations) => {
         console.log("type, selectedVariations-->>", type, selectedVariations)
         // Filter variations based on the selected type
-        const filteredVariations = productDetails.variations.filter(variation => variation.attributes.selected === type);
+        const filteredVariations = productDetails?.variations.filter(variation => variation.attributes.selected === type);
 
         // Check if the type exists in selectedVariations and get its value
         const foundValueInSelectedVariations = selectedVariations[type];
@@ -156,12 +156,61 @@ const useProductVariations = (productDetails, route) => {
             }
         } else {
             // No selected value, return all values for the type
-            options = filteredVariations.map(variation => variation.attributes.value);
+            options = filteredVariations?.map(variation => variation.attributes.value);
         }
 
         // Ensure unique values and return the result
         return [...new Set(options)];
     };
+
+    const getColorVariationOptions = (type, selectedVariations) => {
+        console.log("type, selectedVariations-->>", type, selectedVariations);
+        
+        // Filter variations based on the selected type
+        const filteredVariations = productDetails.variations.filter(variation => variation.attributes.selected === type);
+    
+        // Check if the type exists in selectedVariations and get its value
+        const foundValueInSelectedVariations = selectedVariations[type];
+    
+        // Determine if foundValueInSelectedVariations is a parent or child
+        let options = [];
+        if (foundValueInSelectedVariations) {
+            const isParent = filteredVariations.some(variation => variation.attributes.value === foundValueInSelectedVariations && !variation.parentVariation);
+            const isChild = filteredVariations.some(variation => variation.attributes.value === foundValueInSelectedVariations && variation.parentVariation);
+    
+            if (isParent) {
+                // Find other parents of the same type
+                options = filteredVariations
+                    .filter(variation => !variation.parentVariation)
+                    .map(variation => ({
+                        label: variation.attributes.value.charAt(0).toUpperCase() + variation.attributes.value.slice(1),
+                        value: variation.attributes.value,
+                        icon: { uri: variation.attributes.image } // Assuming the image URL is stored here
+                    }));
+            } else if (isChild) {
+                // Find other children of the same type
+                const parentVariationId = filteredVariations.find(variation => variation.attributes.value === foundValueInSelectedVariations && variation.parentVariation)?.parentVariation;
+                options = filteredVariations
+                    .filter(variation => variation.parentVariation === parentVariationId)
+                    .map(variation => ({
+                        label: variation.attributes.value.charAt(0).toUpperCase() + variation.attributes.value.slice(1),
+                        value: variation.attributes.value,
+                        icon: { uri: variation.image } // Assuming the image URL is stored here
+                    }));
+            }
+        } else {
+            // No selected value, return all values for the type
+            options = filteredVariations.map(variation => ({
+                label: variation.attributes.value.charAt(0).toUpperCase() + variation.attributes.value.slice(1),
+                value: variation.attributes.value,
+                icon: { uri: variation.attributes.image } // Assuming the image URL is stored here
+            }));
+        }
+    
+        // Ensure unique values and return the result
+        return [...new Set(options.map(option => JSON.stringify(option)))].map(item => JSON.parse(item));
+    };
+    
 
 
     return {
@@ -169,6 +218,7 @@ const useProductVariations = (productDetails, route) => {
         selectedVariations,
         handleVariationChange,
         getVariationOptions,
+        getColorVariationOptions,
         flatListRef,
         existingItemIndex,
         quantity,

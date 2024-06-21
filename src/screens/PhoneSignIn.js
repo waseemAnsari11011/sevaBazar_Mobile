@@ -53,8 +53,8 @@ function PhoneSignIn({ navigation }) {
 
   async function onAuthStateChanged(user) {
     if (user) {
-      setFeedbackMessage('Logged in successfully!');
-      alert('Logged in successfully!');
+      // setFeedbackMessage('Logged in successfully!');
+      // alert('Logged in successfully!');
       const body = {
         phoneNumber: user.phoneNumber,
         uid: user.uid,
