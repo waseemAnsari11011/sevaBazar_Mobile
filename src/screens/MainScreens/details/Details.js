@@ -10,7 +10,7 @@ import ProductCard from '../../../components/ProductCard';
 import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
 import useProductVariations from './useProductVariations';
 import { getProductById } from '../../../config/redux/actions/productAction';
-import { getFirstElementOfEachVariationType } from './utils';
+import { getFirstElementOfEachVariationType, isImagePresent } from './utils';
 import DropDownPicker from 'react-native-dropdown-picker';
 import HorizontalSelector from './HorizontalSelector';
 
@@ -39,7 +39,7 @@ const ProductDetails = ({ route, navigation }) => {
     fetchMoreProducts
   } = useProductVariations(productDetails, route);
 
-  console.log("selectedVariations color, selectedVariations-->>",getVariationOptions('color', selectedVariations) )
+  // console.log("selectedVariations color, selectedVariations-->>",getVariationOptions('color', selectedVariations) )
 
   if (productDetailsLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
@@ -94,11 +94,10 @@ const ProductDetails = ({ route, navigation }) => {
             <QuantityUpdater quantity={quantity} item={product} />
           )}
         </View>
-        <Text style={styles.details}>{description}</Text>
         {getVariationTypes().map(type => (
           <View key={type} style={styles.variationContainer}>
             <Text style={styles.variationLabel}>{type}</Text>
-            {type === 'color'  ? (
+            {isImagePresent(productDetails.variations, type) ? (
               <HorizontalSelector
                 items={getColorVariationOptions(type, selectedVariations)}
                 selectedValue={selectedVariations[type]}
@@ -119,6 +118,8 @@ const ProductDetails = ({ route, navigation }) => {
 
           </View>
         ))}
+        <Text style={styles.details}>{description}</Text>
+
       </View>
     </View>
   );
@@ -126,6 +127,8 @@ const ProductDetails = ({ route, navigation }) => {
   const getVariationTypes = () => {
     return [...new Set(productDetails.variations.map(v => v.attributes.selected))];
   };
+
+  // console.log("getColorVariationOptions(type, selectedVariations)->", getColorVariationOptions('size', selectedVariations))
 
   return (
     <View style={styles.container}>
@@ -168,8 +171,14 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   name: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '600',
+    marginTop: 8,
+    color: "black"
+  },
+  variationLabel: {
+    fontSize: 15,
+    fontWeight: '500',
     marginTop: 8,
     color: "black"
   },
@@ -190,7 +199,7 @@ const styles = StyleSheet.create({
     color: '#FDCC0D',
   },
   details: {
-    fontSize: 13,
+    fontSize: 16,
     color: '#757575',
     marginTop: 10,
   },

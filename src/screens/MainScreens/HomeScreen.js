@@ -115,8 +115,9 @@ const HomeScreen = ({ navigation }) => {
   );
 
   const ListHeaderComponent = () => (
-    <View style={{}}>
-      <SearchBar />
+    <View style={{
+      
+    }}>
       <View style={{ marginTop: 15 }}>
         <View style={{ marginHorizontal: -20 }}>
           <CustomImageCarousal data={banners} autoPlay={true} pagination={true} />
@@ -197,6 +198,8 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={{ flex: 1, }}>
       {categoryLoading && <Loading />}
+      <SearchBar />
+
       <FlatList
         data={recentlyAddedProducts}
         keyExtractor={(item, index) => index.toString()}

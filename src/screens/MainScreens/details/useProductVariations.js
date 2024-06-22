@@ -17,8 +17,6 @@ const useProductVariations = (productDetails, route) => {
     const quantity = existingItemIndex !== -1 ? cartItems[existingItemIndex].quantity : 0;
     const flatListRef = useRef(null);
 
-    // console.log("cartItems-->", cartItems[0]?.variations)
-
 
     useEffect(() => {
         if (productDetails) {
@@ -67,6 +65,7 @@ const useProductVariations = (productDetails, route) => {
     }, [selectedVariations, dispatch, route.params.product._id, productDetails]);
 
     const handleVariationChange = (type, value) => {
+        console.log("type, value-->>", type, value)
         const variations = productDetails.variations;
         let selectedVariation = null;
         let parentVariation = null;
@@ -76,6 +75,8 @@ const useProductVariations = (productDetails, route) => {
         selectedVariation = variations.find(variation =>
             variation.attributes.selected === type && variation.attributes.value === value
         );
+
+        console.log("selectedVariation-->>", selectedVariation)
 
         if (selectedVariation) {
             if (selectedVariation.parentVariation === null) {
@@ -112,6 +113,7 @@ const useProductVariations = (productDetails, route) => {
         }
 
         setSelectedVariations(prevState => ({
+            ...prevState,
             ...updatedSelectedVariations
         }));
     };
@@ -129,7 +131,7 @@ const useProductVariations = (productDetails, route) => {
     // };
 
     const getVariationOptions = (type, selectedVariations) => {
-        console.log("type, selectedVariations-->>", type, selectedVariations)
+        // console.log("type, selectedVariations-->>", type, selectedVariations)
         // Filter variations based on the selected type
         const filteredVariations = productDetails?.variations.filter(variation => variation.attributes.selected === type);
 
@@ -185,7 +187,7 @@ const useProductVariations = (productDetails, route) => {
                     .map(variation => ({
                         label: variation.attributes.value.charAt(0).toUpperCase() + variation.attributes.value.slice(1),
                         value: variation.attributes.value,
-                        icon: { uri: variation.attributes.image } // Assuming the image URL is stored here
+                        icon: { uri: variation.image } // Assuming the image URL is stored here
                     }));
             } else if (isChild) {
                 // Find other children of the same type

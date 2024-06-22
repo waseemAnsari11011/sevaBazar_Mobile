@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, ScrollView } from 'rea
 import { baseURL } from '../../../utils/api';
 
 const HorizontalSelector = ({ items, selectedValue, onValueChange }) => {
-    console.log("items HorizontalSelectors-->>", items)
+    // console.log("items HorizontalSelectors-->>", items)
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.scrollView}>
       {items.map(item => (
