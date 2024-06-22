@@ -196,7 +196,7 @@ const HomeScreen = ({ navigation }) => {
 
 
   return (
-    <View style={{ flex: 1, }}>
+    <View style={{ flex: 1, paddingTop:60 }}>
       {categoryLoading && <Loading />}
       <SearchBar />
 

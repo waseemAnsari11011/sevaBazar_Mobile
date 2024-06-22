@@ -3,6 +3,7 @@ import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, StyleSheet, 
 import { Picker } from '@react-native-picker/picker';
 import { useDispatch, useSelector } from 'react-redux';
 import CustomImageCarousal from '../../../components/CustomImageCarousalLandscape';
+
 import AddToCartBtn from '../../../components/AddToCartBtn';
 import QuantityUpdater from '../../../components/QuantityUpdater';
 import StickyButton from '../../../components/stickyBottomCartBtn';
@@ -13,6 +14,7 @@ import { getProductById } from '../../../config/redux/actions/productAction';
 import { getFirstElementOfEachVariationType, isImagePresent } from './utils';
 import DropDownPicker from 'react-native-dropdown-picker';
 import HorizontalSelector from './HorizontalSelector';
+import CustomImageCarousalSquare from '../../../components/CustomImageCarousalSquare';
 
 const ProductDetails = ({ route, navigation }) => {
   const dispatch = useDispatch();
@@ -79,11 +81,11 @@ const ProductDetails = ({ route, navigation }) => {
   const ListHeaderComponent = () => (
     <View style={styles.headerContainer}>
       <View style={styles.carousel}>
-        <CustomImageCarousal data={imagesData} autoPlay pagination />
+        <CustomImageCarousalSquare data={imagesData} autoPlay pagination />
       </View>
       <View style={styles.contentContainer}>
         <Text style={styles.name}>{name}</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop:10, alignItems:"center" }}>
           <View style={styles.priceContainer}>
             <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(price, discount)}</Text>
             <Text style={styles.originalPrice}>₹{price}</Text>
@@ -104,21 +106,26 @@ const ProductDetails = ({ route, navigation }) => {
                 onValueChange={(value) => handleVariationChange(type, value)}
               />
             ) : (
-              <Picker
-                selectedValue={selectedVariations[type]}
-                onValueChange={(value) => handleVariationChange(type, value)}
-                style={styles.variationPicker}
-              >
-                {selectedVariations && getVariationOptions(type, selectedVariations).map(option => (
-                  <Picker.Item key={option} label={option} value={option} />
-                ))}
-              </Picker>
+              <View style={{borderWidth:1,borderRadius:5, marginTop:5, borderColor:"green"}}>
+                <Picker
+                  selectedValue={selectedVariations[type]}
+                  onValueChange={(value) => handleVariationChange(type, value)}
+                  style={styles.variationPicker}
+                >
+                  {selectedVariations && getVariationOptions(type, selectedVariations).map(option => (
+                    <Picker.Item key={option} label={option} value={option} />
+                  ))}
+                </Picker>
+              </View>
+
             )}
 
 
           </View>
         ))}
+
         <Text style={styles.details}>{description}</Text>
+        <Text style={styles.frequentlyBoughtTitle}>Similar Products</Text>
 
       </View>
     </View>
@@ -165,10 +172,11 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   carousel: {
-    marginVertical: 15,
+    marginHorizontal: -15,
+    // marginTop:15
   },
   contentContainer: {
-    padding: 15,
+    padding: 5,
   },
   name: {
     fontSize: 17,
@@ -201,11 +209,11 @@ const styles = StyleSheet.create({
   details: {
     fontSize: 16,
     color: '#757575',
-    marginTop: 10,
+    marginVertical: 10,
   },
   frequentlyBoughtTitle: {
-    fontSize: 15,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '600',
     marginVertical: 5,
     color: "#000000"
   },

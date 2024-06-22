@@ -83,7 +83,9 @@ const styles = StyleSheet.create({
     productImage: {
         aspectRatio: 1, // Maintain aspect ratio
         borderTopRightRadius: 10,
-        borderTopLeftRadius: 10
+        borderTopLeftRadius: 10,
+        resizeMode:"contain"
+
     },
     ratingContainer: {
         flexDirection: 'row',
