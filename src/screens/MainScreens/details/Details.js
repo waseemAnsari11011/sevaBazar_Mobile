@@ -11,7 +11,7 @@ import ProductCard from '../../../components/ProductCard';
 import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
 import useProductVariations from './useProductVariations';
 import { getProductById } from '../../../config/redux/actions/productAction';
-import { getFirstElementOfEachVariationType, isImagePresent } from './utils';
+import { getFirstElementOfEachVariationType, getImages, isImagePresent } from './utils';
 import DropDownPicker from 'react-native-dropdown-picker';
 import HorizontalSelector from './HorizontalSelector';
 import CustomImageCarousalSquare from '../../../components/CustomImageCarousalSquare';
@@ -59,23 +59,17 @@ const ProductDetails = ({ route, navigation }) => {
 
 
   const { name, images, description, price, discount, variations } = product;
-  const imagesData = images.map(item => ({
-    image: item
-  }));
+  let imagesData = []
+  let variationImages = getImages(productDetails.variations, Object.values(selectedVariations))
 
-  const getVariationOptions1 = (type) => {
-    if (type === 'Color') {
-      return [
-        { label: 'Red', value: 'red', icon: () => <Image source={{ uri: 'https://example.com/red.png' }} style={styles.icon} /> },
-        { label: 'Blue', value: 'blue', icon: () => <Image source={{ uri: 'https://example.com/blue.png' }} style={styles.icon} /> }
-      ];
-    } else if (type === 'Size') {
-      return [
-        { label: 'Small', value: 'small', icon: () => <Image source={{ uri: 'https://example.com/small.png' }} style={styles.icon} /> },
-        { label: 'Large', value: 'large', icon: () => <Image source={{ uri: 'https://example.com/large.png' }} style={styles.icon} /> }
-      ];
-    }
-  };
+  imagesData = images.concat(variationImages).map(item => {
+    return { image: item }
+  });
+
+
+
+  console.log("selectedVariation images-->>", getImages(productDetails.variations, Object.values(selectedVariations)))
+
 
 
   const ListHeaderComponent = () => (
@@ -85,7 +79,7 @@ const ProductDetails = ({ route, navigation }) => {
       </View>
       <View style={styles.contentContainer}>
         <Text style={styles.name}>{name}</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop:10, alignItems:"center" }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, alignItems: "center" }}>
           <View style={styles.priceContainer}>
             <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(price, discount)}</Text>
             <Text style={styles.originalPrice}>₹{price}</Text>
@@ -106,7 +100,7 @@ const ProductDetails = ({ route, navigation }) => {
                 onValueChange={(value) => handleVariationChange(type, value)}
               />
             ) : (
-              <View style={{borderWidth:1,borderRadius:5, marginTop:5, borderColor:"green"}}>
+              <View style={{ borderWidth: 1, borderRadius: 5, marginTop: 5, borderColor: "green" }}>
                 <Picker
                   selectedValue={selectedVariations[type]}
                   onValueChange={(value) => handleVariationChange(type, value)}
@@ -135,7 +129,7 @@ const ProductDetails = ({ route, navigation }) => {
     return [...new Set(productDetails.variations.map(v => v.attributes.selected))];
   };
 
-  // console.log("getColorVariationOptions(type, selectedVariations)->", getColorVariationOptions('size', selectedVariations))
+  console.log("getColorVariationOptions(type, selectedVariations)->", getColorVariationOptions('color', selectedVariations))
 
   return (
     <View style={styles.container}>
@@ -172,7 +166,12 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   carousel: {
-    marginHorizontal: -15,
+    marginHorizontal: 5,
+    borderWidth:2,
+    // padding:10,
+    borderRadius:15,
+    borderColor:"#D3D3D3",
+    overflow: 'hidden',
     // marginTop:15
   },
   contentContainer: {

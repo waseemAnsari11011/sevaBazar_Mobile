@@ -81,11 +81,24 @@ export function isImagePresent(arr, type) {
     // Check if the selected attribute matches the given type
     if (item.attributes.selected === type) {
       // Check if the image property is not null or undefined
-      if (item.image) {
+      if (item.images.length >0) {
         return true;
       }
     }
   }
   // If no matching item with an image is found, return false
   return false;
+}
+
+export function getImages(variations, selectedVariations) {
+  // Filter variations based on selectedVariations
+  const filteredVariations = variations.filter(variation => {
+    // Check if variation.attributes.value is in selectedVariations
+    return selectedVariations.includes(variation.attributes.value);
+  });
+
+  // Extract images from filtered variations
+  const images = filteredVariations.flatMap(variation => variation.images);
+
+  return images;
 }

@@ -76,7 +76,6 @@ const useProductVariations = (productDetails, route) => {
             variation.attributes.selected === type && variation.attributes.value === value
         );
 
-        console.log("selectedVariation-->>", selectedVariation)
 
         if (selectedVariation) {
             if (selectedVariation.parentVariation === null) {
@@ -187,7 +186,7 @@ const useProductVariations = (productDetails, route) => {
                     .map(variation => ({
                         label: variation.attributes.value.charAt(0).toUpperCase() + variation.attributes.value.slice(1),
                         value: variation.attributes.value,
-                        icon: { uri: variation.image } // Assuming the image URL is stored here
+                        icon: { uri: variation.images[0] } // Assuming the image URL is stored here
                     }));
             } else if (isChild) {
                 // Find other children of the same type
@@ -197,7 +196,7 @@ const useProductVariations = (productDetails, route) => {
                     .map(variation => ({
                         label: variation.attributes.value.charAt(0).toUpperCase() + variation.attributes.value.slice(1),
                         value: variation.attributes.value,
-                        icon: { uri: variation.image } // Assuming the image URL is stored here
+                        icon: { uri: variation.images[0] } // Assuming the image URL is stored here
                     }));
             }
         } else {
