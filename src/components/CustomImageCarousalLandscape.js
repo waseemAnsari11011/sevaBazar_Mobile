@@ -106,6 +106,6 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: undefined,
-    aspectRatio: 16 / 9,
+    aspectRatio: 16 / 7,
   },
 });

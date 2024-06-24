@@ -165,7 +165,7 @@ const useProductVariations = (productDetails, route) => {
     };
 
     const getColorVariationOptions = (type, selectedVariations) => {
-        console.log("type, selectedVariations-->>", type, selectedVariations);
+        // console.log("type, selectedVariations-->>", type, selectedVariations);
         
         // Filter variations based on the selected type
         const filteredVariations = productDetails.variations.filter(variation => variation.attributes.selected === type);

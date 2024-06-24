@@ -1,6 +1,6 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/MainScreens/HomeScreen';
+import HomeScreen from '../screens/MainScreens/home/HomeScreen';
 import ProfileScreen from '../screens/MainScreens/ProfileScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import OrdersScreen from '../screens/MainScreens/OrdersScreen';

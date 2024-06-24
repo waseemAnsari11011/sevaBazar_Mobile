@@ -15,6 +15,7 @@ import { getFirstElementOfEachVariationType, getImages, isImagePresent } from '.
 import DropDownPicker from 'react-native-dropdown-picker';
 import HorizontalSelector from './HorizontalSelector';
 import CustomImageCarousalSquare from '../../../components/CustomImageCarousalSquare';
+import Icon from '../../../components/Icons/Icon';
 
 const ProductDetails = ({ route, navigation }) => {
   const dispatch = useDispatch();
@@ -68,7 +69,7 @@ const ProductDetails = ({ route, navigation }) => {
 
 
 
-  console.log("selectedVariation images-->>", getImages(productDetails.variations, Object.values(selectedVariations)))
+  // console.log("selectedVariation images-->>", getImages(productDetails.variations, Object.values(selectedVariations)))
 
 
 
@@ -100,7 +101,7 @@ const ProductDetails = ({ route, navigation }) => {
                 onValueChange={(value) => handleVariationChange(type, value)}
               />
             ) : (
-              <View style={{ borderWidth: 1, borderRadius: 5, marginTop: 5, borderColor: "green" }}>
+              <View style={styles.pickercontainer}>
                 <Picker
                   selectedValue={selectedVariations[type]}
                   onValueChange={(value) => handleVariationChange(type, value)}
@@ -110,6 +111,7 @@ const ProductDetails = ({ route, navigation }) => {
                     <Picker.Item key={option} label={option} value={option} />
                   ))}
                 </Picker>
+                <Icon.MaterialIcons name="arrow-drop-down" size={35} color="green" style={styles.icon} />
               </View>
 
             )}
@@ -129,7 +131,7 @@ const ProductDetails = ({ route, navigation }) => {
     return [...new Set(productDetails.variations.map(v => v.attributes.selected))];
   };
 
-  console.log("getColorVariationOptions(type, selectedVariations)->", getColorVariationOptions('color', selectedVariations))
+  // console.log("getColorVariationOptions(type, selectedVariations)->", getColorVariationOptions('color', selectedVariations))
 
   return (
     <View style={styles.container}>
@@ -165,12 +167,30 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
+  pickercontainer: {
+    borderWidth: 1,
+    borderRadius: 5,
+    marginTop: 5,
+    borderColor: "green",
+    position: 'relative',
+  },
+  variationPicker: {
+    width: '100%',
+    height: 50,
+    color: 'black',
+  },
+  icon: {
+    position: 'absolute',
+    right: 7,
+    top: '50%',
+    marginTop: -18, // Adjust this value to center the icon vertically
+  },
   carousel: {
     marginHorizontal: 5,
-    borderWidth:2,
+    borderWidth: 2,
     // padding:10,
-    borderRadius:15,
-    borderColor:"#D3D3D3",
+    borderRadius: 15,
+    borderColor: "#D3D3D3",
     overflow: 'hidden',
     // marginTop:15
   },

@@ -12,7 +12,7 @@ import {
 // Action to fetch orders by customer ID
 export const fetchOrdersByCustomerId = (customerId) => async (dispatch) => {
     dispatch({ type: FETCH_ORDERS_REQUEST });
-console.log("customerId--->>>", customerId)
+// console.log("customerId--->>>", customerId)
     try {
         const response = await api.get(`/orders/customer/${customerId}`);
         dispatch({

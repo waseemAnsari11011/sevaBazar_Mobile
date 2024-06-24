@@ -11,6 +11,11 @@ const OrderItem = ({ order }) => {
     const customerId = data.user._id;
     const dispatch = useDispatch();
 
+    console.log("order-->>", order)
+
+    const createdAtDate = new Date(order.createdAt);
+    const formattedCreatedDate = `${createdAtDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} ${createdAtDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+
     const getStatusColor = (status) => {
         switch (status) {
             case 'Pending':
@@ -42,9 +47,11 @@ const OrderItem = ({ order }) => {
         <Card style={styles.orderContainer}>
             <Card.Content>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order._id}</Paragraph>
+                <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
+
                 {order.vendors.map((vendorItem) => (
                     <View key={vendorItem.vendor._id} style={styles.vendorContainer}>
-                        <Paragraph style={styles.vendorName}><Icon.FontAwesome name="user" size={16} /> Vendor Name: {vendorItem.vendor.name}</Paragraph>
+                        {/* <Paragraph style={styles.vendorName}><Icon.FontAwesome name="user" size={16} /> Vendor Name: {vendorItem.vendor.name}</Paragraph> */}
                         <Paragraph style={[styles.orderStatus, { color: getStatusColor(vendorItem.orderStatus), fontWeight: 'bold' }]}>
                             <Icon.FontAwesome name="info-circle" size={16} /> Order Status: {vendorItem.orderStatus}
                         </Paragraph>
@@ -101,7 +108,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     orderId: {
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: 'bold',
         marginBottom: 8,
         color: '#333',

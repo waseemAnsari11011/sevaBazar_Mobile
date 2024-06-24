@@ -1,6 +1,6 @@
 import React from 'react';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import HomeScreen from '../screens/MainScreens/HomeScreen';
+import HomeScreen from '../screens/MainScreens/home/HomeScreen';
 import ProfileScreen from '../screens/MainScreens/ProfileScreen';
 import CustomDrawerContent from './CustomDrawerContent';
 import Icon from '../components/Icons/Icon';

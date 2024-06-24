@@ -38,9 +38,11 @@ const CategoryProducts = ({ navigation, route }) => {
   useEffect(() => {
     return () => {
       dispatch(resetProductsByCategory());
+      dispatch(fetchProductsByCategory(route.params?.categoryId,1, 4, data?.user.availableLocalities));
+
     };
   }, [dispatch]);
-
+  
 
   const fetchMoreProducts = () => {
     if (!loading && !reachedEnd) {

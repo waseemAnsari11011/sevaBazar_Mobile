@@ -5,6 +5,7 @@ import { baseURL } from '../utils/api';
 import calculateDiscountedPrice from '../utils/calculateDiscountedPrice';
 
 const ProductCard = ({ item }) => {
+    // console.log("variations-->>", item.variations)
     return (
         <View style={[styles.cardContainer]}>
             <View style={styles.discountTag}>
@@ -26,16 +27,18 @@ const ProductCard = ({ item }) => {
                 style={styles.productImage}
             />}
             <View style={{ padding: 10 }}>
-                {/* <View style={styles.ratingContainer}>
-                    <Icon.FontAwesome name="star" size={13} color="#FDCC0D" />
-                    <Text style={styles.ratingText}>{item.rating} ({item.count})</Text>
-                </View> */}
+                
                 <Text numberOfLines={2} ellipsizeMode="tail" style={styles.productName}>
                     {item?.name}
                 </Text>
+                <View style={styles.ratingContainer}>
+                {/* <Icon.FontAwesome name="tag" size={16} />  */}
+                    {/* <Icon.FontAwesome name="star" size={13} color="#FDCC0D" /> */}
+                    <Text style={styles.ratingText}>{item.variations[0].attributes.value}</Text>
+                </View>
                 <View style={styles.priceContainer}>
-                    <Text style={styles.originalPrice}>₹{item.price}</Text>
-                    <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(item.price, item.discount)}</Text>
+                    <Text style={styles.originalPrice}>₹{item.variations[0].price}</Text>
+                    <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(item.variations[0].price, item.variations[0].discount)}</Text>
                 </View>
             </View>
 
@@ -91,11 +94,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         marginVertical: 5,
+        
     },
     ratingText: {
         fontSize: 13,
         color: '#777',
-        marginLeft: 5
+        fontWeight:"500"
     },
     productName: {
         fontSize: 13,

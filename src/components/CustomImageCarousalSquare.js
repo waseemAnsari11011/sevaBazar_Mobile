@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    aspectRatio: 1,
+    aspectRatio: 16 / 13,
     resizeMode: 'cover',
   },
   paginationContainer: {
