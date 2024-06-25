@@ -1,4 +1,4 @@
-import { StyleSheet, View, Image, Text, useWindowDimensions } from 'react-native';
+import { StyleSheet, View, Image, Text, useWindowDimensions, TouchableOpacity } from 'react-native';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Animated, {
   useSharedValue,
@@ -7,6 +7,7 @@ import Animated, {
   interpolate,
   useAnimatedRef,
 } from 'react-native-reanimated';
+import ImageViewing from 'react-native-image-viewing';
 import Pagination from './Pagination';
 import { baseURL } from '../utils/api';
 
@@ -15,6 +16,8 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
   const interval = useRef();
   const [isAutoPlay, setIsAutoPlay] = useState(autoPlay);
   const [currentPage, setCurrentPage] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { width } = useWindowDimensions();
   const SIZE = width;
   const SPACER = (width - SIZE) / 2;
@@ -22,7 +25,7 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
   const offSet = useSharedValue(0);
 
   useEffect(() => {
-    if (isAutoPlay === true) {
+    if (isAutoPlay) {
       let _offSet = offSet.value;
       interval.current = setInterval(() => {
         if (_offSet >= Math.floor(SIZE * (data.length - 1))) {
@@ -40,14 +43,11 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
     return () => clearInterval(interval.current); // Clean up on unmount
   }, [SIZE, isAutoPlay, data.length, offSet.value, scrollViewRef]);
 
-  // Update newData whenever data changes
-  const newData = useMemo(() => {
-    return [
-      { key: 'spacer-left' },
-      ...data,
-      { key: 'spacer-right' },
-    ];
-  }, [data]);
+  const newData = useMemo(() => [
+    { key: 'spacer-left' },
+    ...data,
+    { key: 'spacer-right' },
+  ], [data]);
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -64,9 +64,7 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
       <Animated.ScrollView
         ref={scrollViewRef}
         onScroll={onScroll}
-        onScrollBeginDrag={() => {
-          setIsAutoPlay(false);
-        }}
+        onScrollBeginDrag={() => setIsAutoPlay(false)}
         onMomentumScrollEnd={(e) => {
           offSet.value = e.nativeEvent.contentOffset.x;
           setIsAutoPlay(autoPlay);
@@ -85,20 +83,25 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
               [(index - 2) * SIZE, (index - 1) * SIZE, index * SIZE],
               [0.8, 1, 0.8]
             );
-            return {
-              transform: [{ scale }],
-            };
+            return { transform: [{ scale }] };
           });
+
           if (!item.image) {
             return <View style={{ width: SPACER }} key={index} />;
           }
+
           return (
             <View style={{ width: SIZE }} key={index}>
               <View style={styles.imageContainer}>
                 <Animated.View style={[style]}>
-                  <Image source={{ uri: `${baseURL}${item.image}` }} style={styles.image} />
+                  <TouchableOpacity onPress={() => {
+                    setCurrentImageIndex(index - 1); // Adjust for spacer offset
+                    setIsVisible(true);
+                  }}>
+                    <Image source={{ uri: `${baseURL}${item.image}` }} style={styles.image} />
+                  </TouchableOpacity>
                   <Text style={styles.pageNumber}>
-                    {index}/{data.length}
+                    {index - 1}/{data.length}
                   </Text>
                 </Animated.View>
               </View>
@@ -111,6 +114,14 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
           <Pagination data={data} x={x} size={SIZE} />
         </View>
       )}
+      {isVisible && (
+        <ImageViewing
+          images={data.map((img) => ({ uri: `${baseURL}${img.image}` }))}
+          imageIndex={currentImageIndex} // Start preview from the current image
+          visible={isVisible}
+          onRequestClose={() => setIsVisible(false)}
+        />
+      )}
     </View>
   );
 };
@@ -118,18 +129,9 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
 export default CustomImageCarousalSquare;
 
 const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-  },
-  imageContainer: {
-    borderRadius: 10,
-    overflow: 'hidden',
-  },
-  image: {
-    width: '100%',
-    aspectRatio: 16 / 13,
-    resizeMode: 'cover',
-  },
+  container: { position: 'relative' },
+  imageContainer: { borderRadius: 10, overflow: 'hidden' },
+  image: { width: '100%', aspectRatio: 16 / 13, resizeMode: 'cover' },
   paginationContainer: {
     position: 'absolute',
     bottom: 10,

@@ -63,9 +63,20 @@ const ProductDetails = ({ route, navigation }) => {
   let imagesData = []
   let variationImages = getImages(productDetails.variations, Object.values(selectedVariations))
 
-  imagesData = images.concat(variationImages).map(item => {
-    return { image: item }
-  });
+  // imagesData = images.concat(variationImages).map(item => {
+  //   return { image: item }
+  // });
+  if (variationImages.length>0) {
+    imagesData = variationImages.map(item => {
+      return { image: item }
+    });
+  } else {
+    imagesData =  images.map(item => {
+      return { image: item }
+    });
+
+  }
+
 
 
 
@@ -76,7 +87,7 @@ const ProductDetails = ({ route, navigation }) => {
   const ListHeaderComponent = () => (
     <View style={styles.headerContainer}>
       <View style={styles.carousel}>
-        <CustomImageCarousalSquare data={imagesData} autoPlay pagination />
+        <CustomImageCarousalSquare data={imagesData} pagination />
       </View>
       <View style={styles.contentContainer}>
         <Text style={styles.name}>{name}</Text>

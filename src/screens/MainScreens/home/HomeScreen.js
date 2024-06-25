@@ -80,12 +80,7 @@ const HomeScreen = ({ navigation }) => {
   //   };
   // }, [dispatch]);
 
-  // useEffect(() => {
-  //   return () => {
-  //     dispatch(resetRecentlyAddedProducts());
-  //   };
-  // }, [dispatch]);
-
+  
   const handleCategoryNavigate = async() => {
    await dispatch(resetProductsByCategory());
     navigation.navigate('CategoryProducts', {
@@ -102,16 +97,19 @@ const HomeScreen = ({ navigation }) => {
     );
   }
 
+  const handleNavigateProductsByCategory = async (item) =>{
+    await dispatch(resetProductsByCategory());
+    navigation.navigate('CategoryProducts', {
+      categoryId: item._id,
+      categoryTitle: item.name,
+    })
+  }
+
 
   const renderCategory = ({ item }) => (
     <View>
       <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('CategoryProducts', {
-            categoryId: item._id,
-            categoryTitle: item.name,
-          })
-        }>
+        onPress={()=>handleNavigateProductsByCategory(item)}>
         <View
           style={{
             alignSelf: 'baseline',
