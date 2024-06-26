@@ -9,7 +9,6 @@ const DealOfDay = ({ navigation }) => {
     const { loading: onDiscountLoading, products: onDiscountProducts, error: onDiscountError, } = useSelector(state => state.discountedProducts);
     const item = onDiscountProducts[0]
 
-    console.log("onDiscountProducts-->>", onDiscountProducts[0])
 
     return (
         <>

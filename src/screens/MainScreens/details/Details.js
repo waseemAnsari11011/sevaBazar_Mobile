@@ -59,7 +59,7 @@ const ProductDetails = ({ route, navigation }) => {
 
 
 
-  const { name, images, description, price, discount, variations } = product;
+  const { name, images, description, price, discount, variations, isReturnAllowed } = product;
   let imagesData = []
   let variationImages = getImages(productDetails.variations, Object.values(selectedVariations))
 
@@ -68,12 +68,12 @@ const ProductDetails = ({ route, navigation }) => {
   // });
 
   console.log(variationImages)
-  if (variationImages.length>0 && variationImages[0] !== undefined) {
+  if (variationImages.length > 0 && variationImages[0] !== undefined) {
     imagesData = variationImages.map(item => {
       return { image: item }
     });
   } else {
-    imagesData =  images.map(item => {
+    imagesData = images.map(item => {
       return { image: item }
     });
 
@@ -93,6 +93,15 @@ const ProductDetails = ({ route, navigation }) => {
       </View>
       <View style={styles.contentContainer}>
         <Text style={styles.name}>{name}</Text>
+        {isReturnAllowed && <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5,  paddingTop: 10 }}>
+          <Icon.FontAwesome6 name="people-carry-box" size={25} color={'green'} />
+          <Text style={{
+            // width: windowWidth - 210,
+            marginLeft: 10,
+            fontWeight: "700",
+            color: "black"
+          }}>Hand-To-Hand Return</Text>
+        </View>}
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, alignItems: "center" }}>
           <View style={styles.priceContainer}>
             <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(price, discount)}</Text>

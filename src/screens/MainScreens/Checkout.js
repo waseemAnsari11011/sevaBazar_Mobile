@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Dimensions, FlatList, Image, Alert } from 'react-native';
 import AddressTypeSelector from '../../components/SelectAddress';
 import Icon from '../../components/Icons/Icon';
@@ -12,6 +12,7 @@ import { clearCart } from '../../config/redux/actions/cartActions';
 import Loading from '../../components/Loading';
 import RazorpayCheckout from 'react-native-razorpay';
 import { RadioButton } from 'react-native-paper';
+import { getProductById } from '../../config/redux/actions/productAction';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -22,6 +23,8 @@ const CheckoutScreen = ({ navigation }) => {
     const subtotalPrice = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0)
     const [loading, setloading] = useState(false)
     const [paymentMethod, setPaymentMethod] = useState('cod');
+
+    
 
     const placeOrder = async (orderData) => {
         try {
@@ -231,6 +234,15 @@ const CheckoutScreen = ({ navigation }) => {
                             <Text style={summarystyles.originalPrice}>₹{item.price}</Text>
                         </View>
                         <Text style={summarystyles.discountPercentage}>-{item.discount}%</Text>
+                        {item.isReturnAllowed&&<View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>
+                            <Icon.FontAwesome6 name="people-carry-box" size={25} color={'green'} />
+                            <Text style={{
+                                width: windowWidth - 220,
+                                marginLeft: 10,
+                                fontWeight: "700",
+                                color:"black"
+                            }}>Hand-To-Hand Return Policy on this Product</Text>
+                        </View>}
 
                     </View>
                 </View>
@@ -241,6 +253,7 @@ const CheckoutScreen = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={{ padding: 15 }}>
+            
             <View style={[styles.cardcontainer,]}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>

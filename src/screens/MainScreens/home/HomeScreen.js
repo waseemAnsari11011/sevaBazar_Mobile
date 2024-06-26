@@ -28,6 +28,7 @@ import { getBanners } from '../../../config/redux/actions/bannerActions';
 import DealOfDay from './DealOfDay';
 import ProductCarousel from './ProductCarousel';
 import { fetchProductsByCategory, resetProductsByCategory } from '../../../config/redux/actions/productsByCategoryActions';
+import { fetchAllProducts, updateAllProductsPage, resetAllProducts } from '../../../config/redux/actions/fetchAllProductsActions';
 
 
 const { width } = Dimensions.get('window');
@@ -45,7 +46,37 @@ const HomeScreen = ({ navigation }) => {
   const { loading: onDiscountLoading, products: onDiscountProducts, error: onDiscountError, } = useSelector(state => state.discountedProducts);
   const { loading: firstCategoryLoading, products: firstCategoryProducts, error: firstCategoryError, } = useSelector(state => state.categoryProducts);
 
-  // console.log("onDiscountProducts-->>", onDiscountProducts)
+  ////////////FETCH ALL PRODUCTS/////////////
+  const { loading:allProductsLoading, products:allProducts, error:allProductsError, page, limit, reachedEnd } = useSelector(state => state.allProducts);
+
+  useEffect(() => {
+    if (!reachedEnd && !allProductsLoading) {
+      // if (page === 1) {
+      //   dispatch(resetAllProducts());
+
+      // }
+      console.log("more is calling it #####")
+      dispatch(fetchAllProducts(page, limit, data?.user.availableLocalities));
+
+    }
+  }, [page]);
+
+  // Reset similar products store when leaving the screen
+  useEffect(() => {
+    return () => {
+      dispatch(resetAllProducts());
+      // dispatch(fetchAllProducts(1, 4, data?.user.availableLocalities));
+    };
+  }, [dispatch]);
+
+
+  const fetchMoreProducts = () => {
+    if (!allProductsLoading && !reachedEnd) {
+      dispatch(updateAllProductsPage(page + 1)); // Increment the page number
+    }
+  };
+
+  /////////////////////
 
   useEffect(() => {
     dispatch(getBanners());
@@ -80,14 +111,24 @@ const HomeScreen = ({ navigation }) => {
   //   };
   // }, [dispatch]);
 
-  
-  const handleCategoryNavigate = async() => {
-   await dispatch(resetProductsByCategory());
+
+  const handleCategoryNavigate = async () => {
+    await dispatch(resetProductsByCategory());
     navigation.navigate('CategoryProducts', {
       categoryId: category[0]?._id,
       categoryTitle: category[0]?.name,
     })
   }
+
+  const handleAllProductsNavigate = async () => {
+    await dispatch(resetProductsByCategory());
+    navigation.navigate('CategoryProducts', {
+      categoryId: category[0]?._id,
+      categoryTitle: category[0]?.name,
+    })
+  }
+
+  
 
   if (categoryError) {
     return (
@@ -97,7 +138,7 @@ const HomeScreen = ({ navigation }) => {
     );
   }
 
-  const handleNavigateProductsByCategory = async (item) =>{
+  const handleNavigateProductsByCategory = async (item) => {
     await dispatch(resetProductsByCategory());
     navigation.navigate('CategoryProducts', {
       categoryId: item._id,
@@ -109,7 +150,7 @@ const HomeScreen = ({ navigation }) => {
   const renderCategory = ({ item }) => (
     <View>
       <TouchableOpacity
-        onPress={()=>handleNavigateProductsByCategory(item)}>
+        onPress={() => handleNavigateProductsByCategory(item)}>
         <View
           style={{
             alignSelf: 'baseline',
@@ -224,6 +265,29 @@ const HomeScreen = ({ navigation }) => {
           <Icon.AntDesign name="right" color="green" size={13} />
         </TouchableOpacity>
       </View>
+      <FlatList
+        data={firstCategoryProducts}
+        keyExtractor={(item, index) => index.toString()}
+        renderItem={renderItems}
+        numColumns={2}
+        columnWrapperStyle={{
+          justifyContent: 'space-between', // Adjusts spacing between items horizontally
+          marginBottom: 5, // Adjusts spacing between rows
+        }}
+        contentContainerStyle={{ padding: 15 }}
+
+      />
+
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>All Products</Text>
+        {/* <TouchableOpacity
+          onPress={handleAllProductsNavigate}
+          style={{ flexDirection: 'row', alignItems: 'center' }}
+        >
+          <Text style={{ color: 'green', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+          <Icon.AntDesign name="right" color="green" size={13} />
+        </TouchableOpacity> */}
+      </View>
     </View>
   );
 
@@ -234,9 +298,12 @@ const HomeScreen = ({ navigation }) => {
       <SearchBar />
 
       <FlatList
-        data={firstCategoryProducts}
+        data={allProducts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItems}
+        onEndReached={fetchMoreProducts}
+        onEndReachedThreshold={0}
+        ListFooterComponent={allProductsLoading ? <ActivityIndicator size="large" color="#0000ff" /> : null}
         ListHeaderComponent={ListHeaderComponent}
         numColumns={2}
         columnWrapperStyle={{
