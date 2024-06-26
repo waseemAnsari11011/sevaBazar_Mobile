@@ -66,7 +66,9 @@ const ProductDetails = ({ route, navigation }) => {
   // imagesData = images.concat(variationImages).map(item => {
   //   return { image: item }
   // });
-  if (variationImages.length>0) {
+
+  console.log(variationImages)
+  if (variationImages.length>0 && variationImages[0] !== undefined) {
     imagesData = variationImages.map(item => {
       return { image: item }
     });

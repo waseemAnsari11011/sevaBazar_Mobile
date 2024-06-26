@@ -81,7 +81,7 @@ export function isImagePresent(arr, type) {
     // Check if the selected attribute matches the given type
     if (item.attributes.selected === type) {
       // Check if the image property is not null or undefined
-      if (item.images.length >0) {
+      if (item?.images?.length >0) {
         return true;
       }
     }
