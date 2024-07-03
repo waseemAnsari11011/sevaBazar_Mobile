@@ -62,10 +62,10 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 20,
     textAlign: 'center',
-    color: 'green',
+    color: '#ff6600',
   },
   quantityText: {
-    color: 'green',
+    color: '#ff6600',
     fontSize: 16,
     marginHorizontal: 10,
   },
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     padding: 3,
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: 'green',
+    borderColor: '#ff6600',
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',

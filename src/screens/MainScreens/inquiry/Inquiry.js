@@ -59,7 +59,7 @@ const Inquiry = () => {
 
   return (
     <View style={styles.container}>
-      <ButtonComponent title="Open Inquiry Form" onPress={() => setModalVisible(true)} color={'green'} />
+      <ButtonComponent title="Open Inquiry Form" onPress={() => setModalVisible(true)} color={'#ff6600'} />
 
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
@@ -114,7 +114,7 @@ const Inquiry = () => {
               numberOfLines={4}
             />
 
-            <ButtonComponent color={'green'} title="Submit" onPress={handleSubmit} />
+            <ButtonComponent color={'#ff6600'} title="Submit" onPress={handleSubmit} />
 
           </View>
         </View>
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   inquiryResponse: {
     fontSize: 16,
-    color: 'green',
+    color: '#ff6600',
   },
   inquiryStatus: {
     fontSize: 16,

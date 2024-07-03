@@ -26,7 +26,7 @@ const MainTabNavigator = () => {
         iconName = focused ? 'cart' : 'cart-outline';
       }
 
-      return <Ionicons name={iconName} size={size} color="green" />;
+      return <Ionicons name={iconName} size={size} color="#ff6600" />;
     },
     tabBarShowLabel: false, // Hide the labels
   })}

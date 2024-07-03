@@ -102,7 +102,7 @@ const EditProfile = ({ navigation }) => {
             placeholder="Enter your number"
             keyboardType="phone-pad"
           />
-          <ButtonComponent title="Save Changes" onPress={handleButtonPress} color={'green'} />
+          <ButtonComponent title="Save Changes" onPress={handleButtonPress} color={'#ff6600'} />
         </View>
       </View>
     </>

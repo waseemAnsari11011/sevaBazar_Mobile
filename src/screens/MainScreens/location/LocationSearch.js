@@ -176,7 +176,7 @@ const LocationSearch = ({ navigation, route }) => {
           <Text style={styles.locationText}>Location: {!searchLocation ? manualLocation.description : selectedLocation.description}</Text>
           <Text style={styles.pincodeText}>Pincode: {!searchLocation ? manualLocation.pincode : selectedLocation.pincode}</Text>
           <View style={{ marginTop: 30 }}>
-            <ButtonComponent title={'Confirm Location'} color={'green'} onPress={handleLocation} />
+            <ButtonComponent title={'Confirm Location'} color={'#ff6600'} onPress={handleLocation} />
           </View>
         </View>
       )}

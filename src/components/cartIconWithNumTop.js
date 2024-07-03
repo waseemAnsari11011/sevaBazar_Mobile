@@ -9,7 +9,7 @@ const ShoppingCartIcon = ( ) => {
    
   return (
     <View style={styles.container}>
-      <Icon.FontAwesome name="shopping-cart" size={30} color="green" />
+      <Icon.FontAwesome name="shopping-cart" size={30} color="#ff6600" />
       {cartItems.length > 0 && (
         <View style={styles.itemCountContainer}>
           <Text style={styles.itemCountText}>{cartItems.length}</Text>

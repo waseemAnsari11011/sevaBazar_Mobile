@@ -69,11 +69,11 @@ const OtpInputScreen = ({onConfirm, resendOtp, countdown, setCountdown, isResend
         onPress={resendOtp}
         disabled={isResendButtonDisabled}
       >
-        <Text style={[otpstyles.resendText, , { color: isResendButtonDisabled ? '#ccc' : 'green' }]}>Resend Now</Text>
+        <Text style={[otpstyles.resendText, , { color: isResendButtonDisabled ? '#ccc' : '#ff6600' }]}>Resend Now</Text>
         <Text style={otpstyles.timer}>{countdown}</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[otpstyles.confirmButton, { backgroundColor: isConfirmButtonEnabled ? 'green' : '#ccc' }]}
+        style={[otpstyles.confirmButton, { backgroundColor: isConfirmButtonEnabled ? '#ff6600' : '#ccc' }]}
         onPress={confirmCode}
         disabled={!isConfirmButtonEnabled}
       >

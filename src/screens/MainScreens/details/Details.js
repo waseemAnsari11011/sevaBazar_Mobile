@@ -94,7 +94,7 @@ const ProductDetails = ({ route, navigation }) => {
       <View style={styles.contentContainer}>
         <Text style={styles.name}>{name}</Text>
         {isReturnAllowed && <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5,  paddingTop: 10 }}>
-          <Icon.FontAwesome6 name="people-carry-box" size={25} color={'green'} />
+          <Icon.FontAwesome6 name="people-carry-box" size={25} color={'#ff6600'} />
           <Text style={{
             // width: windowWidth - 210,
             marginLeft: 10,
@@ -133,7 +133,7 @@ const ProductDetails = ({ route, navigation }) => {
                     <Picker.Item key={option} label={option} value={option} />
                   ))}
                 </Picker>
-                <Icon.MaterialIcons name="arrow-drop-down" size={35} color="green" style={styles.icon} />
+                <Icon.MaterialIcons name="arrow-drop-down" size={35} color="#ff6600" style={styles.icon} />
               </View>
 
             )}
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     marginTop: 5,
-    borderColor: "green",
+    borderColor: "#ff6600",
     position: 'relative',
   },
   variationPicker: {
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 15,
-    color: 'green',
+    color: '#ff6600',
     marginTop: 8,
     fontWeight: '800'
   },

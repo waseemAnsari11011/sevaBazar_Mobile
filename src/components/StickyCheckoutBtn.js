@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     },
     button: {
         flex: 1,
-        backgroundColor: 'green',
+        backgroundColor: '#ff6600',
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
         fontWeight: "700"
     },
     totalPrice: {
-        color: 'green', // Green color
+        color: '#ff6600', // Green color
         fontWeight: 'bold',
         fontSize: 15,
         // Add any additional styling as per the image
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
         // Adjust the size or style if needed to match the image
     },
     Price: {
-        color: 'green', // Green color
+        color: '#ff6600', // Green color
         fontWeight: 'bold',
         fontSize: 15,
         // Add any additional styling as per the image

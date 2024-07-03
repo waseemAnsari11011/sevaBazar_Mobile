@@ -36,7 +36,7 @@ const Faqs = () => {
                         <Icon
                             name={isSelected ? 'chevron-up' : 'chevron-down'}
                             size={20}
-                            color="green"
+                            color="#ff6600"
                         />
                     </View>
                 </TouchableOpacity>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
         borderWidth:1,
         borderRadius:10,
         marginVertical:15,
-        borderColor:'green'
+        borderColor:'#ff6600'
          
     },
     answerText: {

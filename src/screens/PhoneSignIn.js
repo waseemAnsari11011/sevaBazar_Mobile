@@ -129,7 +129,7 @@ function PhoneSignIn({ navigation }) {
             />
           </View>
           <TouchableOpacity
-            style={[styles.nextButton, { backgroundColor: isNextButtonEnabled ? 'green' : '#ccc' }]}
+            style={[styles.nextButton, { backgroundColor: isNextButtonEnabled ? '#ff6600' : '#ccc' }]}
             onPress={checkUserRestriction}
             disabled={!isNextButtonEnabled || loading}
           >
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
-    color: "green",
+    color: "#ff6600",
   },
   subText: {
     fontSize: 16,

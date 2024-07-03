@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     fontSize: 17
   },
   discountPercentage: {
-    color: 'green',
+    color: '#ff6600',
     marginTop: 2,
     fontSize: 15
   },

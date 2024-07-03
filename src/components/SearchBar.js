@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     iconContainer: {
-        backgroundColor: 'green',
+        backgroundColor: '#ff6600',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 10,

@@ -14,7 +14,7 @@ const ProductCard = ({ item }) => {
             {/* <TouchableOpacity style={styles.favoriteIcon}>
                 <View style={styles.icon_container}>
                     <View style={styles.icon_circle}>
-                        <Icon.Feather name="heart" size={24} color="green" />
+                        <Icon.Feather name="heart" size={24} color="#ff6600" />
                     </View>
                 </View>
             </TouchableOpacity> */}
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 10,
         left: 0,
-        backgroundColor: 'green',
+        backgroundColor: '#ff6600',
         paddingVertical: 4,
         paddingHorizontal: 15,
         borderTopEndRadius: 6,
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'green',
+        borderColor: '#ff6600',
         zIndex: 20
     },
 });

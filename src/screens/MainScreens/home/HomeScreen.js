@@ -219,8 +219,8 @@ const HomeScreen = ({ navigation }) => {
             }
             style={{ flexDirection: 'row', alignItems: 'center' }}
           >
-            <Text style={{ color: 'green', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
-            <Icon.AntDesign name="right" color="green" size={13} />
+            <Text style={{ color: '#ff6600', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+            <Icon.AntDesign name="right" color="#ff6600" size={13} />
           </TouchableOpacity>
         </View>
         <View style={{ marginHorizontal: -20 }}>
@@ -237,8 +237,8 @@ const HomeScreen = ({ navigation }) => {
           }
           style={{ flexDirection: 'row', alignItems: 'center' }}
         >
-          <Text style={{ color: 'green', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
-          <Icon.AntDesign name="right" color="green" size={13} />
+          <Text style={{ color: '#ff6600', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+          <Icon.AntDesign name="right" color="#ff6600" size={13} />
         </TouchableOpacity>
       </View>
 
@@ -261,8 +261,8 @@ const HomeScreen = ({ navigation }) => {
           onPress={handleCategoryNavigate}
           style={{ flexDirection: 'row', alignItems: 'center' }}
         >
-          <Text style={{ color: 'green', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
-          <Icon.AntDesign name="right" color="green" size={13} />
+          <Text style={{ color: '#ff6600', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+          <Icon.AntDesign name="right" color="#ff6600" size={13} />
         </TouchableOpacity>
       </View>
       <FlatList
@@ -284,8 +284,8 @@ const HomeScreen = ({ navigation }) => {
           onPress={handleAllProductsNavigate}
           style={{ flexDirection: 'row', alignItems: 'center' }}
         >
-          <Text style={{ color: 'green', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
-          <Icon.AntDesign name="right" color="green" size={13} />
+          <Text style={{ color: '#ff6600', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+          <Icon.AntDesign name="right" color="#ff6600" size={13} />
         </TouchableOpacity> */}
       </View>
     </View>

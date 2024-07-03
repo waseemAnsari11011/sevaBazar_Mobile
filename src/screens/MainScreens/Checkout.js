@@ -235,7 +235,7 @@ const CheckoutScreen = ({ navigation }) => {
                         </View>
                         <Text style={summarystyles.discountPercentage}>-{item.discount}%</Text>
                         {item.isReturnAllowed&&<View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>
-                            <Icon.FontAwesome6 name="people-carry-box" size={25} color={'green'} />
+                            <Icon.FontAwesome6 name="people-carry-box" size={25} color={'#ff6600'} />
                             <Text style={{
                                 width: windowWidth - 220,
                                 marginLeft: 10,
@@ -260,11 +260,11 @@ const CheckoutScreen = ({ navigation }) => {
                         <Text style={styles.header}>Shipping Address</Text>
                     </View>
                     <TouchableOpacity onPress={() => navigation.navigate('Add Location', { isCheckOut: true })}>
-                        <Icon.AntDesign name="edit" size={20} color={'green'} />
+                        <Icon.AntDesign name="edit" size={20} color={'#ff6600'} />
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>
-                    <Icon.Ionicons name="location" size={25} color={'green'} />
+                    <Icon.Ionicons name="location" size={25} color={'#ff6600'} />
                     <Text style={styles.addressContent}>{data?.user?.shippingAddresses?.address}</Text>
                 </View>
             </View>
@@ -381,7 +381,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     addButton: {
-        backgroundColor: 'green',
+        backgroundColor: '#ff6600',
         padding: 12,
         alignItems: 'center',
         borderRadius: 8,
@@ -534,7 +534,7 @@ const summarystyles = StyleSheet.create({
         fontSize: 15
     },
     discountPercentage: {
-        color: 'green',
+        color: '#ff6600',
         marginTop: 2,
         fontSize: 15
     },
