@@ -12,7 +12,7 @@ const OrderItem = ({ order }) => {
     const customerId = data.user._id;
     const dispatch = useDispatch();
 
-    console.log("order-->>", order)
+    // console.log("order-->>", order)
 
     const createdAtDate = new Date(order.createdAt);
     const formattedCreatedDate = `${createdAtDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} ${createdAtDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;

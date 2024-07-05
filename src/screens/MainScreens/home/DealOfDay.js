@@ -13,7 +13,7 @@ const DealOfDay = ({ navigation }) => {
     return (
         <>
         { item && <View style={{ backgroundColor: "#00800015", marginHorizontal: -15, alignItems: "center", padding: 20 }}>
-            <Text style={{ marginBottom: 15, color: "green", fontWeight: "600", fontSize: 17 }}>Deal Of the Day</Text>
+            <Text style={{ marginBottom: 15, color: "#ff6600", fontWeight: "600", fontSize: 17 }}>Deal Of the Day</Text>
             <TouchableOpacity style={styles.container} onPress={() =>
                 navigation.navigate('Details', { product: item })
             }>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
         fontSize: 17
     },
     discountPercentage: {
-        color: 'green',
+        color: '#ff6600',
         marginTop: 2,
         fontSize: 15
     },

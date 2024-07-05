@@ -20,6 +20,7 @@ import OrderTacking from '../screens/MainScreens/orders/OrderTacking';
 import SubmitInquiry from '../screens/MainScreens/inquiry/Inquiry';
 import faqs from '../screens/MainScreens/faqs/Faqs';
 import Contactus from '../screens/MainScreens/contact/Contactus';
+import OrderTopTabNavigator from './OrderTopTabNavigator';
 
 
 const Stack = createNativeStackNavigator();
@@ -39,7 +40,7 @@ const StackNavigator = () => {
       <Stack.Screen options={{ headerShown: true }} name="CategoryProducts" component={CategoryProducts} />
       <Stack.Screen name="Edit Address" component={EditAddress} />
       <Stack.Screen name="Notifications" component={Notifications} />
-      <Stack.Screen name="My order" options={{ headerShown: true }} component={MyOrder} />
+      <Stack.Screen name="My order" options={{ headerShown: true }} component={OrderTopTabNavigator} />
       <Stack.Screen name="Discounted Products" options={{ headerShown: true }} component={DiscountedProducts} />
       <Stack.Screen name="New Arrivals" options={{ headerShown: true }} component={RecentlyAddedProducts} />
       <Stack.Screen name="Search Your Products" options={{ headerShown: true }} component={SearchScreen} />
