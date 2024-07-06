@@ -13,7 +13,7 @@ const ChatOrderScreen = () => {
   const customerId = data.user._id; // Replace with actual customer ID or pass as a prop
 
   useEffect(() => {
-    console.log("api is called!")
+    // console.log("api is called!")
     dispatch(getChatOrdersByCustomer(customerId));
   }, [dispatch, customerId]);
 
