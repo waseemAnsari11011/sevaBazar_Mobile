@@ -102,7 +102,7 @@ const ProfileScreen = ({ navigation }) => {
           <AntDesign
             onPress={() => navigation.navigate('Add Location', { goBack: true })}
             name="edit"
-            style={{ color: `#ff6600` }}
+            style={{ color: `#000066` }}
             size={20}
           />
         </View>
@@ -130,50 +130,50 @@ const ProfileScreen = ({ navigation }) => {
         onPress={() => navigation.navigate('Edit Profile')}
         style={styles.itemContainer}>
         <View style={styles.itemSubContainer}>
-          <Icon.FontAwesome name="user" style={styles.itemIcon} size={24} color='#ff6600' />
+          <Icon.FontAwesome name="user" style={styles.itemIcon} size={24} color='#000066' />
           <Text style={styles.itemTitle}>Edit Profile</Text>
         </View>
-        <AntDesign name="right" style={{ color: '#ff6600' }} size={20} />
+        <AntDesign name="right" style={{ color: '#000066' }} size={20} />
       </TouchableOpacity>
       <View style={styles.borderBottom}></View>
       <TouchableOpacity
         onPress={() => navigation.navigate('My order')}
         style={styles.itemContainer}>
         <View style={styles.itemSubContainer}>
-          <Icon.Entypo name="shopping-cart" style={styles.itemIcon} size={24} color='#ff6600' />
+          <Icon.Entypo name="shopping-cart" style={styles.itemIcon} size={24} color='#000066' />
           <Text style={styles.itemTitle}>My orders</Text>
         </View>
-        <AntDesign name="right" style={{ color: '#ff6600' }} size={20} />
+        <AntDesign name="right" style={{ color: '#000066' }} size={20} />
       </TouchableOpacity>
       <View style={styles.borderBottom}></View>
       <TouchableOpacity
         onPress={() => navigation.navigate('Submit Inquiry')}
         style={styles.itemContainer}>
         <View style={styles.itemSubContainer}>
-          <Icon.FontAwesome name="inbox" style={styles.itemIcon} size={24} color='#ff6600' />
+          <Icon.FontAwesome name="inbox" style={styles.itemIcon} size={24} color='#000066' />
           <Text style={styles.itemTitle}>Inquiries</Text>
         </View>
-        <AntDesign name="right" style={{ color: '#ff6600' }} size={20} />
+        <AntDesign name="right" style={{ color: '#000066' }} size={20} />
       </TouchableOpacity>
       <View style={styles.borderBottom}></View>
       <TouchableOpacity
         onPress={() => navigation.navigate('Faqs')}
         style={styles.itemContainer}>
         <View style={styles.itemSubContainer}>
-          <Icon.AntDesign name="questioncircle" style={styles.itemIcon} size={24} color='#ff6600' />
+          <Icon.AntDesign name="questioncircle" style={styles.itemIcon} size={24} color='#000066' />
           <Text style={styles.itemTitle}>Faqs</Text>
         </View>
-        <AntDesign name="right" style={{ color: '#ff6600' }} size={20} />
+        <AntDesign name="right" style={{ color: '#000066' }} size={20} />
       </TouchableOpacity>
       <View style={styles.borderBottom}></View>
       <TouchableOpacity
         onPress={() => navigation.navigate('Contact us')}
         style={styles.itemContainer}>
         <View style={styles.itemSubContainer}>
-          <Icon.Ionicons name="call" style={styles.itemIcon} size={24} color='#ff6600' />
+          <Icon.Ionicons name="call" style={styles.itemIcon} size={24} color='#000066' />
           <Text style={styles.itemTitle}>Contact Us</Text>
         </View>
-        <AntDesign name="right" style={{ color: '#ff6600' }} size={20} />
+        <AntDesign name="right" style={{ color: '#000066' }} size={20} />
       </TouchableOpacity>
       <View style={styles.borderBottom}></View>
     </ScrollView>

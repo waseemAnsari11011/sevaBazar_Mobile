@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/AntDesign';
 const ButtonComponent = ({title, onPress, disabled, color, icon}) => {
   const buttonStyle = [
     styles.button,
-    {backgroundColor: color || '#1e90ff'},
+    {backgroundColor: color || '#000066'},
     disabled && styles.disabled,
   ];
 

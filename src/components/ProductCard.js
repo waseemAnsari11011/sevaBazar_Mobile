@@ -98,8 +98,8 @@ const styles = StyleSheet.create({
     },
     ratingText: {
         fontSize: 13,
-        color: '#777',
-        fontWeight:"500"
+        color: '#000066',
+        fontWeight:"700"
     },
     productName: {
         fontSize: 13,

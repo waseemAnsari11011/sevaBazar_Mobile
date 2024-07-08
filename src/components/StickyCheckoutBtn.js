@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
         fontWeight: "700"
     },
     totalPrice: {
-        color: '#ff6600', // Green color
+        color: '#000066', // Green color
         fontWeight: 'bold',
         fontSize: 15,
         // Add any additional styling as per the image
@@ -72,9 +72,9 @@ const styles = StyleSheet.create({
         // Adjust the size or style if needed to match the image
     },
     Price: {
-        color: '#ff6600', // Green color
+        color: '#000066', // Green color
         fontWeight: 'bold',
-        fontSize: 15,
+        fontSize: 18,
         // Add any additional styling as per the image
     },
 });

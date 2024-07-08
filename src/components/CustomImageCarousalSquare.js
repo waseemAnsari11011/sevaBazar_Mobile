@@ -92,7 +92,7 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
 
           return (
             <View style={{ width: SIZE }} key={index}>
-              <View style={styles.imageContainer}>
+              <View style={[styles.imageContainer,{marginRight:40}]}>
                 <Animated.View style={[style]}>
                   <TouchableOpacity onPress={() => {
                     setCurrentImageIndex(index - 1); // Adjust for spacer offset
@@ -129,23 +129,23 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
 export default CustomImageCarousalSquare;
 
 const styles = StyleSheet.create({
-  container: { position: 'relative' },
-  imageContainer: { borderRadius: 10, overflow: 'hidden' },
-  image: { width: '100%', aspectRatio: 16 / 15, resizeMode: 'cover' },
-  paginationContainer: {
-    position: 'absolute',
-    bottom: 10,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
+  // container: { position: 'relative' },
+  imageContainer: { borderRadius: 10, overflow: 'hidden' ,},
+  image: { width: '100%', aspectRatio: 16 / 10, resizeMode: 'contain',  },
+  // paginationContainer: {
+  //   position: 'absolute',
+  //   bottom: 10,
+  //   left: 0,
+  //   right: 0,
+  //   alignItems: 'center',
+  // },
   pageNumber: {
     position: 'absolute',
-    bottom: 10,
-    right: 60,
+    bottom: 5,
+    right: 30,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     color: 'white',
-    paddingHorizontal: 8,
+    paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 5,
   },

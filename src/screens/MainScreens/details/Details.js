@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     marginTop: 5,
-    borderColor: "#ff6600",
+    borderColor: "#000066",
     position: 'relative',
   },
   variationPicker: {
@@ -206,6 +206,7 @@ const styles = StyleSheet.create({
     right: 7,
     top: '50%',
     marginTop: -18, // Adjust this value to center the icon vertically
+    color:"#000066"
   },
   carousel: {
     marginHorizontal: 5,

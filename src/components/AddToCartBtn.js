@@ -30,7 +30,7 @@ const AddToCartBtn = ({product}) => {
       onPress={showAlert}
       style={{
         padding: 5,
-        borderColor: '#ff6600',
+        borderColor: '#000066',
         borderWidth: 1,
         borderRadius: 5,
         alignItems: 'center',
@@ -42,9 +42,9 @@ const AddToCartBtn = ({product}) => {
       <Icon.AntDesign
         name="plus"
         size={20}
-        style={{color: '#ff6600', marginRight: 5}}
+        style={{color: '#000066', marginRight: 5}}
       />
-      <Text style={{color: '#ff6600', fontWeight: '600',}}>ORDER</Text>
+      <Text style={{color: '#000066', fontWeight: '600',}}>CART</Text>
     </TouchableOpacity>
   );
 };

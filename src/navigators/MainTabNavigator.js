@@ -29,7 +29,7 @@ const MainTabNavigator = () => {
             iconName = focused ? 'chatbox' : 'chatbox-outline';
           }
 
-          return <Ionicons name={iconName} size={size} color="#ff6600" />;
+          return <Ionicons name={iconName} size={size} color="#000066" />;
         },
         tabBarShowLabel: false, // Hide the labels
       })}

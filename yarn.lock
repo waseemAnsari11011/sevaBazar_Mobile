@@ -1495,10 +1495,10 @@
     prompts "^2.4.2"
     semver "^7.5.2"
 
-"@react-native-firebase/app@^20.0.0", "@react-native-firebase/app@20.0.0":
-  version "20.0.0"
-  resolved "https://registry.npmjs.org/@react-native-firebase/app/-/app-20.0.0.tgz"
-  integrity sha512-h9Xgmj0Z0ga1ponhDnQ63yqkX288LOW+ZvstDWHDo2rgPu58nbAmdzs73MTmPjYdgm5Elm71puG1NRJX5n7wRw==
+"@react-native-firebase/app@^20.1.0", "@react-native-firebase/app@20.0.0", "@react-native-firebase/app@20.1.0":
+  version "20.1.0"
+  resolved "https://registry.npmjs.org/@react-native-firebase/app/-/app-20.1.0.tgz"
+  integrity sha512-FCcTtmfz/Bk2laOEKOiUrQUkAnzerkRml7d3kZzJSxaBWLFxpWJQnnXqGZmD8hNWio2QEauB8llUD71KiDk+sw==
   dependencies:
     opencollective-postinstall "^2.0.3"
     superstruct "^0.6.2"
@@ -1509,6 +1509,11 @@
   integrity sha512-/3cjoSjF6U27orj0qPxrqHs1/CNvEBjIK2Kv01aBNSKhGlxxMBXq4Dctolnx6hYuDA83td8SmTtFZM6C17G3Ug==
   dependencies:
     plist "^3.1.0"
+
+"@react-native-firebase/messaging@^20.1.0":
+  version "20.1.0"
+  resolved "https://registry.npmjs.org/@react-native-firebase/messaging/-/messaging-20.1.0.tgz"
+  integrity sha512-y9FtQ9dIQSyueuLeJghvfLYnay5BqPVgl9T94p+HtUlkxinOgNDjquQFtV/QlzVOyVpLrVPmknMohvBj/fvBzg==
 
 "@react-native-masked-view/masked-view@^0.3.1":
   version "0.3.1"

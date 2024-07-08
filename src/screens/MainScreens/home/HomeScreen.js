@@ -47,7 +47,7 @@ const HomeScreen = ({ navigation }) => {
   const { loading: firstCategoryLoading, products: firstCategoryProducts, error: firstCategoryError, } = useSelector(state => state.categoryProducts);
 
   ////////////FETCH ALL PRODUCTS/////////////
-  const { loading:allProductsLoading, products:allProducts, error:allProductsError, page, limit, reachedEnd } = useSelector(state => state.allProducts);
+  const { loading: allProductsLoading, products: allProducts, error: allProductsError, page, limit, reachedEnd } = useSelector(state => state.allProducts);
 
   useEffect(() => {
     if (!reachedEnd && !allProductsLoading) {
@@ -128,7 +128,7 @@ const HomeScreen = ({ navigation }) => {
     })
   }
 
-  
+
 
   if (categoryError) {
     return (
@@ -158,10 +158,14 @@ const HomeScreen = ({ navigation }) => {
             padding: 10,
             // elevation: 10,
           }}>
-          <Image
+            <View style={{ borderWidth:1, padding:10, borderRadius:5, borderColor:'#00006680'}}>
+            <Image
             source={{ uri: `${baseURL}${item?.images[0]}` }}
-            style={{ width: 85, height: 85, borderRadius: 10, }}
+            style={{ width: 75, height: 75, borderRadius: 10,
+            }}
           />
+            </View>
+         
           <Text style={{ marginTop: 10, fontSize: 13, fontWeight: '400', color: "#000000" }}>{item.name}</Text>
         </View>
       </TouchableOpacity>
@@ -180,14 +184,13 @@ const HomeScreen = ({ navigation }) => {
 
   const ListHeaderComponent = () => (
     <View style={{
-
     }}>
-      <View style={{ marginTop: 15 }}>
+      <View style={{ marginTop: 20 }}>
         <View style={{ marginHorizontal: -20 }}>
           <CustomImageCarousal data={banners} autoPlay={true} pagination={true} />
         </View>
       </View>
-      <View style={{ marginBottom: 5, }}>
+      <View style={{ marginBottom: 10, }}>
         <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>Explore Categories</Text>
         <ScrollView
           horizontal
@@ -209,7 +212,6 @@ const HomeScreen = ({ navigation }) => {
         </ScrollView>
         <View style={{ marginBottom: 15 }}>
           <DealOfDay navigation={navigation} />
-
         </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>Latest Products</Text>
@@ -219,8 +221,8 @@ const HomeScreen = ({ navigation }) => {
             }
             style={{ flexDirection: 'row', alignItems: 'center' }}
           >
-            <Text style={{ color: '#ff6600', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
-            <Icon.AntDesign name="right" color="#ff6600" size={13} />
+            <Text style={{ color: '#000066', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+            <Icon.AntDesign name="right" color="#000066" size={13} />
           </TouchableOpacity>
         </View>
         <View style={{ marginHorizontal: -20 }}>
@@ -237,8 +239,8 @@ const HomeScreen = ({ navigation }) => {
           }
           style={{ flexDirection: 'row', alignItems: 'center' }}
         >
-          <Text style={{ color: '#ff6600', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
-          <Icon.AntDesign name="right" color="#ff6600" size={13} />
+          <Text style={{ color: '#000066', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+          <Icon.AntDesign name="right" color="#000066" size={13} />
         </TouchableOpacity>
       </View>
 
@@ -261,8 +263,8 @@ const HomeScreen = ({ navigation }) => {
           onPress={handleCategoryNavigate}
           style={{ flexDirection: 'row', alignItems: 'center' }}
         >
-          <Text style={{ color: '#ff6600', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
-          <Icon.AntDesign name="right" color="#ff6600" size={13} />
+          <Text style={{ color: '#000066', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+          <Icon.AntDesign name="right" color="#000066" size={13} />
         </TouchableOpacity>
       </View>
       <FlatList
@@ -295,7 +297,9 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={{ flex: 1, paddingTop: 60 }}>
       {categoryLoading && <Loading />}
-      <SearchBar />
+
+        <SearchBar />
+
 
       <FlatList
         data={allProducts}
@@ -332,10 +336,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
   },
-  itemImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-    borderRadius: 10,
-  },
+ 
 });
