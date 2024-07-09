@@ -159,6 +159,7 @@ export const handleDownloadInvoice = async (order) => {
                 <div>
                     <strong>Billed to:</strong><br>
                     ${order?.customer?.name}<br>
+                    ${order?.customer?.contactNumber}<br>
                     ${order.shippingAddress.address}<br>
                     ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.postalCode}<br>
                     ${order.shippingAddress.country}
@@ -166,6 +167,7 @@ export const handleDownloadInvoice = async (order) => {
                 <div class="right-align">
                     <strong>Shipping to:</strong><br>
                     ${order?.customer?.name}<br>
+                    ${order?.customer?.contactNumber}<br>
                     ${order.shippingAddress.address}<br>
                     ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.postalCode}<br>
                     ${order.shippingAddress.country}
@@ -223,7 +225,6 @@ export const handleDownloadInvoice = async (order) => {
 };
 
 export const handleChatDownloadInvoice = async (order) => {
-    console.log("order.vendors", order.vendors);
 
     const totalAmount = (order.totalAmount || 0).toFixed(2); // Use the totalAmount from the order object
     const finalTotal = (parseFloat(totalAmount) + 20).toFixed(2); // Assuming there is a delivery charge of 20
@@ -334,6 +335,7 @@ export const handleChatDownloadInvoice = async (order) => {
                     <div>
                         <strong>Billed to:</strong><br>
                         ${order?.customer?.name}<br>
+                        ${order?.customer?.contactNumber}<br>
                         ${order.shippingAddress.address}<br>
                         ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.postalCode}<br>
                         ${order.shippingAddress.country}
@@ -341,23 +343,32 @@ export const handleChatDownloadInvoice = async (order) => {
                     <div class="right-align">
                         <strong>Shipping to:</strong><br>
                         ${order?.customer?.name}<br>
+                        ${order?.customer?.contactNumber}<br>
                         ${order.shippingAddress.address}<br>
                         ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.postalCode}<br>
                         ${order.shippingAddress.country}
                     </div>
                 </div>
                 <div class="products">
-                    <table>
-                        <tr>
-                            <th>Items</th>
-                            <th>Amount</th>
-                        </tr>
-                        <tr>
-                        <td>${order.orderMessage}</td>
-                        <td>${rupeeSymbol} ${order.totalAmount.toFixed(2)}</td>
+                <table>
+                    <tr>
+                        <th>Items</th>
+                        <th>Quantity</th>
+                        <th>Discount</th>
+                        <th>Price</th>
+                        <th>Amount</th>
                     </tr>
-                    </table>
-                </div>
+                    ${order.products.map(product => `
+                        <tr>
+                            <td>${product?.name || 'N/A'}</td>
+                            <td>${product.quantity}</td>
+                            <td>${product.discount} %</td>
+                            <td>₹ ${product.price.toFixed(2)}</td>
+                            <td>₹ ${product.totalAmount.toFixed(2)}</td>
+                        </tr>
+                    `)}
+                </table>
+            </div>
                 <div class="content bold">
                     <div>Subtotal: ₹ ${totalAmount}</div>
                     <div>Delivery charge: ₹ 20</div>

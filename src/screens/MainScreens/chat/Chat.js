@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Alert } from 'react-native';
+import { StyleSheet, Text, View, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { createChatOrder } from '../../../config/redux/actions/chatOrderActions';
 import ButtonComponent from '../../../components/Button';
 import Loading from '../../../components/Loading';
-import { useNavigation } from '@react-navigation/native'; // Import navigation hook
+import { useNavigation } from '@react-navigation/native';
+import { TextInput as PaperTextInput, DefaultTheme } from 'react-native-paper'; // Import DefaultTheme from react-native-paper
 
 const Chat = () => {
     const [orderMessage, setOrderMessage] = useState('');
     const dispatch = useDispatch();
     const { data } = useSelector(state => state?.local);
-    const { loading, error, orders } = useSelector(state => state?.chatOrder);
+    const { loading } = useSelector(state => state?.chatOrder);
     const customer = data?.user;
-    const navigation = useNavigation(); // Navigation hook
+    const navigation = useNavigation();
 
     const handleSendOrder = async () => {
         try {
@@ -24,7 +25,7 @@ const Chat = () => {
             const orderData = {
                 orderMessage,
                 customer: customer?._id,
-                name: customer?.name, // Replace with actual name or get from user state
+                name: customer?.name,
                 shippingAddress: data?.user?.shippingAddresses,
                 paymentStatus: 'Unpaid',
             };
@@ -34,7 +35,7 @@ const Chat = () => {
             Alert.alert('Success', 'Order Placed Successfully!', [
                 {
                     text: 'OK',
-                    onPress: () => navigation.navigate('My order', { screen: 'Chat Orders' }), // Navigate to Chat Orders tab
+                    onPress: () => navigation.navigate('My order', { screen: 'Chat Orders' }),
                 },
             ]);
 
@@ -46,16 +47,21 @@ const Chat = () => {
     return (
         <View style={styles.container}>
             {loading && <Loading />}
-            <Text style={styles.header}>Place Your Order</Text>
-            <TextInput
-                style={[styles.input, { height: Math.max(40, 40 + (orderMessage.length * 2)) }]}
-                multiline
-                placeholder="Type your order here..."
-                value={orderMessage}
-                onChangeText={setOrderMessage}
-            />
-
-            <ButtonComponent title="Send Order" color='#ff6600' onPress={handleSendOrder} />
+            <View style={styles.content}>
+                <Text style={styles.header}>Place Your Order</Text>
+                <PaperTextInput
+                    label="Type your order here..."
+                    mode="outlined"
+                    multiline
+                    value={orderMessage}
+                    onChangeText={setOrderMessage}
+                    style={styles.input}
+                    theme={{ colors: { primary: '#000066' } }} // Set text color to dark blue (#000066)
+                />
+            </View>
+            <View style={styles.buttonContainer}>
+                <ButtonComponent title="Send Order" color='#ff6600' onPress={handleSendOrder} />
+            </View>
         </View>
     );
 };
@@ -67,6 +73,10 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 16,
         backgroundColor: '#fff',
+        justifyContent: 'space-between', // Aligns items along the main axis (vertically in this case)
+    },
+    content: {
+        flex: 1, // Take up remaining space
     },
     header: {
         fontSize: 24,
@@ -74,10 +84,10 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     input: {
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        marginBottom: 16,
-        paddingHorizontal: 8,
+        height: 150,
+        marginVertical: 8,
+    },
+    buttonContainer: {
+        marginBottom: 16, // Adjust spacing from bottom as needed
     },
 });

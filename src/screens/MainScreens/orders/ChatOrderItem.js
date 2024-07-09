@@ -75,7 +75,7 @@ const ChatOrderItem = ({ order }) => {
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.city}, {order.shippingAddress.state}</Paragraph>
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.country} - {order.shippingAddress.postalCode}</Paragraph>
                 </View>
-                {order.orderStatus !== 'Cancelled' && order.orderStatus !== 'In Review' &&
+                {order.orderStatus === 'Shipped' && order.orderStatus !== 'Delivered' &&
                     <Button
                         mode="outlined"
                         onPress={() => handleChatDownloadInvoice(order)}

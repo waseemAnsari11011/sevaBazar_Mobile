@@ -44,7 +44,7 @@ const AddToCartBtn = ({product}) => {
         size={20}
         style={{color: '#000066', marginRight: 5}}
       />
-      <Text style={{color: '#000066', fontWeight: '600',}}>CART</Text>
+      <Text style={{color: '#000066', fontWeight: '600',}}>Order</Text>
     </TouchableOpacity>
   );
 };

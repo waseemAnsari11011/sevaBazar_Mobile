@@ -94,7 +94,12 @@ const CheckoutScreen = ({ navigation }) => {
             .then(savedOrder => {
                 setloading(false)
                 dispatch(clearCart())
-                navigation.navigate('Home')
+                Alert.alert('Success', 'Order Placed Successfully!', [
+                    {
+                        text: 'OK',
+                        onPress: () => navigation.navigate('My order', { screen: 'My Orders' }),
+                    },
+                ]);
 
             })
             .catch(error => {
