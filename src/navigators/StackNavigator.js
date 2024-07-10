@@ -21,6 +21,7 @@ import SubmitInquiry from '../screens/MainScreens/inquiry/Inquiry';
 import faqs from '../screens/MainScreens/faqs/Faqs';
 import Contactus from '../screens/MainScreens/contact/Contactus';
 import OrderTopTabNavigator from './OrderTopTabNavigator';
+import AllCategories from '../screens/MainScreens/home/AllCategories';
 
 
 const Stack = createNativeStackNavigator();
@@ -50,6 +51,7 @@ const StackNavigator = () => {
       <Stack.Screen name="Submit Inquiry" options={{ headerShown: true }} component={SubmitInquiry} />
       <Stack.Screen name="Faqs" options={{ headerShown: true }} component={faqs} />
       <Stack.Screen name="Contact us" options={{ headerShown: true }} component={Contactus} />
+      <Stack.Screen name="All Categories" options={{ headerShown: true }} component={AllCategories} />
 
     </Stack.Navigator>
   );

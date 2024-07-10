@@ -182,6 +182,7 @@ const HomeScreen = ({ navigation }) => {
 
   );
 
+
   const ListHeaderComponent = () => (
     <View style={{
     }}>
@@ -191,13 +192,25 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </View>
       <View style={{ marginBottom: 10, }}>
-        <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>Explore Categories</Text>
+        {/* <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>Explore Categories</Text> */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>Explore Categories</Text>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('All Categories',{categoriesData:category})
+            }
+            style={{ flexDirection: 'row', alignItems: 'center' }}
+          >
+            <Text style={{ color: '#000066', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+            <Icon.AntDesign name="right" color="#000066" size={13} />
+          </TouchableOpacity>
+        </View>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           directionalLockEnabled={true}
           alwaysBounceVertical={false}
-          style={{ marginHorizontal: -20 }}
+          style={{ marginHorizontal: -10 }}
         >
           <FlatList
             contentContainerStyle={{ alignSelf: "flex-start" }}

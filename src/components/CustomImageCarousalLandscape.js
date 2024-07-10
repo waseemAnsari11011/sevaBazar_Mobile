@@ -32,6 +32,7 @@ const CustomImageCarousal = ({data, autoPlay, pagination}) => {
     },
   });
 
+
   useEffect(() => {
     if (isAutoPlay === true) {
       let _offSet = offSet.value;

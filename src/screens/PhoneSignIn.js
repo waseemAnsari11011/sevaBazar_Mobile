@@ -30,6 +30,7 @@ function PhoneSignIn({ navigation }) {
       const response = await api.post('/check-restricted', {
         contactNumber: `+91${phoneNumber}` || undefined // Send contactNumber only if it's provided
       });
+      
 
       if (response.status === 200 ) {
         console.log("signInWithPhoneNumber")

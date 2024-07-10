@@ -24,7 +24,7 @@ const CheckoutScreen = ({ navigation }) => {
     const [loading, setloading] = useState(false)
     const [paymentMethod, setPaymentMethod] = useState('cod');
 
-    
+
 
     const placeOrder = async (orderData) => {
         try {
@@ -239,13 +239,13 @@ const CheckoutScreen = ({ navigation }) => {
                             <Text style={summarystyles.originalPrice}>₹{item.price}</Text>
                         </View>
                         <Text style={summarystyles.discountPercentage}>-{item.discount}%</Text>
-                        {item.isReturnAllowed&&<View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>
+                        {item.isReturnAllowed && <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>
                             <Icon.FontAwesome6 name="people-carry-box" size={25} color={'#ff6600'} />
                             <Text style={{
                                 width: windowWidth - 220,
                                 marginLeft: 10,
                                 fontWeight: "700",
-                                color:"black"
+                                color: "black"
                             }}>Hand-To-Hand Return Policy on this Product</Text>
                         </View>}
 
@@ -258,7 +258,7 @@ const CheckoutScreen = ({ navigation }) => {
 
     const renderHeader = () => (
         <View style={{ padding: 15 }}>
-            
+
             <View style={[styles.cardcontainer,]}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -329,18 +329,23 @@ const CheckoutScreen = ({ navigation }) => {
         <>
             {loading && <Loading />}
             <View style={{ padding: 16 }}>
-                <Text>Select Payment Method:</Text>
+                <Text style={{ color: 'black', fontSize: 18, marginBottom: 10 }}>Select Payment Method:</Text>
                 <RadioButton.Group onValueChange={value => setPaymentMethod(value)} value={paymentMethod}>
                     {/* <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <RadioButton value="online" />
-                        <Text>Online Payment</Text>
-                    </View> */}
+            <RadioButton value="online" />
+            <Text style={{fontSize: 16}}>Online Payment</Text>
+        </View> */}
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <RadioButton value="cod" />
-                        <Text>Cash on Delivery (COD)</Text>
+                        <Text style={{ fontSize: 16, color: 'black', marginLeft: 8, fontWeight: "600" }}>Cash on Delivery (COD)</Text>
                     </View>
                 </RadioButton.Group>
+                <Text style={{ fontSize: 18, color: 'black', marginLeft: 8, fontWeight: "600", marginTop:10}}>Delivery Time : 90 min</Text>
+
             </View>
+
+
+
             <FlatList
                 data={cartItems}
                 renderItem={renderCartItem}

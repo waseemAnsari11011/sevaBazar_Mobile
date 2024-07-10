@@ -57,6 +57,7 @@ const OrderItem = ({ order }) => {
             <Card.Content>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order.orderId}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
+                <Paragraph style={styles.orderId}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: 90 Min</Paragraph>
 
                 {order?.vendors.length > 0 && order?.vendors?.map((vendorItem) => (
                     <View key={vendorItem?.vendor?._id} style={styles.vendorContainer}>
