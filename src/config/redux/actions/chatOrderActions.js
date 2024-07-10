@@ -26,11 +26,13 @@ export const getChatOrdersByCustomer = (customerId) => async dispatch => {
     });
     try {
         const response = await api.get(`/customer/${customerId}/chat-orders`);
+        console.log("response-->>>", response.data)
         dispatch({
             type: 'GET_ORDERS_SUCCESS',
             payload: response.data,
         });
     } catch (error) {
+        console.log("err->", error)
         dispatch({
             type: 'GET_ORDERS_FAIL',
             payload: error.message,

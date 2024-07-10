@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Alert } from 'react-native';
+import { StyleSheet, Text, View, Alert, TextInput } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { createChatOrder } from '../../../config/redux/actions/chatOrderActions';
 import ButtonComponent from '../../../components/Button';
 import Loading from '../../../components/Loading';
 import { useNavigation } from '@react-navigation/native';
-import { TextInput as PaperTextInput, DefaultTheme } from 'react-native-paper'; // Import DefaultTheme from react-native-paper
+// import { TextInput as PaperTextInput, DefaultTheme } from 'react-native-paper'; // Import DefaultTheme from react-native-paper
 
 const Chat = () => {
     const [orderMessage, setOrderMessage] = useState('');
@@ -49,14 +49,14 @@ const Chat = () => {
             {loading && <Loading />}
             <View style={styles.content}>
                 <Text style={styles.header}>Place Your Order</Text>
-                <PaperTextInput
-                    label="Type your order here..."
+                <TextInput
+                    placeholder="Type your order here..."
                     mode="outlined"
                     multiline
                     value={orderMessage}
                     onChangeText={setOrderMessage}
                     style={styles.input}
-                    theme={{ colors: { primary: '#000066' } }} // Set text color to dark blue (#000066)
+                // theme={{ colors: { primary: '#000066' } }} // Set text color to dark blue (#000066)
                 />
             </View>
             <View style={styles.buttonContainer}>
@@ -86,6 +86,9 @@ const styles = StyleSheet.create({
     input: {
         height: 150,
         marginVertical: 8,
+        borderWidth: 1,
+        borderRadius: 10,
+        borderColor: "#000066"
     },
     buttonContainer: {
         marginBottom: 16, // Adjust spacing from bottom as needed
