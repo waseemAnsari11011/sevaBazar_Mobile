@@ -39,17 +39,6 @@ const RootNavigator = () => {
     </NavigationContainer>
   );
 
-  // return (
-  //   <NavigationContainer>
-  //     {isLoading ? (
-  //       <SplashScreen />
-  //     ) : true ? (
-  //       <StackNavigator />
-  //     ) : (
-  //       <AuthNavigator />
-  //     )}
-  //   </NavigationContainer>
-  // );
 
 };
 

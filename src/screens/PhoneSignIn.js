@@ -7,6 +7,8 @@ import { useDispatch } from 'react-redux';
 import { PhoneLogin } from '../config/redux/actions/authActions';
 import Loading from '../components/Loading';
 import api from '../utils/api';
+import { updateFcm } from '../config/redux/actions/customerActions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function PhoneSignIn({ navigation }) {
 
@@ -30,9 +32,9 @@ function PhoneSignIn({ navigation }) {
       const response = await api.post('/check-restricted', {
         contactNumber: `+91${phoneNumber}` || undefined // Send contactNumber only if it's provided
       });
-      
 
-      if (response.status === 200 ) {
+
+      if (response.status === 200) {
         console.log("signInWithPhoneNumber")
         // User is not restricted, proceed further
         signInWithPhoneNumber(); // Replace 'NextScreen' with your next screen
@@ -52,6 +54,10 @@ function PhoneSignIn({ navigation }) {
     }
   };
 
+  
+
+ 
+
   async function onAuthStateChanged(user) {
     if (user) {
       // setFeedbackMessage('Logged in successfully!');
@@ -62,8 +68,13 @@ function PhoneSignIn({ navigation }) {
       };
       const result = await dispatch(PhoneLogin(body));
       if (result.success && result.user && !result.user.isRestricted) {
+        const deviceToken = await AsyncStorage.getItem('deviceToken');
+        const deviceTokenData = JSON.parse(deviceToken)
+        await updateFcm(deviceTokenData)
         dispatch(saveData('token', result.token));
         dispatch(saveData('user', result.user));
+       
+
       }
 
       if (result.success && result.user && result.user.isRestricted) {
@@ -113,7 +124,7 @@ function PhoneSignIn({ navigation }) {
 
   return (
     <>
-     {loading && <Loading />}
+      {loading && <Loading />}
       <View style={{ flex: 1, backgroundColor: '#fff' }}>
         <View style={styles.Uppercontainer}>
           <Text style={styles.headerText}>Let's start with your mobile number</Text>
@@ -135,7 +146,7 @@ function PhoneSignIn({ navigation }) {
             disabled={!isNextButtonEnabled || loading}
           >
 
-              <Text style={[styles.nextButtonText, { color: isNextButtonEnabled ? 'white' : 'black' }]}>Next</Text>
+            <Text style={[styles.nextButtonText, { color: isNextButtonEnabled ? 'white' : 'black' }]}>Next</Text>
 
           </TouchableOpacity>
         </View>
