@@ -68,9 +68,7 @@ function PhoneSignIn({ navigation }) {
       };
       const result = await dispatch(PhoneLogin(body));
       if (result.success && result.user && !result.user.isRestricted) {
-        const deviceToken = await AsyncStorage.getItem('deviceToken');
-        const deviceTokenData = JSON.parse(deviceToken)
-        await updateFcm(deviceTokenData)
+        
         dispatch(saveData('token', result.token));
         dispatch(saveData('user', result.user));
        

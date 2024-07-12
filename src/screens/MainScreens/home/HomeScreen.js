@@ -29,6 +29,8 @@ import DealOfDay from './DealOfDay';
 import ProductCarousel from './ProductCarousel';
 import { fetchProductsByCategory, resetProductsByCategory } from '../../../config/redux/actions/productsByCategoryActions';
 import { fetchAllProducts, updateAllProductsPage, resetAllProducts } from '../../../config/redux/actions/fetchAllProductsActions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { updateFcm } from '../../../config/redux/actions/customerActions';
 
 
 const { width } = Dimensions.get('window');
@@ -49,12 +51,22 @@ const HomeScreen = ({ navigation }) => {
   ////////////FETCH ALL PRODUCTS/////////////
   const { loading: allProductsLoading, products: allProducts, error: allProductsError, page, limit, reachedEnd } = useSelector(state => state.allProducts);
 
+
+  useEffect(() => {
+    const fetchAndUpdateFcm = async () => {
+      const deviceToken = await AsyncStorage.getItem('deviceToken');
+      console.log("home deviceToken-->>", deviceToken)
+      const deviceTokenData = JSON.parse(deviceToken);
+      await updateFcm(data?.user?._id, deviceTokenData);
+    };
+
+    fetchAndUpdateFcm();
+  }, []);
+
+
   useEffect(() => {
     if (!reachedEnd && !allProductsLoading) {
-      // if (page === 1) {
-      //   dispatch(resetAllProducts());
 
-      // }
       console.log("more is calling it #####")
       dispatch(fetchAllProducts(page, limit, data?.user.availableLocalities));
 
@@ -158,14 +170,15 @@ const HomeScreen = ({ navigation }) => {
             padding: 10,
             // elevation: 10,
           }}>
-            <View style={{ borderWidth:1, padding:10, borderRadius:5, borderColor:'#00006680'}}>
+          <View style={{ borderWidth: 1, padding: 10, borderRadius: 5, borderColor: '#00006680' }}>
             <Image
-            source={{ uri: `${baseURL}${item?.images[0]}` }}
-            style={{ width: 75, height: 75, borderRadius: 10,
-            }}
-          />
-            </View>
-         
+              source={{ uri: `${baseURL}${item?.images[0]}` }}
+              style={{
+                width: 75, height: 75, borderRadius: 10,
+              }}
+            />
+          </View>
+
           <Text style={{ marginTop: 10, fontSize: 13, fontWeight: '400', color: "#000000" }}>{item.name}</Text>
         </View>
       </TouchableOpacity>
@@ -197,7 +210,7 @@ const HomeScreen = ({ navigation }) => {
           <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>Explore Categories</Text>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('All Categories',{categoriesData:category})
+              navigation.navigate('All Categories', { categoriesData: category })
             }
             style={{ flexDirection: 'row', alignItems: 'center' }}
           >
@@ -311,7 +324,7 @@ const HomeScreen = ({ navigation }) => {
     <View style={{ flex: 1, paddingTop: 60 }}>
       {categoryLoading && <Loading />}
 
-        <SearchBar />
+      <SearchBar />
 
 
       <FlatList
@@ -349,5 +362,5 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
   },
- 
+
 });

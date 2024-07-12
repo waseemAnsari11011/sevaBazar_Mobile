@@ -26,12 +26,11 @@ export const updateCustomer = (token, customerId, formData) => async dispatch =>
     }
 };
 
-export const updateFcm = async ( data) => {
-    const user = await AsyncStorage.getItem('user');
-    const userData = JSON.parse(user)
+export const updateFcm = async (customerId, data) => {
+
     console.log(" updateFcm token-->>", data)
     try {
-        const response = await api.put(`/update-fcm/${userData?._id}`, {fcmDeviceToken:data});
+        const response = await api.put(`/update-fcm/${customerId}`, {fcmDeviceToken:data});
         // console.log("response.data-->>", response.data);
         return { success: true, user: response.data };
     } catch (error) {
