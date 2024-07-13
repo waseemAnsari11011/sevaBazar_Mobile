@@ -16,6 +16,7 @@ export const fetchProductsByCategory = (categoryId, page, limit, userLocation) =
         const response = await api.get(`/categories/${categoryId}/products`, {
             params: { page, limit, userLocation },
         });
+        console.log("response.data.products.length", response.data.products.length)
         if (response.data.products.length === 0) {
             dispatch({ type: REACHED_END_PRODUCTS_BY_CATEGORY });
         } else {
