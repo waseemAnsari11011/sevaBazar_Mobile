@@ -55,7 +55,7 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     const fetchAndUpdateFcm = async () => {
       const deviceToken = await AsyncStorage.getItem('deviceToken');
-      console.log("home deviceToken-->>", deviceToken)
+      // console.log("home deviceToken-->>", deviceToken)
       const deviceTokenData = JSON.parse(deviceToken);
       await updateFcm(data?.user?._id, deviceTokenData);
     };

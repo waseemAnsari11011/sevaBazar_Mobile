@@ -151,8 +151,10 @@ export const handleDownloadInvoice = async (order) => {
     </head>
     <body>
         <div class="header">
-            <div class="title">Order Invoice</div>
-            <img src="${logoBase64}" class="logo" />
+        <div class="title">Order Invoice</div>
+        <!-- <img src="${logoBase64}" class="logo" /> -->
+        <strong>Seva Bazar</strong>
+        
         </div>
         <div class="content">
             <div class="section">
@@ -428,5 +430,28 @@ export const requestStoragePermission = async () => {
         console.error('Error requesting storage permissions:', error);
     }
 };
+
+export function getTimeRemaining(arrivalAt) {
+    const currentTime = new Date();
+    const arrivalTime = new Date(arrivalAt);
+    const timeDifference = arrivalTime - currentTime;
+
+    if (timeDifference <= 0) {
+        return '0 Days: 0 Hours: 0 Minutes'; // If the time has already passed
+    }
+
+    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (days > 0) {
+        return `${days} Days: ${hours} Hours: ${minutes} Minutes`;
+    } else if (hours > 0) {
+        return `${hours} Hours: ${minutes} Minutes`;
+    } else {
+        return `${minutes} Minutes`;
+    }
+}
+
 
 

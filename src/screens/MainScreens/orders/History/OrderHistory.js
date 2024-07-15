@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrdersByCustomerId } from '../../../config/redux/actions/orderActions';
-import OrderItem from './OrderItem';
+import OrderItem from '../OrderItem';
+import { fetchOrdersHistoryByCustomerId } from '../../../../config/redux/actions/orderActions';
 
-const MyOrder = () => {
+const OrderHistory = () => {
   const { data } = useSelector(state => state.local);
 
   const dispatch = useDispatch();
@@ -14,12 +14,12 @@ const MyOrder = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchOrdersByCustomerId(customerId));
+    dispatch(fetchOrdersHistoryByCustomerId(customerId));
   }, [dispatch, customerId]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    dispatch(fetchOrdersByCustomerId(customerId)).finally(() => setRefreshing(false));
+    dispatch(fetchOrdersHistoryByCustomerId(customerId)).finally(() => setRefreshing(false));
   };
 
   if (loading && !refreshing) {
@@ -60,7 +60,7 @@ const MyOrder = () => {
   );
 };
 
-export default MyOrder;
+export default OrderHistory;
 
 const styles = StyleSheet.create({
   container: {

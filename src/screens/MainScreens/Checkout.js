@@ -221,6 +221,20 @@ const CheckoutScreen = ({ navigation }) => {
         }
     };
 
+    function adjustDuration(duration) {
+        const currentDay = new Date().getDay(); // 0 = Sunday
+    
+        if (currentDay === 0) { // Check if today is Sunday
+            if (duration === '4 Days') {
+                return '5 Days';
+            } else if (duration === '90 Min') {
+                return '1 Day';
+            }
+        }
+    
+        return duration; // Return the original duration if no adjustments are needed
+    }
+
 
     const renderCartItem = ({ item, index }) => {
         return (
@@ -239,6 +253,8 @@ const CheckoutScreen = ({ navigation }) => {
                             <Text style={summarystyles.originalPrice}>₹{item.price}</Text>
                         </View>
                         <Text style={summarystyles.discountPercentage}>-{item.discount}%</Text>
+                        <Text style={{ fontSize: 13, color: 'black', marginLeft: 8, fontWeight: "600", marginTop:10}}>Delivery Time : {adjustDuration(item.arrivalDuration)}</Text>
+
                         {item.isReturnAllowed && <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>
                             <Icon.FontAwesome6 name="people-carry-box" size={25} color={'#ff6600'} />
                             <Text style={{
@@ -340,7 +356,6 @@ const CheckoutScreen = ({ navigation }) => {
                         <Text style={{ fontSize: 16, color: 'black', marginLeft: 8, fontWeight: "600" }}>Cash on Delivery (COD)</Text>
                     </View>
                 </RadioButton.Group>
-                <Text style={{ fontSize: 18, color: 'black', marginLeft: 8, fontWeight: "600", marginTop:10}}>Delivery Time : 90 min</Text>
 
             </View>
 

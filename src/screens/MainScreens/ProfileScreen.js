@@ -147,6 +147,16 @@ const ProfileScreen = ({ navigation }) => {
       </TouchableOpacity>
       <View style={styles.borderBottom}></View>
       <TouchableOpacity
+        onPress={() => navigation.navigate('Order History')}
+        style={styles.itemContainer}>
+        <View style={styles.itemSubContainer}>
+          <Icon.FontAwesome name="history" style={styles.itemIcon} size={24} color='#000066' />
+          <Text style={styles.itemTitle}>Order History</Text>
+        </View>
+        <AntDesign name="right" style={{ color: '#000066' }} size={20} />
+      </TouchableOpacity>
+      <View style={styles.borderBottom}></View>
+      <TouchableOpacity
         onPress={() => navigation.navigate('Submit Inquiry')}
         style={styles.itemContainer}>
         <View style={styles.itemSubContainer}>

@@ -40,6 +40,26 @@ export const getChatOrdersByCustomer = (customerId) => async dispatch => {
     }
 };
 
+export const getChatOrdersHistoryByCustomer = (customerId) => async dispatch => {
+    dispatch({
+        type: 'GET_ORDERS_REQUEST',
+    });
+    try {
+        const response = await api.get(`/chat-orders-history/${customerId}`);
+        console.log("chat order history response-->>>", response.data)
+        dispatch({
+            type: 'GET_ORDERS_SUCCESS',
+            payload: response.data,
+        });
+    } catch (error) {
+        console.log("err chat->", error)
+        dispatch({
+            type: 'GET_ORDERS_FAIL',
+            payload: error.message,
+        });
+    }
+};
+
 
 // Action to updatechat order status
 export const updateChatOrderStatus = (orderId, newStatus) => async (dispatch) => {

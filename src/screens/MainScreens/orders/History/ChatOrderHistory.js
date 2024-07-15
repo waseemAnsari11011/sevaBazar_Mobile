@@ -1,25 +1,31 @@
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchOrdersByCustomerId } from '../../../config/redux/actions/orderActions';
-import OrderItem from './OrderItem';
+import ChatOrderItem from '../ChatOrderItem';
+import { getChatOrdersHistoryByCustomer } from '../../../../config/redux/actions/chatOrderActions';
 
-const MyOrder = () => {
+const ChatOrderHistory = () => {
   const { data } = useSelector(state => state.local);
 
   const dispatch = useDispatch();
-  const { loading, orders, error } = useSelector(state => state.orders);
+  const { loading, orders, error } = useSelector(state => state.chatOrder);
   const customerId = data.user._id; // Replace with actual customer ID or pass as a prop
 
   const [refreshing, setRefreshing] = useState(false);
 
+  const fetchOrders = () => {
+    dispatch(getChatOrdersHistoryByCustomer(customerId));
+  };
+
   useEffect(() => {
-    dispatch(fetchOrdersByCustomerId(customerId));
+    console.log("chat api is called!");
+    fetchOrders();
   }, [dispatch, customerId]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    dispatch(fetchOrdersByCustomerId(customerId)).finally(() => setRefreshing(false));
+    fetchOrders();
+    setRefreshing(false);
   };
 
   if (loading && !refreshing) {
@@ -51,7 +57,7 @@ const MyOrder = () => {
       <FlatList
         data={orders}
         keyExtractor={order => order._id}
-        renderItem={({ item }) => <OrderItem order={item} />}
+        renderItem={({ item }) => <ChatOrderItem order={item} />}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -60,7 +66,7 @@ const MyOrder = () => {
   );
 };
 
-export default MyOrder;
+export default ChatOrderHistory;
 
 const styles = StyleSheet.create({
   container: {

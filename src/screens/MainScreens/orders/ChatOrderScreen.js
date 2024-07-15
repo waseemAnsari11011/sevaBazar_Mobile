@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, FlatList, ActivityIndicator } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, RefreshControl } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import OrderItem from './OrderItem';
 import { getChatOrdersByCustomer } from '../../../config/redux/actions/chatOrderActions';
 import ChatOrderItem from './ChatOrderItem';
 
@@ -12,17 +11,24 @@ const ChatOrderScreen = () => {
   const { loading, orders, error } = useSelector(state => state.chatOrder);
   const customerId = data.user._id; // Replace with actual customer ID or pass as a prop
 
-  useEffect(() => {
-    console.log("chat api is called!")
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchOrders = () => {
     dispatch(getChatOrdersByCustomer(customerId));
+  };
+
+  useEffect(() => {
+    console.log("chat api is called!");
+    fetchOrders();
   }, [dispatch, customerId]);
 
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchOrders();
+    setRefreshing(false);
+  };
 
-
-  
-//   console.log("orders-->", orders)
-
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -38,12 +44,23 @@ const ChatOrderScreen = () => {
     );
   }
 
+  if (orders.length ===0) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>Place Order to see here</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
         data={orders}
         keyExtractor={order => order._id}
         renderItem={({ item }) => <ChatOrderItem order={item} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </View>
   );
@@ -75,13 +92,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  errorContainer: {
+  emptyContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   errorText: {
     color: 'red',
+    fontSize: 16,
+  },
+  emptyText: {
+    color: 'black',
     fontSize: 16,
   },
 });

@@ -4,7 +4,7 @@ import { Card, Paragraph, Button } from 'react-native-paper';
 import Icon from '../../../components/Icons/Icon';
 import { fetchOrdersByCustomerId, updateOrderStatus } from '../../../config/redux/actions/orderActions';
 import { useDispatch, useSelector } from 'react-redux';
-import { handleDownloadInvoice } from './utils';
+import { getTimeRemaining, handleDownloadInvoice } from './utils';
 
 
 const OrderItem = ({ order }) => {
@@ -57,7 +57,6 @@ const OrderItem = ({ order }) => {
             <Card.Content>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order.orderId}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
-                <Paragraph style={styles.orderId}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: 90 Min</Paragraph>
 
                 {order?.vendors.length > 0 && order?.vendors?.map((vendorItem) => (
                     <View key={vendorItem?.vendor?._id} style={styles.vendorContainer}>
@@ -77,6 +76,7 @@ const OrderItem = ({ order }) => {
                         {vendorItem.products.map((productItem) => (
                             <View key={productItem._id} style={styles.productContainer}>
                                 <Paragraph style={styles.productName}><Icon.FontAwesome name="cube" size={16} /> Product: {productItem?.product?.name}</Paragraph>
+                                <Paragraph style={styles.orderId}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery in: {getTimeRemaining(productItem?.arrivalAt)}</Paragraph>
                                 <Paragraph style={styles.productDetails}><Icon.FontAwesome name="sort-numeric-asc" size={16} /> Quantity: {productItem?.quantity}</Paragraph>
                                 <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: ₹{productItem?.price}</Paragraph>
                                 <Paragraph style={styles.productDetails}><Icon.FontAwesome name="percent" size={16} /> Discount: {productItem?.discount}%</Paragraph>

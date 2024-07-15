@@ -22,6 +22,8 @@ import faqs from '../screens/MainScreens/faqs/Faqs';
 import Contactus from '../screens/MainScreens/contact/Contactus';
 import OrderTopTabNavigator from './OrderTopTabNavigator';
 import AllCategories from '../screens/MainScreens/home/AllCategories';
+import OrderHistory from '../screens/MainScreens/orders/History/OrderHistory';
+import OrderHistoryTopTabNavigator from './OrderHistoryTopTabNavigator';
 
 
 const Stack = createNativeStackNavigator();
@@ -42,6 +44,7 @@ const StackNavigator = () => {
       <Stack.Screen name="Edit Address" component={EditAddress} />
       <Stack.Screen name="Notifications" component={Notifications} />
       <Stack.Screen name="My order" options={{ headerShown: true }} component={OrderTopTabNavigator} />
+      <Stack.Screen name="Order History" options={{ headerShown: true }} component={OrderHistoryTopTabNavigator} />
       <Stack.Screen name="Discounted Products" options={{ headerShown: true }} component={DiscountedProducts} />
       <Stack.Screen name="New Arrivals" options={{ headerShown: true }} component={RecentlyAddedProducts} />
       <Stack.Screen name="Search Your Products" options={{ headerShown: true }} component={SearchScreen} />
