@@ -28,7 +28,7 @@ export const updateCustomer = (token, customerId, formData) => async dispatch =>
 
 export const updateFcm = async (customerId, data) => {
 
-    console.log(" updateFcm token-->>", data)
+    // console.log(" updateFcm token-->>", data)
     try {
         const response = await api.put(`/update-fcm/${customerId}`, {fcmDeviceToken:data});
         // console.log("response.data-->>", response.data);
