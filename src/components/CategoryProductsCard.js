@@ -58,7 +58,7 @@ const CategoryProductsCard = ({ item, onPressNavigation }) => {
         {item?.images?.length !== 0 && <Image source={{ uri: `${baseURL}${item?.images[0]}` }} style={styles.productImage} />}
         <View style={styles.detailsContainer}>
           <Text style={styles.productName}>{item.name}</Text>
-          {/* <Text style={styles.productWeight}>100 g</Text> */}
+          <Text style={styles.productWeight}>{item.variations[0].attributes.value}</Text>
           <View style={styles.priceContainer}>
             <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(item.variations[0].price, item.variations[0].discount)}</Text>
             <Text style={styles.originalPrice}>₹{item.variations[0].price}</Text>
@@ -104,8 +104,9 @@ const styles = StyleSheet.create({
     fontSize: 13
   },
   productWeight: {
-    color: '#666',
-    fontSize: 12
+    color: 'black',
+    fontSize: 14,
+    fontWeight:"500"
   },
   priceContainer: {
     flexDirection: 'row',

@@ -281,7 +281,8 @@ const CheckoutScreen = ({ navigation }) => {
                         <Text style={styles.header}>Shipping Address</Text>
                     </View>
                     <TouchableOpacity onPress={() => navigation.navigate('Add Location', { isCheckOut: true })}>
-                        <Icon.AntDesign name="edit" size={20} color={'#ff6600'} />
+                        {/* <Icon.AntDesign name="edit" size={20} color={'#ff6600'} /> */}
+                        <Text style={{color:"#ff6600", fontWeight:"600", padding:10, borderWidth:1, borderRadius:5, borderColor:'#ff6600'}}>Edit Address</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>

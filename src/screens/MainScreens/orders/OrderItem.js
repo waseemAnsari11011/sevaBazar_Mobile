@@ -5,6 +5,8 @@ import Icon from '../../../components/Icons/Icon';
 import { fetchOrdersByCustomerId, updateOrderStatus } from '../../../config/redux/actions/orderActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTimeRemaining, handleDownloadInvoice } from './utils';
+import ButtonComponent from '../../../components/Button';
+import OutlinedBtn from '../../../components/OutlinedBtn';
 
 
 const OrderItem = ({ order }) => {
@@ -45,7 +47,7 @@ const OrderItem = ({ order }) => {
     };
 
 
-   
+
 
 
 
@@ -64,13 +66,10 @@ const OrderItem = ({ order }) => {
                             <Icon.FontAwesome name="info-circle" size={16} /> Order Status: {vendorItem.orderStatus}
                         </Paragraph>
                         {vendorItem.orderStatus !== 'Cancelled' && vendorItem.orderStatus !== 'Delivered' && vendorItem.orderStatus !== 'Shipped' && (
-                            <Button
-                                mode="outlined"
-                                onPress={() => handleCancelOrder(order._id, vendorItem.vendor._id)}
-                                style={styles.cancelButton}
-                            >
-                                Cancel Order
-                            </Button>
+                            <View style={{marginVertical:5}}>
+                                <OutlinedBtn buttonWidth={160} textColor={'red'} borderColor={'red'} onPress={() => handleCancelOrder(order._id, vendorItem.vendor._id)} />
+
+                            </View>
                         )}
 
                         {vendorItem.products.map((productItem) => (
@@ -98,13 +97,17 @@ const OrderItem = ({ order }) => {
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.city}, {order.shippingAddress.state}</Paragraph>
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.country} - {order.shippingAddress.postalCode}</Paragraph>
                 </View>
-                <Button
-                    mode="outlined"
-                    onPress={() => handleDownloadInvoice(order)}
-                    style={styles.downloadButton}
-                >
-                    Download Invoice
-                </Button>
+                <View style={{ marginTop: 5 }}>
+                    <ButtonComponent
+                        title={'Download Invoice'}
+                        color={'#ff6600'}
+
+                        onPress={() => handleDownloadInvoice(order)}
+                        style={styles.downloadButton}
+                    />
+                </View>
+
+
             </Card.Content>
         </Card>
     );

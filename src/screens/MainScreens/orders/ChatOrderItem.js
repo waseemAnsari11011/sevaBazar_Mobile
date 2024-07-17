@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import { handleChatDownloadInvoice } from './utils';
+import OutlinedBtn from '../../../components/OutlinedBtn';
+import ButtonComponent from '../../../components/Button';
 
 
 const ChatOrderItem = ({ order }) => {
@@ -60,13 +62,15 @@ const ChatOrderItem = ({ order }) => {
                     <Icon.FontAwesome name="info-circle" size={16} /> Order Status: {order.orderStatus}
                 </Paragraph>
                 {order.orderStatus !== 'Cancelled' && order.orderStatus !== 'Delivered' && order.orderStatus !== 'Shipped' && (
-                    <Button
-                        mode="outlined"
-                        onPress={() => handleCancelOrder(order._id)}
-                        style={styles.cancelButton}
-                    >
-                        Cancel Order
-                    </Button>
+                    <OutlinedBtn buttonWidth={160} textColor={'red'} borderColor={'red'} onPress={() => handleCancelOrder(order._id)} />
+
+                    // <Button
+                    //     mode="outlined"
+                    //     onPress={() => handleCancelOrder(order._id)}
+                    //     style={styles.cancelButton}
+                    // >
+                    //     Cancel Order
+                    // </Button>
                 )}
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="comment" size={16} /> Order Message: {order.orderMessage}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="money" size={16} /> Total Amount: ₹{order.totalAmount ? order.totalAmount : "In Review"}</Paragraph>
@@ -78,13 +82,20 @@ const ChatOrderItem = ({ order }) => {
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.country} - {order.shippingAddress.postalCode}</Paragraph>
                 </View>
                 {order.orderStatus === 'Shipped' && order.orderStatus !== 'Delivered' &&
-                    <Button
-                        mode="outlined"
+                    <ButtonComponent
+                        title={'Download Invoice'}
+                        color={'#ff6600'}
+
                         onPress={() => handleChatDownloadInvoice(order)}
                         style={styles.downloadButton}
-                    >
-                        Download Invoice
-                    </Button>
+                    />
+                    // <Button
+                    //     mode="outlined"
+                    //     onPress={() => handleChatDownloadInvoice(order)}
+                    //     style={styles.downloadButton}
+                    // >
+                    //     Download Invoice
+                    // </Button>
                 }
 
             </Card.Content>

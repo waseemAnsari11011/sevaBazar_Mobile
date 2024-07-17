@@ -18,7 +18,7 @@ import { baseURL } from '../../utils/api';
 
 // Check if device has a notch
 const hasNotch = DeviceInfo.hasNotch();
-const phoneNumber = '8287076676'; // The phone number you want to call
+const phoneNumber = '7679024780'; // The phone number you want to call
 
 const ProfileScreen = ({ navigation }) => {
   const { data } = useSelector(state => state.local);
@@ -45,7 +45,7 @@ const ProfileScreen = ({ navigation }) => {
           paddingTop: hasNotch ? 80 : 20,
         }}>
         <View style={{ flexDirection: 'row' }}>
-          {url&&<Image
+          {url && <Image
             style={{
               height: 50,
               width: 50,
@@ -53,9 +53,9 @@ const ProfileScreen = ({ navigation }) => {
               borderRadius: 25,
               marginRight: 15,
             }}
-            source={{uri:`${baseURL}${url}`}}
+            source={{ uri: `${baseURL}${url}` }}
           />}
-          {!url&&<Image
+          {!url && <Image
             style={{
               height: 50,
               width: 50,
@@ -99,12 +99,18 @@ const ProfileScreen = ({ navigation }) => {
               {data.user.shippingAddresses.address}
             </Text>
           </View>
-          <AntDesign
+          <TouchableOpacity onPress={() => navigation.navigate('Add Location', { goBack: true })}
+          >
+            <Text style={{ color: "#ff6600", fontWeight: "600", padding: 10, borderWidth: 1, borderRadius: 5, borderColor: '#ff6600' }}>Edit Address</Text>
+
+          </TouchableOpacity>
+
+          {/* <AntDesign
             onPress={() => navigation.navigate('Add Location', { goBack: true })}
             name="edit"
             style={{ color: `#000066` }}
             size={20}
-          />
+          /> */}
         </View>
       </View>
       <TouchableOpacity
