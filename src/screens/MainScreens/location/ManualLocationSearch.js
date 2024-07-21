@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { View, TextInput, ScrollView, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import { request, PERMISSIONS } from 'react-native-permissions';
-// import { GOOGLE_API_KEY } from '@env';
+import { GOOGLE_API_KEY } from '@env';
 
-const GOOGLE_API_KEY = 'AIzaSyBtcD7utCMCNfVxGvn9CWoKSH-BJ068uw0'
+// const GOOGLE_API_KEY = 'AIzaSyBtcD7utCMCNfVxGvn9CWoKSH-BJ068uw0'
 
 const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) => {
     const [loading, setLoading] = useState(false);
@@ -53,11 +53,11 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
         getCurrentLocation();
     }, []);
 
-    const getPhysicalAddress = async () => {
+    const getPhysicalAddress = async (latitude, longitude) => {
         // console.log("latitude, longitude", latitude, longitude)
-        const latitude = '28.634086496667226'
-        const longitude = '77.39088378887918'
-        console.log("GOOGLE_API_KEY->", GOOGLE_API_KEY)
+        // const latitude = '28.634086496667226'
+        // const longitude = '77.39088378887918'
+        // console.log("GOOGLE_API_KEY->", GOOGLE_API_KEY)
         try {
             const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`);
             if (response.status === 200) {

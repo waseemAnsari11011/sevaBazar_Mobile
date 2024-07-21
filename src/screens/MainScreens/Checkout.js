@@ -227,9 +227,7 @@ const CheckoutScreen = ({ navigation }) => {
         if (currentDay === 0) { // Check if today is Sunday
             if (duration === '4 Days') {
                 return '5 Days';
-            } else if (duration === '90 Min') {
-                return '1 Day';
-            }
+            } 
         }
     
         return duration; // Return the original duration if no adjustments are needed
