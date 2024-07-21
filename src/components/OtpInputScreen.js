@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
-const OtpInputScreen = ({onConfirm, resendOtp, countdown, setCountdown, isResendButtonDisabled, setIsResendButtonDisabled}) => {
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+const OtpInputScreen = ({ onConfirm, resendOtp, countdown, setCountdown, isResendButtonDisabled, setIsResendButtonDisabled }) => {
+  const [otp, setOtp] = useState(['', '', '', '']);
   const inputRefs = useRef([]);
   const [isConfirmButtonEnabled, setIsConfirmButtonEnabled] = useState(false);
-
 
   useEffect(() => {
     if (countdown > 0) {
@@ -21,7 +20,7 @@ const OtpInputScreen = ({onConfirm, resendOtp, countdown, setCountdown, isResend
       let newOtp = [...otp];
       newOtp[index] = text;
       setOtp(newOtp);
-      if (index < 5) {
+      if (index < 3) {
         inputRefs.current[index + 1].focus();
       }
       setIsConfirmButtonEnabled(newOtp.every(digit => digit !== ''));
@@ -39,12 +38,9 @@ const OtpInputScreen = ({onConfirm, resendOtp, countdown, setCountdown, isResend
     }
   };
 
-  
-
   const confirmCode = () => {
     onConfirm(otp.join(''));
   };
-
 
   return (
     <View style={otpstyles.container}>
@@ -69,7 +65,7 @@ const OtpInputScreen = ({onConfirm, resendOtp, countdown, setCountdown, isResend
         onPress={resendOtp}
         disabled={isResendButtonDisabled}
       >
-        <Text style={[otpstyles.resendText, , { color: isResendButtonDisabled ? '#ccc' : '#ff6600' }]}>Resend Now</Text>
+        <Text style={[otpstyles.resendText, { color: isResendButtonDisabled ? '#ccc' : '#ff6600' }]}>Resend Now</Text>
         <Text style={otpstyles.timer}>{countdown}</Text>
       </TouchableOpacity>
       <TouchableOpacity

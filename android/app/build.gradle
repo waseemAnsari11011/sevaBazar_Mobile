@@ -79,8 +79,8 @@ android {
         applicationId "com.sevabazarapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.2"
     }
     signingConfigs {
         release {
@@ -90,7 +90,13 @@ android {
                 keyAlias MYAPP_UPLOAD_KEY_ALIAS
                 keyPassword MYAPP_UPLOAD_KEY_PASSWORD
             }
+
+            //  storeFile file(your_key_name)
+            //  storePassword your_key_store_password
+            //  keyAlias your_key_alias
+            //  keyPassword your_key_file_alias_password
         }
+        
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'

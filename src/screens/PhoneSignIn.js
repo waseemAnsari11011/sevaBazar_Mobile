@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button, TextInput, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import auth from '@react-native-firebase/auth';
+import { useDispatch } from 'react-redux';
 import OtpInputScreen from '../components/OtpInputScreen';
 import { saveData } from '../config/redux/actions/storageActions';
-import { useDispatch } from 'react-redux';
 import { PhoneLogin } from '../config/redux/actions/authActions';
 import Loading from '../components/Loading';
 import api from '../utils/api';
-import { updateFcm } from '../config/redux/actions/customerActions';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 function PhoneSignIn({ navigation }) {
-
   const dispatch = useDispatch();
   const [confirm, setConfirm] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -20,11 +17,17 @@ function PhoneSignIn({ navigation }) {
   const [isResendButtonDisabled, setIsResendButtonDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [generatedOtp, setGeneratedOtp] = useState(null); // Store the generated OTP
 
   const handlePhoneNumberChange = (text) => {
     setPhoneNumber(text);
     setIsNextButtonEnabled(text.length === 10);
   };
+
+  const generateOtp = () => {
+    return Math.floor(1000 + Math.random() * 9000).toString(); // Generate a 4-digit OTP
+};
+
 
   const checkUserRestriction = async () => {
     console.log("checkUserRestriction")
@@ -33,11 +36,10 @@ function PhoneSignIn({ navigation }) {
         contactNumber: `+91${phoneNumber}` || undefined // Send contactNumber only if it's provided
       });
 
-
       if (response.status === 200) {
-        console.log("signInWithPhoneNumber")
+        console.log("sendOtp")
         // User is not restricted, proceed further
-        signInWithPhoneNumber(); // Replace 'NextScreen' with your next screen
+        sendOtp(); // Replace 'NextScreen' with your next screen
       }
     } catch (error) {
       if (error.response) {
@@ -54,48 +56,27 @@ function PhoneSignIn({ navigation }) {
     }
   };
 
-  
-
- 
-
-  async function onAuthStateChanged(user) {
-    if (user) {
-      // setFeedbackMessage('Logged in successfully!');
-      // alert('Logged in successfully!');
-      const body = {
-        phoneNumber: user.phoneNumber,
-        uid: user.uid,
-      };
-      const result = await dispatch(PhoneLogin(body));
-      if (result.success && result.user && !result.user.isRestricted) {
-        
-        dispatch(saveData('token', result.token));
-        dispatch(saveData('user', result.user));
-       
-
-      }
-
-      if (result.success && result.user && result.user.isRestricted) {
-        await auth().signOut();
-        alert('Your account is blocked');
-      }
-    }
-  }
-
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber;
-  }, []);
-
-  async function signInWithPhoneNumber() {
+  const sendOtp = async () => {
     setLoading(true);
+    const otp = generateOtp();
+    setGeneratedOtp(otp);
+    const API = '253f7b5d921338af34da817c00f42753'; // Replace with your actual API key
+
     try {
-      const confirmation = await auth().signInWithPhoneNumber(`+91 ${phoneNumber}`);
-      setConfirm(confirmation);
-      setFeedbackMessage('OTP sent successfully!');
-      alert('OTP sent successfully!');
-      setCountdown(60);
-      setIsResendButtonDisabled(true);
+      const url = `https://sms.renflair.in/V1.php?API=${API}&PHONE=${phoneNumber}&OTP=${otp}`;
+      const response = await axios.get(url);
+
+      console.log("response.data-->>", response.data)
+
+      if (response.data.status === 'SUCCESS') {
+        setConfirm(true);
+        setFeedbackMessage('OTP sent successfully!');
+        alert('OTP sent successfully!');
+        setCountdown(60);
+        setIsResendButtonDisabled(true);
+      } else {
+        throw new Error('Failed to send OTP');
+      }
     } catch (error) {
       console.error('Error sending OTP:', error);
       setFeedbackMessage('Error sending OTP. Please try again.');
@@ -103,14 +84,31 @@ function PhoneSignIn({ navigation }) {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  async function confirmCode(code) {
+  const confirmCode = async (code) => {
+    console.log("code === generatedOtp-->>>", code ,generatedOtp)
     setLoading(true);
     try {
-      await confirm.confirm(code);
-      setFeedbackMessage('OTP confirmed successfully!');
-      alert('OTP confirmed successfully!');
+      if (code.toString() === generatedOtp.toString()) {
+        setFeedbackMessage('OTP confirmed successfully!');
+        alert('OTP confirmed successfully!');
+        // You can proceed with further actions here
+        const body = {
+          phoneNumber: phoneNumber,
+          uid: code,
+        };
+        const result = await dispatch(PhoneLogin(body));
+        if (result.success && result.user && !result.user.isRestricted) {
+          
+          dispatch(saveData('token', result.token));
+          dispatch(saveData('user', result.user));
+         
+  
+        }
+      } else {
+        throw new Error('Invalid OTP');
+      }
     } catch (error) {
       console.error('Invalid code:', error);
       setFeedbackMessage('Invalid OTP. Please try again.');
@@ -118,7 +116,7 @@ function PhoneSignIn({ navigation }) {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <>
@@ -143,15 +141,13 @@ function PhoneSignIn({ navigation }) {
             onPress={checkUserRestriction}
             disabled={!isNextButtonEnabled || loading}
           >
-
             <Text style={[styles.nextButtonText, { color: isNextButtonEnabled ? 'white' : 'black' }]}>Next</Text>
-
           </TouchableOpacity>
         </View>
         {confirm && (
           <OtpInputScreen
             onConfirm={confirmCode}
-            resendOtp={signInWithPhoneNumber}
+            resendOtp={sendOtp}
             countdown={countdown}
             setCountdown={setCountdown}
             isResendButtonDisabled={isResendButtonDisabled}
@@ -160,7 +156,6 @@ function PhoneSignIn({ navigation }) {
         )}
       </View>
     </>
-
   );
 }
 

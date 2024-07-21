@@ -131,7 +131,7 @@ export default CustomImageCarousalSquare;
 const styles = StyleSheet.create({
   // container: { position: 'relative' },
   imageContainer: { borderRadius: 10, overflow: 'hidden' ,},
-  image: { width: '100%', aspectRatio: 16 / 16, resizeMode: 'cover',  },
+  image: { width: '100%', aspectRatio: 16 / 16, resizeMode: 'contain',  },
   // paginationContainer: {
   //   position: 'absolute',
   //   bottom: 10,

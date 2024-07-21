@@ -2,21 +2,15 @@ import {
   StyleSheet,
   Text,
   View,
-  SafeAreaView,
-  Image,
   FlatList,
-  TouchableOpacity,
   ActivityIndicator
 } from 'react-native';
 import React, { useEffect } from 'react';
-import SafeScreen from '../../components/SafeScreen';
-import Icon from '../../components/Icons/Icon';
 import CategoryProductsCard from '../../components/CategoryProductsCard';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchProductByCategory } from '../../config/redux/actions/orderTrackingActions';
-import Loading from '../../components/Loading';
 import StickyButton from '../../components/stickyBottomCartBtn';
 import { fetchProductsByCategory, updateProductsByCategoryPage, resetProductsByCategory } from '../../config/redux/actions/productsByCategoryActions';
+import SearchBar from '../../components/SearchBar';
 
 
 const CategoryProducts = ({ navigation, route }) => {
@@ -62,7 +56,7 @@ const CategoryProducts = ({ navigation, route }) => {
 
   const renderItem = ({ item, index }) => {
     return (
-      <View style={[index === products.length - 1 && cartItems.length > 0 ? styles.lastItem : index === products.length - 1 && { marginBottom: 15 }, index===0&&{marginTop:15}]}>
+      <View style={[index===0&&{paddingTop:100}]}>
         <CategoryProductsCard
           item={item}
           onPressNavigation={() =>
@@ -73,14 +67,18 @@ const CategoryProducts = ({ navigation, route }) => {
     );
   };
 
+  console.log("products->", products)
+
   return (
     <>
       <View style={{ flex: 1, backgroundColor: '#F0F8FF50', }}>
+      <SearchBar />
 
         <View
           style={{
             flex: 1,
           }}>
+
           <View style={{ paddingHorizontal: 15 }}>
             <FlatList
               data={products}
