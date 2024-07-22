@@ -6,7 +6,7 @@ import { getChatOrdersByCustomer, updateChatOrderStatus } from '../../../config/
 import { useDispatch, useSelector } from 'react-redux';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
-import { handleChatDownloadInvoice } from './utils';
+import { getTimeRemaining, handleChatDownloadInvoice } from './utils';
 import OutlinedBtn from '../../../components/OutlinedBtn';
 import ButtonComponent from '../../../components/Button';
 
@@ -49,14 +49,14 @@ const ChatOrderItem = ({ order }) => {
     };
 
 
-
+    const { timeString, isCritical } = getTimeRemaining(order.arrivalAt);
 
     return (
         <Card style={styles.orderContainer}>
             <Card.Content>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order.orderId}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
-                <Paragraph style={styles.orderId}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: 90 Min</Paragraph>
+                <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}</Paragraph>
 
                 <Paragraph style={[styles.orderStatus, { color: getStatusColor(order.orderStatus), fontWeight: 'bold' }]}>
                     <Icon.FontAwesome name="info-circle" size={16} /> Order Status: {order.orderStatus}
@@ -123,6 +123,12 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 8,
         color: '#333',
+    },
+    critical: {
+        color: 'red',
+    },
+    notcritical: {
+        color: 'green',
     },
     orderStatus: {
         fontSize: 14,

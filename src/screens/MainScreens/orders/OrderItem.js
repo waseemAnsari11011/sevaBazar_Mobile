@@ -52,6 +52,7 @@ const OrderItem = ({ order }) => {
 
 
 
+    const { timeString, isCritical } = getTimeRemaining(order.arrivalAt);
 
 
     return (
@@ -66,27 +67,34 @@ const OrderItem = ({ order }) => {
                             <Icon.FontAwesome name="info-circle" size={16} /> Order Status: {vendorItem.orderStatus}
                         </Paragraph>
                         {vendorItem.orderStatus !== 'Cancelled' && vendorItem.orderStatus !== 'Delivered' && vendorItem.orderStatus !== 'Shipped' && (
-                            <View style={{marginVertical:5}}>
+                            <View style={{ marginVertical: 5 }}>
                                 <OutlinedBtn buttonWidth={160} textColor={'red'} borderColor={'red'} onPress={() => handleCancelOrder(order._id, vendorItem.vendor._id)} />
 
                             </View>
                         )}
 
-                        {vendorItem.products.map((productItem) => (
-                            <View key={productItem._id} style={styles.productContainer}>
-                                <Paragraph style={styles.productName}><Icon.FontAwesome name="cube" size={16} /> Product: {productItem?.product?.name}</Paragraph>
-                                <Paragraph style={styles.orderId}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery in: {getTimeRemaining(productItem?.arrivalAt)}</Paragraph>
-                                <Paragraph style={styles.productDetails}><Icon.FontAwesome name="sort-numeric-asc" size={16} /> Quantity: {productItem?.quantity}</Paragraph>
-                                <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: ₹{productItem?.price}</Paragraph>
-                                <Paragraph style={styles.productDetails}><Icon.FontAwesome name="percent" size={16} /> Discount: {productItem?.discount}%</Paragraph>
-                                <Paragraph style={styles.productDetails}><Icon.FontAwesome name="calculator" size={16} /> Total Amount: ₹{productItem?.totalAmount.toFixed(2)}</Paragraph>
-                                {productItem.variations.map((variation, index) => (
-                                    <Paragraph key={index} style={styles.productDetails}>
-                                        <Icon.FontAwesome name="tag" size={16} /> {variation.attributes.selected}: {variation.attributes.value}
+                        {vendorItem.products.map((productItem) => {
+                            const { timeString, isCritical } = getTimeRemaining(productItem.arrivalAt);
+
+                            return (
+                                <View key={productItem._id} style={styles.productContainer}>
+                                    <Paragraph style={styles.productName}><Icon.FontAwesome name="cube" size={16} /> Product: {productItem?.product?.name}</Paragraph>
+                                    <Paragraph style={[styles.orderId, isCritical ? styles.critical:styles.notcritical]}>
+                                        <Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}
                                     </Paragraph>
-                                ))}
-                            </View>
-                        ))}
+                                    <Paragraph style={styles.productDetails}><Icon.FontAwesome name="sort-numeric-asc" size={16} /> Quantity: {productItem?.quantity}</Paragraph>
+                                    <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: ₹{productItem?.price}</Paragraph>
+                                    <Paragraph style={styles.productDetails}><Icon.FontAwesome name="percent" size={16} /> Discount: {productItem?.discount}%</Paragraph>
+                                    <Paragraph style={styles.productDetails}><Icon.FontAwesome name="calculator" size={16} /> Total Amount: ₹{productItem?.totalAmount.toFixed(2)}</Paragraph>
+                                    {productItem.variations.map((variation, index) => (
+                                        <Paragraph key={index} style={styles.productDetails}>
+                                            <Icon.FontAwesome name="tag" size={16} /> {variation.attributes.selected}: {variation.attributes.value}
+                                        </Paragraph>
+                                    ))}
+                                </View>
+                            );
+                        })}
+
 
                         <Paragraph style={styles.productDetails}><Icon.FontAwesome name="truck" size={16} /> Delivery: ₹{20}</Paragraph>
                     </View>
@@ -160,6 +168,12 @@ const styles = StyleSheet.create({
     },
     shippingContainer: {
         marginTop: 16,
+    },
+    critical: {
+        color: 'red',
+    },
+    notcritical: {
+        color: 'green',
     },
     shippingTitle: {
         fontSize: 16,
