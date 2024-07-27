@@ -440,23 +440,29 @@ export function getTimeRemaining(arrivalAt) {
         return { timeString: 'Order delayed, Sorry for inconvenience', isCritical: true };
     }
 
-    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
-
+    const totalMinutes = Math.floor(timeDifference / (1000 * 60));
     const isCritical = timeDifference <= 5 * 60 * 1000; // 5 minutes in milliseconds
 
     let timeString;
-    if (days > 0) {
-        timeString = `${days} Days: ${hours} Hours: ${minutes} Minutes`;
-    } else if (hours > 0) {
-        timeString = `${hours} Hours: ${minutes} Minutes`;
+    if (totalMinutes <= 90) {
+        timeString = `${totalMinutes} Minutes`;
     } else {
-        timeString = `${minutes} Minutes`;
+        const days = Math.floor(totalMinutes / (24 * 60));
+        const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+        const minutes = totalMinutes % 60;
+
+        if (days > 0) {
+            timeString = `${days} Days: ${hours} Hours: ${minutes} Minutes`;
+        } else if (hours > 0) {
+            timeString = `${hours} Hours: ${minutes} Minutes`;
+        } else {
+            timeString = `${minutes} Minutes`;
+        }
     }
 
     return { timeString, isCritical };
 }
+
 
 
 

@@ -48,13 +48,6 @@ const OrderItem = ({ order }) => {
 
 
 
-
-
-
-
-    const { timeString, isCritical } = getTimeRemaining(order.arrivalAt);
-
-
     return (
         <Card style={styles.orderContainer}>
             <Card.Content>
