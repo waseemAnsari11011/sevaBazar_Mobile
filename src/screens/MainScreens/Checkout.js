@@ -57,14 +57,14 @@ const CheckoutScreen = ({ navigation }) => {
     };
 
 
-
     const handlePlaceOrderCod = () => {
         setloading(true)
         const orderData = {
             customer: data?.user?._id, // Replace with actual customer ID
             vendors: [],
-            shippingAddress: data?.user?.shippingAddresses
+            shippingAddress: data?.user?.shippingAddresses.find(address => address.isActive) || null
         };
+        
 
         // Group products by vendor
         const vendorMap = {};
@@ -117,7 +117,7 @@ const CheckoutScreen = ({ navigation }) => {
         const orderData = {
             customer: data?.user?._id, // Replace with actual customer ID
             vendors: [],
-            shippingAddress: data?.user?.shippingAddresses
+            shippingAddress: data?.user?.shippingAddresses.find(address => address.isActive) || null
         };
 
         // Group products by vendor
@@ -278,14 +278,14 @@ const CheckoutScreen = ({ navigation }) => {
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Text style={styles.header}>Shipping Address</Text>
                     </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('Add Location', { isCheckOut: true })}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Location List', { isCheckOut: true })}>
                         {/* <Icon.AntDesign name="edit" size={20} color={'#ff6600'} /> */}
                         <Text style={{color:"#ff6600", fontWeight:"600", padding:10, borderWidth:1, borderRadius:5, borderColor:'#ff6600'}}>Edit Address</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>
                     <Icon.Ionicons name="location" size={25} color={'#ff6600'} />
-                    <Text style={styles.addressContent}>{data?.user?.shippingAddresses?.address}</Text>
+                    <Text style={styles.addressContent}>{ data?.user?.shippingAddresses.find(address => address.isActive)?.address}</Text>
                 </View>
             </View>
             <View style={{ marginTop: 22, paddingBottom: 0, marginBottom: 10, }}>

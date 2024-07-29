@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Alert, TextInput } from 'react-native';
+import { StyleSheet, Text, View, Alert, TextInput, TouchableOpacity } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { createChatOrder } from '../../../config/redux/actions/chatOrderActions';
 import ButtonComponent from '../../../components/Button';
 import Loading from '../../../components/Loading';
 import { useNavigation } from '@react-navigation/native';
+import Icon from '../../../components/Icons/Icon';
 // import { TextInput as PaperTextInput, DefaultTheme } from 'react-native-paper'; // Import DefaultTheme from react-native-paper
 
 const Chat = () => {
@@ -26,7 +27,7 @@ const Chat = () => {
                 orderMessage,
                 customer: customer?._id,
                 name: customer?.name,
-                shippingAddress: data?.user?.shippingAddresses,
+                shippingAddress: data?.user?.shippingAddresses.find(address => address.isActive) || null,
                 paymentStatus: 'Unpaid',
             };
 
@@ -49,6 +50,20 @@ const Chat = () => {
             {loading && <Loading />}
             <View style={styles.content}>
                 <Text style={styles.header}>Place Your Order</Text>
+                <View style={[styles.cardcontainer,]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={styles.header}>Shipping Address</Text>
+                        </View>
+                        <TouchableOpacity onPress={() => navigation.navigate('Location List', { isCheckOut: true })}>
+                            <Text style={{ color: "#ff6600", fontWeight: "600", padding: 10, borderWidth: 1, borderRadius: 5, borderColor: '#ff6600' }}>Edit Address</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>
+                        <Icon.Ionicons name="location" size={25} color={'#ff6600'} />
+                        <Text style={styles.addressContent}>{data?.user?.shippingAddresses.find(address => address.isActive)?.address}</Text>
+                    </View>
+                </View>
                 <TextInput
                     placeholder="Type your order here..."
                     mode="outlined"
@@ -58,6 +73,8 @@ const Chat = () => {
                     style={styles.input}
                 // theme={{ colors: { primary: '#000066' } }} // Set text color to dark blue (#000066)
                 />
+
+               
             </View>
             <View style={styles.buttonContainer}>
                 <ButtonComponent title="Send Order" color='#ff6600' onPress={handleSendOrder} />
@@ -92,5 +109,24 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         marginBottom: 16, // Adjust spacing from bottom as needed
+    },
+    cardcontainer: {
+        marginVertical:20,
+
+        padding: 20,
+        margin: 5,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    header: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: 'black',
+        marginLeft: 5
     },
 });

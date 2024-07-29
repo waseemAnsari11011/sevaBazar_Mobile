@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, ScrollView, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import { View, TextInput, ScrollView, StyleSheet, Alert, ActivityIndicator, Button, Platform } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import { request, PERMISSIONS } from 'react-native-permissions';
 import { GOOGLE_API_KEY } from '@env';
@@ -8,7 +8,10 @@ import { GOOGLE_API_KEY } from '@env';
 // const GOOGLE_API_KEY = 'AIzaSyBtcD7utCMCNfVxGvn9CWoKSH-BJ068uw0'
 
 const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) => {
+    console.log("manualLocation-->>", manualLocation)
     const [loading, setLoading] = useState(false);
+    const [name, setname] = useState('');
+    const [phone, setphone] = useState('');
 
     const requestLocationPermission = async () => {
         const result = await request(
@@ -17,53 +20,42 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
         return result === 'granted';
     };
 
-    useEffect(() => {
-        const getCurrentLocation = async () => {
-            const hasPermission = await requestLocationPermission();
-            if (!hasPermission) {
-                Alert.alert('Permission denied', 'Location permission is required to fetch your current location');
-                return;
-            }
-            setLoading(true);
-            Geolocation.getCurrentPosition(
-                async (position) => {
-                    const { latitude, longitude } = position.coords;
-                    console.log("latitude, longitude-->>", latitude, longitude)
-                    const location = await getPhysicalAddress(latitude, longitude);
+    const getCurrentLocation = async () => {
+        const hasPermission = await requestLocationPermission();
+        if (!hasPermission) {
+            Alert.alert('Permission denied', 'Location permission is required to fetch your current location');
+            return;
+        }
+        setLoading(true);
+        Geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                console.log("latitude, longitude-->>", latitude, longitude)
+                const location = await getPhysicalAddress(latitude, longitude);
 
-                    if (location) {
-                        
-                        handleManualLocationChange('description', location.description);
-                        handleManualLocationChange('city', location.city);
-                        handleManualLocationChange('state', location.state);
-                        handleManualLocationChange('country', location.country);
-                        handleManualLocationChange('pincode', location.pincode);
-                    }
-                    setLoading(false);
-                },
-                (error) => {
-                    setLoading(false);
-                    Alert.alert('Error', 'Unable to fetch current location');
-                    console.error(error);
-                },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-            );
-        };
-
-        getCurrentLocation();
-    }, []);
+                if (location) {
+                    handleManualLocationChange('description', location.description);
+                    handleManualLocationChange('city', location.city);
+                    handleManualLocationChange('state', location.state);
+                    handleManualLocationChange('country', location.country);
+                    handleManualLocationChange('pincode', location.pincode);
+                }
+                setLoading(false);
+            },
+            (error) => {
+                setLoading(false);
+                Alert.alert('Error', 'Unable to fetch current location');
+                console.error(error);
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
+    };
 
     const getPhysicalAddress = async (latitude, longitude) => {
-        // console.log("latitude, longitude", latitude, longitude)
-        // const latitude = '28.634086496667226'
-        // const longitude = '77.39088378887918'
-        // console.log("GOOGLE_API_KEY->", GOOGLE_API_KEY)
         try {
             const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`);
             if (response.status === 200) {
                 const addressComponents = response.data.results[0].address_components;
-                // console.log("addressComponents--->>", response.data.results[1])
-
                 const location = {
                     description: response.data.results[0].formatted_address,
                     city: addressComponents.find((component) => component.types.includes('locality'))?.long_name,
@@ -91,32 +83,48 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
                 <>
                     <TextInput
                         style={styles.textInput}
+                        placeholder="Name"
+                        value={manualLocation?.name}
+                        onChangeText={(text) => handleManualLocationChange('name', text)}
+                    />
+                    <TextInput
+                        style={styles.textInput}
+                        placeholder="Phone"
+                        value={manualLocation?.phone}
+                        onChangeText={(text) => handleManualLocationChange('phone', text)}
+                    />
+                    <View style={{ marginVertical: 10 }}>
+                        <Button title="Get Address" onPress={getCurrentLocation} />
+                    </View>
+
+                    <TextInput
+                        style={styles.textInput}
                         placeholder="Description"
-                        value={manualLocation.description}
+                        value={manualLocation?.description}
                         onChangeText={(text) => handleManualLocationChange('description', text)}
                     />
                     <TextInput
                         style={styles.textInput}
                         placeholder="City"
-                        value={manualLocation.city}
+                        value={manualLocation?.city}
                         onChangeText={(text) => handleManualLocationChange('city', text)}
                     />
                     <TextInput
                         style={styles.textInput}
                         placeholder="State"
-                        value={manualLocation.state}
+                        value={manualLocation?.state}
                         onChangeText={(text) => handleManualLocationChange('state', text)}
                     />
                     <TextInput
                         style={styles.textInput}
                         placeholder="Country"
-                        value={manualLocation.country}
+                        value={manualLocation?.country}
                         onChangeText={(text) => handleManualLocationChange('country', text)}
                     />
                     <TextInput
                         style={styles.textInput}
                         placeholder="Pincode"
-                        value={manualLocation.pincode}
+                        value={manualLocation?.pincode}
                         onChangeText={(text) => handleManualLocationChange('pincode', text)}
                     />
                 </>

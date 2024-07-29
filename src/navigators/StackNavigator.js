@@ -14,6 +14,7 @@ import DiscountedProducts from '../screens/MainScreens/DiscountedProducts';
 import RecentlyAddedProducts from '../screens/MainScreens/RecentlyAddedProducts';
 import SearchScreen from '../screens/MainScreens/Search';
 import LocationSearch from '../screens/MainScreens/location/LocationSearch';
+
 import PhoneSignIn from '../screens/PhoneSignIn';
 import { useSelector } from 'react-redux';
 import OrderTacking from '../screens/MainScreens/orders/OrderTacking';
@@ -24,6 +25,7 @@ import OrderTopTabNavigator from './OrderTopTabNavigator';
 import AllCategories from '../screens/MainScreens/home/AllCategories';
 import OrderHistory from '../screens/MainScreens/orders/History/OrderHistory';
 import OrderHistoryTopTabNavigator from './OrderHistoryTopTabNavigator';
+import ShippingAddressesList from '../screens/MainScreens/location/ShippingAddressesList';
 
 
 const Stack = createNativeStackNavigator();
@@ -50,7 +52,9 @@ const StackNavigator = () => {
       <Stack.Screen name="Search Your Products" options={{ headerShown: true }} component={SearchScreen} />
       <Stack.Screen name="Checkout" options={{ headerShown: true }} component={CheckoutScreen} />
       <Stack.Screen options={{ headerShown: true }} name="otp" component={PhoneSignIn} />
+      <Stack.Screen name="Location List" options={{ headerShown: true }} component={ShippingAddressesList} />
       <Stack.Screen name="Add Location" options={{ headerShown: true }} component={LocationSearch} />
+
       <Stack.Screen name="Submit Inquiry" options={{ headerShown: true }} component={SubmitInquiry} />
       <Stack.Screen name="Faqs" options={{ headerShown: true }} component={faqs} />
       <Stack.Screen name="Contact us" options={{ headerShown: true }} component={Contactus} />

@@ -46,7 +46,7 @@ const AddressManager = ({ navigation }) => {
                         <Paragraph>{selectedAddress.address}</Paragraph>
                     </Card.Content>
                 </Card>
-                <Button mode="contained" onPress={() => navigation.navigate("Add Location", { isCheckOut: true })} style={styles.button}>
+                <Button mode="contained" onPress={() => navigation.navigate("Location List", { isCheckOut: true })} style={styles.button}>
                     Add New Address
                 </Button>
                 <Title>Select Address</Title>
