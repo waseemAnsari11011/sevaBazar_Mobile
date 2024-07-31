@@ -18,6 +18,7 @@ import CustomImageCarousalSquare from '../../../components/CustomImageCarousalSq
 import Icon from '../../../components/Icons/Icon';
 
 const ProductDetails = ({ route, navigation }) => {
+  console.log("oute.params.product-->>", route.params.product)
   const dispatch = useDispatch();
   const [productId, setProductId] = useState(route.params.product._id);
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Alert } from 'react-native';
+import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
 import { Card, Paragraph, Button } from 'react-native-paper';
 import Icon from '../../../components/Icons/Icon';
 import { fetchOrdersByCustomerId, updateOrderStatus } from '../../../config/redux/actions/orderActions';
@@ -9,7 +9,7 @@ import ButtonComponent from '../../../components/Button';
 import OutlinedBtn from '../../../components/OutlinedBtn';
 
 
-const OrderItem = ({ order }) => {
+const OrderItem = ({ order, navigation }) => {
     const { data } = useSelector(state => state.local);
     const customerId = data.user._id;
     const dispatch = useDispatch();
@@ -70,7 +70,9 @@ const OrderItem = ({ order }) => {
                             const { timeString, isCritical } = getTimeRemaining(productItem.arrivalAt);
 
                             return (
-                                <View key={productItem._id} style={styles.productContainer}>
+                                <TouchableOpacity key={productItem._id} style={styles.productContainer} onPress={() =>
+                                    navigation.navigate('Details', { product: productItem?.product })
+                                  }>
                                     <Paragraph style={styles.productName}><Icon.FontAwesome name="cube" size={16} /> Product: {productItem?.product?.name}</Paragraph>
                                     <Paragraph style={[styles.orderId, isCritical ? styles.critical:styles.notcritical]}>
                                         <Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}
@@ -84,7 +86,7 @@ const OrderItem = ({ order }) => {
                                             <Icon.FontAwesome name="tag" size={16} /> {variation.attributes.selected}: {variation.attributes.value}
                                         </Paragraph>
                                     ))}
-                                </View>
+                                </TouchableOpacity>
                             );
                         })}
 

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrdersByCustomerId } from '../../../config/redux/actions/orderActions';
 import OrderItem from './OrderItem';
 
-const MyOrder = () => {
+const MyOrder = ({navigation}) => {
   const { data } = useSelector(state => state.local);
 
   const dispatch = useDispatch();
@@ -51,7 +51,7 @@ const MyOrder = () => {
       <FlatList
         data={orders}
         keyExtractor={order => order._id}
-        renderItem={({ item }) => <OrderItem order={item} />}
+        renderItem={({ item }) => <OrderItem order={item} navigation={navigation} />}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
