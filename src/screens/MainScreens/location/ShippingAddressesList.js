@@ -66,9 +66,16 @@ const ShippingAddressesList = ({ navigation }) => {
     <View style={styles.container}>
       <Text style={styles.headerText}>Shipping Addresses</Text>
       <Button title="Add New Address" onPress={handleAddNew} />
-      <ScrollView style={{marginTop:10}}>
+      <ScrollView style={{ marginTop: 10 }}>
         {shippingAddresses.map((address) => (
-          <View key={address._id} style={styles.card}>
+          <View
+            key={address._id}
+            style={[
+              styles.card,
+              address.isActive && styles.activeCard
+            ]}
+            onTouchStart={() => handleSetActive(address._id)}
+          >
             <View style={styles.cardContent}>
               <Text style={styles.cardText}>Name: {address.name}</Text>
               <Text style={styles.cardText}>Phone: {address.phone}</Text>
@@ -132,6 +139,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#ff6600',
     fontWeight: 'bold',
+  },
+  activeCard: {
+    borderColor: '#ff6600',
+    borderWidth: 2
   },
 });
 

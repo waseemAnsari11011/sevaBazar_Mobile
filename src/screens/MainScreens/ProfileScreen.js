@@ -33,6 +33,9 @@ const ProfileScreen = ({ navigation }) => {
   const handlePhoneCall = () => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
+
+console.log("data.user.shippingAddresses", data.user.shippingAddresses)
+
   return (
     <ScrollView style={{ backgroundColor: 'white' }}>
       <View
@@ -96,7 +99,7 @@ const ProfileScreen = ({ navigation }) => {
                 width: 250,
                 fontWeight: '300',
               }}>
-              {data.user.shippingAddresses.address}
+              {data.user.shippingAddresses.filter((i) => i.isActive == true).map((i) => i.address)}
             </Text>
           </View>
           <TouchableOpacity onPress={() => navigation.navigate('Location List', { goBack: true })}
