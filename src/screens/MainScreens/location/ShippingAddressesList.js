@@ -39,11 +39,11 @@ const ShippingAddressesList = ({ navigation }) => {
   };
 
   const handleEdit = (address) => {
-    navigation.navigate('Add Location', { address, isEdit: true });
+    navigation.navigate('Add Location', { address, isEdit: true, isSignin:false });
   };
 
   const handleAddNew = () => {
-    navigation.navigate('Add Location');
+    navigation.navigate('Add Location',{isSignin:false});
   };
 
   const handleSetActive = async (addressId) => {

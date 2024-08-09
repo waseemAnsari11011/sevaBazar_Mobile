@@ -33,12 +33,14 @@ const Stack = createNativeStackNavigator();
 const StackNavigator = () => {
   const { data } = useSelector(state => state?.local);
 
+  console.log("data?.user?.shippingAddresses", data?.user?.shippingAddresses)
+
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
       }}>
-      { !data?.user?.shippingAddresses && <Stack.Screen name="Search Location" options={{ headerShown: true }} component={LocationSearch} />}
+      { data?.user?.shippingAddresses?.length ===0 && <Stack.Screen name="Search Location" options={{ headerShown: true }} component={LocationSearch} />}
       <Stack.Screen name="Main" component={MainTabNavigator} />
       <Stack.Screen options={{ headerShown: true }} name="Details" component={Details} />
       <Stack.Screen name="Edit Profile" options={{ headerShown: true }} component={EditProfile} />

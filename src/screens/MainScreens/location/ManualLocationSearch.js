@@ -99,7 +99,7 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
 
                     <TextInput
                         style={styles.textInput}
-                        placeholder="Description"
+                        placeholder="Address"
                         value={manualLocation?.description}
                         onChangeText={(text) => handleManualLocationChange('description', text)}
                     />

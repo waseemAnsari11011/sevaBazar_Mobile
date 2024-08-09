@@ -24,6 +24,7 @@ const LocationSearch = ({ navigation, route }) => {
     state: '',
     country: '',
     city: '',
+    isActive:false
   });
   const googlePlacesRef = useRef(null);
 
@@ -35,7 +36,6 @@ const LocationSearch = ({ navigation, route }) => {
 
     if (route.params?.isEdit) {
       const { address } = route.params;
-      console.log("params address-->>", address)
 
       setManualLocation({
         name: address.name,
@@ -45,6 +45,7 @@ const LocationSearch = ({ navigation, route }) => {
         state: address.state,
         country: address.country,
         city: address.city,
+        isActive: address.isActive
       });
       setSelectedLocation(address); // if using searchLocation as well
     }
@@ -57,7 +58,9 @@ const LocationSearch = ({ navigation, route }) => {
         return;
       }
 
-      const { description, city, state, country, pincode, name, phone } = location;
+      const { description, city, state, country, pincode, name, phone, isActive } = location;
+
+      console.log("isActive-->", isActive)
 
       if (!description || !city || !state || !country || !pincode) {
         let missingFields = [];
@@ -87,6 +90,7 @@ const LocationSearch = ({ navigation, route }) => {
           country,
           postalCode: pincode,
           availableLocalities,
+          isActive
         });
       } else {
         response = await api.post(`/address/${userId}/`, {
@@ -103,7 +107,9 @@ const LocationSearch = ({ navigation, route }) => {
 
       if (response.status === 200) {
         dispatch(saveData('user', response.data.user));
-        navigation.goBack();
+        if (route.params?.isSignin === false) {
+          navigation.goBack();
+        }
       }
     } catch (error) {
       console.error('Error saving address and localities:', error);
