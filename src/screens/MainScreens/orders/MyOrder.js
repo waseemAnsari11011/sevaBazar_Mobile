@@ -10,8 +10,11 @@ const MyOrder = ({navigation}) => {
   const dispatch = useDispatch();
   const { loading, orders, error } = useSelector(state => state.orders);
   const customerId = data.user._id; // Replace with actual customer ID or pass as a prop
+  const { contact } = useSelector(state => state.contact);
 
   const [refreshing, setRefreshing] = useState(false);
+
+
 
   useEffect(() => {
     dispatch(fetchOrdersByCustomerId(customerId));
@@ -51,7 +54,7 @@ const MyOrder = ({navigation}) => {
       <FlatList
         data={orders}
         keyExtractor={order => order._id}
-        renderItem={({ item }) => <OrderItem order={item} navigation={navigation} />}
+        renderItem={({ item }) => <OrderItem order={item} navigation={navigation} contact={contact} />}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }

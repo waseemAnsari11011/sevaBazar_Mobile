@@ -48,7 +48,7 @@ const getBase64Image = async (imagePath) => {
 };
 
 
-export const handleDownloadInvoice = async (order) => {
+export const handleDownloadInvoice = async (order, contact) => {
     console.log("order.vendors", order.vendors);
 
     const totalAmount = order.vendors.reduce((total, vendor) => {
@@ -209,7 +209,7 @@ export const handleDownloadInvoice = async (order) => {
             </div>
         </div>
         <div class="footer">
-            <strong>Phone :</strong> 8809959154<br>
+            <strong>Phone :</strong> ${contact?.phone}<br>
             <strong>Email :</strong> sevabazar.com@gmail.com<br>
             All Copyright Reserved © 2024 Seva Bazar
         </div>
@@ -233,7 +233,7 @@ export const handleDownloadInvoice = async (order) => {
     }
 };
 
-export const handleChatDownloadInvoice = async (order) => {
+export const handleChatDownloadInvoice = async (order, contact) => {
 
     const totalAmount = (order.totalAmount || 0).toFixed(2); // Use the totalAmount from the order object
     const finalTotal = (parseFloat(totalAmount) + 20).toFixed(2); // Assuming there is a delivery charge of 20
@@ -385,7 +385,7 @@ export const handleChatDownloadInvoice = async (order) => {
                 </div>
             </div>
             <div class="footer">
-                <strong>Phone :</strong> 8809959154<br>
+                <strong>Phone :</strong> ${contact?.phone}<br>
                 <strong>Email :</strong> sevabazar.com@gmail.com<br>
                 All Copyright Reserved © 2024 Seva Bazar
             </div>

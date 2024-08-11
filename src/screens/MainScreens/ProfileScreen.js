@@ -7,21 +7,32 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
-import React from 'react';
+import React,{useEffect} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import LogoutButton from '../../utils/logout';
 import DeviceInfo from 'react-native-device-info';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Icon from '../../components/Icons/Icon';
 import { baseURL } from '../../utils/api';
+import { fetchContact } from '../../config/redux/actions/contactActions';
 
 // Check if device has a notch
 const hasNotch = DeviceInfo.hasNotch();
-const phoneNumber = '7679024780'; // The phone number you want to call
+const phoneNumber = '8116341826'; // The phone number you want to call
 
 const ProfileScreen = ({ navigation }) => {
+  const dispatch =  useDispatch()
   const { data } = useSelector(state => state.local);
+  const { contact, loading, error } = useSelector(state => state.contact);
+
+  useEffect(() => {
+    dispatch(fetchContact());
+  }, [dispatch]);
+
+
+  console.log("contact us--->>", contact)
+
   let url = data.user.image;
   // console.log('url', url);
 
@@ -31,7 +42,7 @@ const ProfileScreen = ({ navigation }) => {
   }
 
   const handlePhoneCall = () => {
-    Linking.openURL(`tel:${phoneNumber}`);
+    Linking.openURL(`tel:${contact?.phone?contact?.phone:phoneNumber}`);
   };
 
 console.log("data.user.shippingAddresses", data.user.shippingAddresses)

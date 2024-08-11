@@ -1,7 +1,7 @@
 // App.js
 
 import React, { useEffect } from 'react';
-import { Provider } from 'react-redux';
+import { Provider, useDispatch } from 'react-redux';
 import { NavigationContainer } from '@react-navigation/native';
 import store from './src/config/redux/store';
 import RootNavigator from './src/navigators/RootNavigator';
@@ -12,7 +12,6 @@ import { PermissionsAndroid } from 'react-native';
 import { requestStoragePermission } from './src/screens/MainScreens/orders/utils';
 
 const App = () => {
-
   useEffect(() => {
     const setupMessaging = async () => {
       // Request notification permission
@@ -33,6 +32,8 @@ const App = () => {
 
     setupMessaging();
   }, []);
+
+
 
   return (
     <Provider store={store}>

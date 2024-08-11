@@ -130,14 +130,17 @@ const LocationSearch = ({ navigation, route }) => {
       (component) => component.types.includes('locality')
     )?.long_name;
 
-    if (!pincode) {
-      alert('The selected location does not have a valid pincode. Please select another address.');
-      googlePlacesRef.current?.clear();
-      setSelectedLocation(null);
-      return;
-    }
+    setSearchLocation(false)
 
-    setSelectedLocation({
+    // if (!pincode) {
+    //   alert('The selected location does not have a valid pincode. Please select another address.');
+    //   googlePlacesRef.current?.clear();
+    //   setSelectedLocation(null);
+    //   return;
+    // }
+
+    setManualLocation({
+      ...manualLocation,
       description: data.description,
       pincode: pincode,
       state: state,
@@ -158,11 +161,11 @@ const LocationSearch = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.switchContainer}>
-        {/* <Text style={styles.switchText}>Search Location</Text> */}
-        {/* <Switch
+        <Text style={styles.switchText}>Search Location</Text>
+        <Switch
           value={searchLocation}
           onValueChange={setSearchLocation}
-        /> */}
+        />
       </View>
       {searchLocation ? (
         <GooglePlacesAutocomplete
@@ -191,11 +194,26 @@ const LocationSearch = ({ navigation, route }) => {
 const autoCompleteStyles = {
   container: {
     flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    // shadowOffset: { width: 0, height: 2 },
+    // shadowOpacity: 0.25,
+    // shadowRadius: 4,
+    // elevation: 5,
   },
   textInput: {
-    height: 38,
-    color: '#5d5d5d',
-    fontSize: 16,
+    height: 50,
+    color: '#333',
+    fontSize: 18,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+  },
+  predefinedPlacesDescription: {
+    color: '#333',
   },
 };
 

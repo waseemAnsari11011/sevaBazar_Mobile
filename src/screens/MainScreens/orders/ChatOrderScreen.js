@@ -3,9 +3,11 @@ import { StyleSheet, Text, View, FlatList, ActivityIndicator, RefreshControl } f
 import { useDispatch, useSelector } from 'react-redux';
 import { getChatOrdersByCustomer } from '../../../config/redux/actions/chatOrderActions';
 import ChatOrderItem from './ChatOrderItem';
+import { fetchContact } from '../../../config/redux/actions/contactActions';
 
 const ChatOrderScreen = () => {
   const { data } = useSelector(state => state.local);
+  const { contact } = useSelector(state => state.contact);
 
   const dispatch = useDispatch();
   const { loading, orders, error } = useSelector(state => state.chatOrder);
@@ -57,7 +59,7 @@ const ChatOrderScreen = () => {
       <FlatList
         data={orders}
         keyExtractor={order => order._id}
-        renderItem={({ item }) => <ChatOrderItem order={item} />}
+        renderItem={({ item }) => <ChatOrderItem order={item} contact={contact} />}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }

@@ -11,7 +11,7 @@ import OutlinedBtn from '../../../components/OutlinedBtn';
 import ButtonComponent from '../../../components/Button';
 
 
-const ChatOrderItem = ({ order }) => {
+const ChatOrderItem = ({ order, contact }) => {
     const dispatch = useDispatch()
     const { data } = useSelector(state => state.local);
     const customerId = data.user._id; // Replace with actual customer ID or pass as a prop
@@ -81,21 +81,14 @@ const ChatOrderItem = ({ order }) => {
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.city}, {order.shippingAddress.state}</Paragraph>
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.country} - {order.shippingAddress.postalCode}</Paragraph>
                 </View>
-                {order.orderStatus === 'Shipped' && order.orderStatus !== 'Delivered' &&
+                {order.orderStatus !== 'In Review' && order.orderStatus !== 'Pending' && order.orderStatus !== 'Processing' &&
                     <ButtonComponent
                         title={'Download Invoice'}
                         color={'#ff6600'}
 
-                        onPress={() => handleChatDownloadInvoice(order)}
+                        onPress={() => handleChatDownloadInvoice(order, contact)}
                         style={styles.downloadButton}
                     />
-                    // <Button
-                    //     mode="outlined"
-                    //     onPress={() => handleChatDownloadInvoice(order)}
-                    //     style={styles.downloadButton}
-                    // >
-                    //     Download Invoice
-                    // </Button>
                 }
 
             </Card.Content>

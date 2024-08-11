@@ -9,7 +9,7 @@ import ButtonComponent from '../../../components/Button';
 import OutlinedBtn from '../../../components/OutlinedBtn';
 
 
-const OrderItem = ({ order, navigation }) => {
+const OrderItem = ({ order, navigation, contact }) => {
     const { data } = useSelector(state => state.local);
     const customerId = data.user._id;
     const dispatch = useDispatch();
@@ -105,7 +105,7 @@ const OrderItem = ({ order, navigation }) => {
                         title={'Download Invoice'}
                         color={'#ff6600'}
 
-                        onPress={() => handleDownloadInvoice(order)}
+                        onPress={() => handleDownloadInvoice(order, contact)}
                         style={styles.downloadButton}
                     />
                 </View>
