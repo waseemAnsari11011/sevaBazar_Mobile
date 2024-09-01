@@ -20,6 +20,7 @@ const LocationSearch = ({ navigation, route }) => {
     name: '',
     phone: '',
     description: '',
+    landmark:'',
     pincode: '',
     state: '',
     country: '',
@@ -41,6 +42,7 @@ const LocationSearch = ({ navigation, route }) => {
         name: address.name,
         phone: address.phone,
         description: address.address,
+        landmark:address.landmark,
         pincode: address.postalCode,
         state: address.state,
         country: address.country,
@@ -58,13 +60,14 @@ const LocationSearch = ({ navigation, route }) => {
         return;
       }
 
-      const { description, city, state, country, pincode, name, phone, isActive } = location;
+      const { description,landmark, city, state, country, pincode, name, phone, isActive } = location;
 
       console.log("isActive-->", isActive)
 
-      if (!description || !city || !state || !country || !pincode) {
+      if (!description || !landmark || !city || !state || !country || !pincode) {
         let missingFields = [];
         if (!description) missingFields.push('description');
+        if (!landmark) missingFields.push('landmark');
         if (!city) missingFields.push('city');
         if (!state) missingFields.push('state');
         if (!country) missingFields.push('country');
@@ -85,6 +88,7 @@ const LocationSearch = ({ navigation, route }) => {
           name,
           phone,
           addressLine1: description,
+          landmark,
           city,
           state,
           country,
@@ -97,6 +101,7 @@ const LocationSearch = ({ navigation, route }) => {
           name,
           phone,
           addressLine1: description,
+          landmark,
           city,
           state,
           country,
@@ -142,6 +147,7 @@ const LocationSearch = ({ navigation, route }) => {
     setManualLocation({
       ...manualLocation,
       description: data.description,
+      landmark,
       pincode: pincode,
       state: state,
       country,

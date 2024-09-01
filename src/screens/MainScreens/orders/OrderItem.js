@@ -57,8 +57,13 @@ const OrderItem = ({ order, navigation, contact }) => {
                 {order?.vendors.length > 0 && order?.vendors?.map((vendorItem) => (
                     <View key={vendorItem?.vendor?._id} style={styles.vendorContainer}>
                         <Paragraph style={[styles.orderStatus, { color: getStatusColor(vendorItem.orderStatus), fontWeight: 'bold' }]}>
-                            <Icon.FontAwesome name="info-circle" size={16} /> Order Status: {vendorItem.orderStatus}
+                            <Icon.FontAwesome name="info-circle" size={16} />
+                            {vendorItem.orderStatus === 'Delivered'
+                                ? ` Delivered within ${vendorItem.deliveredInMin} min`
+                                : ` Order Status: ${vendorItem.orderStatus}`
+                            }
                         </Paragraph>
+
                         {vendorItem.orderStatus !== 'Cancelled' && vendorItem.orderStatus !== 'Delivered' && vendorItem.orderStatus !== 'Shipped' && (
                             <View style={{ marginVertical: 5 }}>
                                 <OutlinedBtn buttonWidth={160} textColor={'red'} borderColor={'red'} onPress={() => handleCancelOrder(order._id, vendorItem.vendor._id)} />
@@ -72,11 +77,11 @@ const OrderItem = ({ order, navigation, contact }) => {
                             return (
                                 <TouchableOpacity key={productItem._id} style={styles.productContainer} onPress={() =>
                                     navigation.navigate('Details', { product: productItem?.product })
-                                  }>
+                                }>
                                     <Paragraph style={styles.productName}><Icon.FontAwesome name="cube" size={16} /> Product: {productItem?.product?.name}</Paragraph>
-                                    <Paragraph style={[styles.orderId, isCritical ? styles.critical:styles.notcritical]}>
+                                    {vendorItem.orderStatus !== 'Delivered'&&<Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}>
                                         <Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}
-                                    </Paragraph>
+                                    </Paragraph>}
                                     <Paragraph style={styles.productDetails}><Icon.FontAwesome name="sort-numeric-asc" size={16} /> Quantity: {productItem?.quantity}</Paragraph>
                                     <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: ₹{productItem?.price}</Paragraph>
                                     <Paragraph style={styles.productDetails}><Icon.FontAwesome name="percent" size={16} /> Discount: {productItem?.discount}%</Paragraph>

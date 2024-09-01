@@ -35,6 +35,7 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
 
                 if (location) {
                     handleManualLocationChange('description', location.description);
+                    handleManualLocationChange('landmark', location.landmark);
                     handleManualLocationChange('city', location.city);
                     handleManualLocationChange('state', location.state);
                     handleManualLocationChange('country', location.country);
@@ -102,6 +103,12 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
                         placeholder="Address"
                         value={manualLocation?.description}
                         onChangeText={(text) => handleManualLocationChange('description', text)}
+                    />
+                    <TextInput
+                        style={styles.textInput}
+                        placeholder="Landmark"
+                        value={manualLocation?.landmark}
+                        onChangeText={(text) => handleManualLocationChange('landmark', text)}
                     />
                     <TextInput
                         style={styles.textInput}

@@ -56,11 +56,15 @@ const ChatOrderItem = ({ order, contact }) => {
             <Card.Content>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order.orderId}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
-                <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}</Paragraph>
+                {order.orderStatus!=='Delivered'&&<Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}</Paragraph>}
 
                 <Paragraph style={[styles.orderStatus, { color: getStatusColor(order.orderStatus), fontWeight: 'bold' }]}>
-                    <Icon.FontAwesome name="info-circle" size={16} /> Order Status: {order.orderStatus}
+                    <Icon.FontAwesome name="info-circle" size={16} /> Order Status:
+                    {order.orderStatus === 'Delivered'
+                        ? ` Delivered within ${order.deliveredInMin} minutes`
+                        : ` ${order.orderStatus}`}
                 </Paragraph>
+
                 {order.orderStatus !== 'Cancelled' && order.orderStatus !== 'Delivered' && order.orderStatus !== 'Shipped' && (
                     <OutlinedBtn buttonWidth={160} textColor={'red'} borderColor={'red'} onPress={() => handleCancelOrder(order._id)} />
 

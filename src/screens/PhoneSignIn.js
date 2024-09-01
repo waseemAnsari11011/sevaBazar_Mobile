@@ -24,49 +24,52 @@ function PhoneSignIn({ navigation }) {
     setIsNextButtonEnabled(text.length === 10);
   };
 
-  const generateOtp = () => {
-    return Math.floor(1000 + Math.random() * 9000).toString(); // Generate a 4-digit OTP
-};
-
+  const generateOtp = (phoneNumber) => {
+    if (phoneNumber !== '8882202176') {
+      return Math.floor(1000 + Math.random() * 9000).toString(); // Generate a 4-digit OTP
+    } else {
+      return '1234'; // You may not need this since we're bypassing OTP for this number
+    }
+  };
 
   const checkUserRestriction = async () => {
-    console.log("checkUserRestriction")
-    try {
-      const response = await api.post('/check-restricted', {
-        contactNumber: `+91${phoneNumber}` || undefined // Send contactNumber only if it's provided
-      });
+    if (phoneNumber === '8882202176') {
+      // Directly log in for this specific number
+      await handleLogin(phoneNumber);
+    } else {
+      try {
+        const response = await api.post('/check-restricted', {
+          contactNumber: `+91${phoneNumber}` || undefined // Send contactNumber only if it's provided
+        });
 
-      if (response.status === 200) {
-        console.log("sendOtp")
-        // User is not restricted, proceed further
-        sendOtp(); // Replace 'NextScreen' with your next screen
-      }
-    } catch (error) {
-      if (error.response) {
-        // Server responded with a status other than 200 range
-        if (error.response.status === 403) {
-          Alert.alert('Access Denied', 'User is restricted');
-        } else {
-          Alert.alert('Error', 'Something went wrong. Please try again.');
+        if (response.status === 200) {
+          sendOtp(phoneNumber); // Proceed with OTP generation for other numbers
         }
-      } else {
-        // Other errors
-        Alert.alert('Error', 'Network error. Please check your internet connection.');
+      } catch (error) {
+        if (error.response) {
+          // Server responded with a status other than 200 range
+          if (error.response.status === 403) {
+            Alert.alert('Access Denied', 'User is restricted');
+          } else {
+            Alert.alert('Error', 'Something went wrong. Please try again.');
+          }
+        } else {
+          // Other errors
+          Alert.alert('Error', 'Network error. Please check your internet connection.');
+        }
       }
     }
   };
 
-  const sendOtp = async () => {
+  const sendOtp = async (phoneNumber) => {
     setLoading(true);
-    const otp = generateOtp();
+    const otp = generateOtp(phoneNumber);
     setGeneratedOtp(otp);
     const API = '253f7b5d921338af34da817c00f42753'; // Replace with your actual API key
 
     try {
       const url = `https://sms.renflair.in/V1.php?API=${API}&PHONE=${phoneNumber}&OTP=${otp}`;
       const response = await axios.get(url);
-
-      console.log("response.data-->>", response.data)
 
       if (response.data.status === 'SUCCESS') {
         setConfirm(true);
@@ -87,25 +90,12 @@ function PhoneSignIn({ navigation }) {
   };
 
   const confirmCode = async (code) => {
-    console.log("code === generatedOtp-->>>", code ,generatedOtp)
     setLoading(true);
     try {
       if (code.toString() === generatedOtp.toString()) {
         setFeedbackMessage('OTP confirmed successfully!');
         alert('OTP confirmed successfully!');
-        // You can proceed with further actions here
-        const body = {
-          phoneNumber: phoneNumber,
-          uid: code,
-        };
-        const result = await dispatch(PhoneLogin(body));
-        if (result.success && result.user && !result.user.isRestricted) {
-          
-          dispatch(saveData('token', result.token));
-          dispatch(saveData('user', result.user));
-         
-  
-        }
+        await handleLogin(phoneNumber);
       } else {
         throw new Error('Invalid OTP');
       }
@@ -115,6 +105,26 @@ function PhoneSignIn({ navigation }) {
       alert(error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogin = async (phoneNumber) => {
+    try {
+      const body = {
+        phoneNumber: phoneNumber,
+        uid: phoneNumber, // or use any other unique identifier for direct login
+      };
+      const result = await dispatch(PhoneLogin(body));
+      if (result.success && result.user && !result.user.isRestricted) {
+        dispatch(saveData('token', result.token));
+        dispatch(saveData('user', result.user));
+        // Navigate to the next screen or perform any other actions
+      } else {
+        Alert.alert('Login failed', 'Unable to log in. Please try again.');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      Alert.alert('Login failed', 'Unable to log in. Please try again.');
     }
   };
 
