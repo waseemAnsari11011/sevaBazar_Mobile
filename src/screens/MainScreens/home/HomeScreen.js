@@ -61,7 +61,7 @@ const HomeScreen = ({ navigation }) => {
     };
 
     fetchAndUpdateFcm();
-  }, []);
+  }, [data?.user?._id]);
 
 
   useEffect(() => {
