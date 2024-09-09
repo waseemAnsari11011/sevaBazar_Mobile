@@ -1,10 +1,9 @@
 // SearchBar.js
-import React from 'react';
 import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from './Icons/Icon';
 
-const SearchBar = ({ isInput = false, onChangeText, onSubmitEditing }) => {
+const SearchBar = ({ isInput = false, onChangeText, onSubmitEditing,onscrolllist }) => {
     const navigation = useNavigation();
 
     const handlePress = () => {
@@ -12,11 +11,14 @@ const SearchBar = ({ isInput = false, onChangeText, onSubmitEditing }) => {
             navigation.navigate('Search Your Products'); // Replace with your screen name
         }
     };
+   
 
     return (
         <View style={styles.stickyContainer}>
             <View style={styles.rowContainer}>
+                <TouchableOpacity onPress={onscrolllist}>
                 <Image source={require('../assets/images/brandMain.png')} style={styles.brandImage} />
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.container} onPress={handlePress} disabled={isInput}>
                     <View style={styles.inputContainer}>
                         {isInput ? (
@@ -93,6 +95,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginLeft: 10,
     },
+    
 });
 
 export default SearchBar;

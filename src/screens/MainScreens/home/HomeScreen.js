@@ -9,7 +9,7 @@ import {
   Dimensions,
   FlatList
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useRef } from 'react';
 import Card from '../../../components/Card';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../../config/redux/actions/cartActions';
@@ -122,6 +122,14 @@ const HomeScreen = ({ navigation }) => {
   //     dispatch(resetProductsByCategory());
   //   };
   // }, [dispatch]);
+
+  const scrollViewRef = useRef(null);
+  const scrollToTop = () => {
+    // console.log('entered scroll');
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToOffset({ offset: 0, animated: true });
+    }
+    };
 
 
   const handleCategoryNavigate = async () => {
@@ -320,14 +328,17 @@ const HomeScreen = ({ navigation }) => {
   );
 
 
+
+
   return (
     <View style={{ flex: 1, paddingTop: 60 }}>
       {categoryLoading && <Loading />}
 
-      <SearchBar />
-
+      <SearchBar onscrolllist={scrollToTop}/>
+  
 
       <FlatList
+        ref={scrollViewRef}
         data={allProducts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItems}
