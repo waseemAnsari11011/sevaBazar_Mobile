@@ -166,6 +166,14 @@ const HomeScreen = ({ navigation }) => {
     })
   }
 
+  // latest product on top
+  const sortProductsByDate = (products) => {
+    return [...products].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  };
+  
+  // The sorted products array
+  const sortedCategoryProducts = sortProductsByDate(firstCategoryProducts);
+
 
   const renderCategory = ({ item }) => (
     <View>
@@ -265,6 +273,8 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </View>
 
+    
+
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>On Sale</Text>
         <TouchableOpacity
@@ -291,6 +301,10 @@ const HomeScreen = ({ navigation }) => {
 
       />
 
+
+
+        {/* Kirana store section  */}
+      {console.log('kirana store',firstCategoryProducts)}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>{category[0]?.name}</Text>
         <TouchableOpacity
@@ -302,7 +316,7 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <FlatList
-        data={firstCategoryProducts}
+        data={sortedCategoryProducts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItems}
         numColumns={2}

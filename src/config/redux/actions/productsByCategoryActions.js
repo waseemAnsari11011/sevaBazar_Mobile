@@ -13,7 +13,7 @@ export const fetchProductsByCategory = (categoryId, page, limit, userLocation) =
     dispatch({ type: FETCH_PRODUCTS_BY_CATEGORY_REQUEST });
     try {
         console.log("categoryId, page, limit", categoryId, page, limit);
-        const response = await api.get(`/categories/${categoryId}/products`, {
+        const response = await api.get('/get-all-products', {
             params: { page, limit, userLocation },
         });
         console.log("response.data.products.length", response.data.products.length)
