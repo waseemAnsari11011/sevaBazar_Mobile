@@ -4,7 +4,7 @@ import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from 'reac
 import { useNavigation } from '@react-navigation/native';
 import Icon from './Icons/Icon';
 
-const SearchBar = ({ isInput = false, onChangeText, onSubmitEditing }) => {
+const SearchBar = ({ isInput = false, onChangeText, onSubmitEditing, scrollToTop }) => {
     const navigation = useNavigation();
 
     const handlePress = () => {
@@ -13,10 +13,19 @@ const SearchBar = ({ isInput = false, onChangeText, onSubmitEditing }) => {
         }
     };
 
+    const handleLogoPress = () => {
+        console.log("Logo pressed")
+        if (scrollToTop) {
+            scrollToTop();  // Scroll to top when logo is pressed
+        }
+    };
+
     return (
         <View style={styles.stickyContainer}>
             <View style={styles.rowContainer}>
-                <Image source={require('../assets/images/brandMain.png')} style={styles.brandImage} />
+                <TouchableOpacity onPress={handleLogoPress}>
+                    <Image source={require('../assets/images/brandMain.png')} style={styles.brandImage} />
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.container} onPress={handlePress} disabled={isInput}>
                     <View style={styles.inputContainer}>
                         {isInput ? (

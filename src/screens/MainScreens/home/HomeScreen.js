@@ -9,7 +9,7 @@ import {
   Dimensions,
   FlatList
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Card from '../../../components/Card';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from '../../../config/redux/actions/cartActions';
@@ -31,11 +31,22 @@ import { fetchProductsByCategory, resetProductsByCategory } from '../../../confi
 import { fetchAllProducts, updateAllProductsPage, resetAllProducts } from '../../../config/redux/actions/fetchAllProductsActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { updateFcm } from '../../../config/redux/actions/customerActions';
+import AllCategoryProducts from '../../../components/AllCategoryProducts';
+import { fetchAllCategoryProducts, resetFetchAllCategoryProducts } from '../../../config/redux/actions/getallCategoryProductsActions';
 
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
+  const flatListRef = useRef(null);
+
+  // Function to scroll to the top
+  const scrollToTop = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+    }
+  };
+
   const dispatch = useDispatch();
   const { loading: categoryLoading, category, error: categoryError } = useSelector(
     state => state.categories,
@@ -47,10 +58,13 @@ const HomeScreen = ({ navigation }) => {
   const { loading: recentlyAddedLoading, products: recentlyAddedProducts, error: recentlyAddedError, } = useSelector(state => state.recentlyAddedProducts);
   const { loading: onDiscountLoading, products: onDiscountProducts, error: onDiscountError, } = useSelector(state => state.discountedProducts);
   const { loading: firstCategoryLoading, products: firstCategoryProducts, error: firstCategoryError, } = useSelector(state => state.categoryProducts);
+  const { loading: allCategoryProductsLoading, data: allCategoryProducts, error: allCategoryProductsError, } = useSelector(state => state.allCategoryProducts);
 
   ////////////FETCH ALL PRODUCTS/////////////
   const { loading: allProductsLoading, products: allProducts, error: allProductsError, page, limit, reachedEnd } = useSelector(state => state.allProducts);
 
+
+  console.log("allCategoryProducts==>>>", allCategoryProducts)
 
   useEffect(() => {
     const fetchAndUpdateFcm = async () => {
@@ -108,6 +122,10 @@ const HomeScreen = ({ navigation }) => {
       dispatch(fetchDiscountedProducts(1, 4, data?.user.availableLocalities))
     }
 
+    if (!allCategoryProductsLoading) {
+      dispatch(fetchAllCategoryProducts())
+    }
+
 
   }, [dispatch]);
 
@@ -133,7 +151,7 @@ const HomeScreen = ({ navigation }) => {
   }
 
   const handleAllProductsNavigate = async () => {
-    await dispatch(resetProductsByCategory());
+    await dispatch(resetFetchAllCategoryProducts());
     navigation.navigate('CategoryProducts', {
       categoryId: category[0]?._id,
       categoryTitle: category[0]?.name,
@@ -283,7 +301,7 @@ const HomeScreen = ({ navigation }) => {
 
       />
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>{category[0]?.name}</Text>
         <TouchableOpacity
           onPress={handleCategoryNavigate}
@@ -304,17 +322,11 @@ const HomeScreen = ({ navigation }) => {
         }}
         contentContainerStyle={{ padding: 15 }}
 
-      />
+      /> */}
+       <AllCategoryProducts allCategoryProducts={allCategoryProducts}  />
 
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>All Products</Text>
-        {/* <TouchableOpacity
-          onPress={handleAllProductsNavigate}
-          style={{ flexDirection: 'row', alignItems: 'center' }}
-        >
-          <Text style={{ color: '#ff6600', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
-          <Icon.AntDesign name="right" color="#ff6600" size={13} />
-        </TouchableOpacity> */}
       </View>
     </View>
   );
@@ -324,10 +336,11 @@ const HomeScreen = ({ navigation }) => {
     <View style={{ flex: 1, paddingTop: 60 }}>
       {categoryLoading && <Loading />}
 
-      <SearchBar />
+      <SearchBar scrollToTop={scrollToTop} />
 
 
       <FlatList
+        ref={flatListRef}
         data={allProducts}
         keyExtractor={(item, index) => index.toString()}
         renderItem={renderItems}

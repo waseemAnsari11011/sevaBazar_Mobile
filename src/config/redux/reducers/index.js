@@ -18,6 +18,7 @@ import bannerReducer from './bannerReducer';
 import productReducer from './productReducer';
 import allProductsReducer from './fetchAllProductsReducer';
 import chatOrderReducer from './chatOrderReducer';
+import allCategoryProductsReducer from './getallCategoryProductsReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -38,7 +39,8 @@ const rootReducer = combineReducers({
   banners: bannerReducer,
   product: productReducer,
   allProducts:allProductsReducer,
-  chatOrder: chatOrderReducer
+  chatOrder: chatOrderReducer,
+  allCategoryProducts:allCategoryProductsReducer,
 });
 
 export default rootReducer;
