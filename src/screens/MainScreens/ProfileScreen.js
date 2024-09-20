@@ -44,11 +44,16 @@ const ProfileScreen = ({ navigation }) => {
   const handlePhoneCall = () => {
     Linking.openURL(`tel:${contact?.phone?contact?.phone:phoneNumber}`);
   };
+  const openLink = () => {
+    Linking.openURL('https://waizcom.com');
+  };
 
-console.log("data.user.shippingAddresses", data.user.shippingAddresses)
 
   return (
-    <ScrollView style={{ backgroundColor: 'white' }}>
+    <ScrollView contentContainerStyle={{  flex: 1, backgroundColor: 'white' , justifyContent:"space-between" }}>
+    <View>
+
+   
       <View
         style={{
           flexDirection: 'row',
@@ -206,6 +211,16 @@ console.log("data.user.shippingAddresses", data.user.shippingAddresses)
         <AntDesign name="right" style={{ color: '#000066' }} size={20} />
       </TouchableOpacity>
       <View style={styles.borderBottom}></View>
+      </View>
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Seva Bazar</Text>
+        <Text style={styles.footerSubText}>© 2024 Seva Bazar.</Text>
+        <TouchableOpacity onPress={openLink}>
+          <Text style={[styles.footerSubText, { color: 'blue', textDecorationLine: 'underline' }]}>
+            Developed by Waizcom.com
+          </Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
@@ -242,5 +257,18 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginLeft: 15,
     marginRight: 15,
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: 20,
+    padding:20
+  },
+  footerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  footerSubText: {
+    fontSize: 16,
+    color: '#666',
   },
 });
