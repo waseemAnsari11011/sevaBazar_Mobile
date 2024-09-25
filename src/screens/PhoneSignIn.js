@@ -14,7 +14,7 @@ function PhoneSignIn({ navigation }) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isNextButtonEnabled, setIsNextButtonEnabled] = useState(false);
   const [countdown, setCountdown] = useState(60);
-  const [isResendButtonDisabled, setIsResendButtonDisabled] = useState(true);
+  const [isResendButtonDisabled, setIsResendButtonDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [generatedOtp, setGeneratedOtp] = useState(null); // Store the generated OTP
@@ -147,12 +147,21 @@ function PhoneSignIn({ navigation }) {
             />
           </View>
           <TouchableOpacity
-            style={[styles.nextButton, { backgroundColor: isNextButtonEnabled ? '#ff6600' : '#ccc' }]}
+            style={[
+              styles.nextButton,
+              { backgroundColor: isNextButtonEnabled && !isResendButtonDisabled ? '#ff6600' : '#ccc' }
+            ]}
             onPress={checkUserRestriction}
-            disabled={!isNextButtonEnabled || loading}
+            disabled={!isNextButtonEnabled || loading || isResendButtonDisabled}
           >
-            <Text style={[styles.nextButtonText, { color: isNextButtonEnabled ? 'white' : 'black' }]}>Next</Text>
+            <Text style={[
+              styles.nextButtonText,
+              { color: isNextButtonEnabled && !isResendButtonDisabled ? 'white' : 'black' }
+            ]}>
+              Next
+            </Text>
           </TouchableOpacity>
+
         </View>
         {confirm && (
           <OtpInputScreen
