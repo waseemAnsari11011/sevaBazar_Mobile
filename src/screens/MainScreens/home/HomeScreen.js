@@ -7,12 +7,12 @@ import {
   ActivityIndicator,
   Image,
   Dimensions,
-  FlatList
+  FlatList,
 } from 'react-native';
-import React, { useEffect, useState, useRef } from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import Card from '../../../components/Card';
-import { useDispatch, useSelector } from 'react-redux';
-import { addToCart } from '../../../config/redux/actions/cartActions';
+import {useDispatch, useSelector} from 'react-redux';
+import {addToCart} from '../../../config/redux/actions/cartActions';
 
 import Loading from '../../../components/Loading';
 import Icon from '../../../components/Icons/Icon';
@@ -20,51 +20,96 @@ import CardProducts from '../../../components/CardProducts';
 import SearchBar from '../../../components/SearchBar';
 import CustomImageCarousal from '../../../components/CustomImageCarousalLandscape';
 import ProductCard from '../../../components/ProductCard';
-import { baseURL } from '../../../utils/api';
-import { fetchRecentlyAddedProducts, updateRecentlyAddedProductsPage, resetRecentlyAddedProducts } from '../../../config/redux/actions/recentlyAddedActions';
-import { fetchCategories } from '../../../config/redux/actions/categoryAction';
-import { fetchDiscountedProducts, updateDiscountedProductsPage, resetDiscountedProducts } from '../../../config/redux/actions/discountedProductsActions';
-import { getBanners } from '../../../config/redux/actions/bannerActions';
+import {baseURL} from '../../../utils/api';
+import {
+  fetchRecentlyAddedProducts,
+  updateRecentlyAddedProductsPage,
+  resetRecentlyAddedProducts,
+} from '../../../config/redux/actions/recentlyAddedActions';
+import {fetchCategories} from '../../../config/redux/actions/categoryAction';
+import {
+  fetchDiscountedProducts,
+  updateDiscountedProductsPage,
+  resetDiscountedProducts,
+} from '../../../config/redux/actions/discountedProductsActions';
+import {getBanners} from '../../../config/redux/actions/bannerActions';
 import DealOfDay from './DealOfDay';
 import ProductCarousel from './ProductCarousel';
-import { fetchProductsByCategory, resetProductsByCategory } from '../../../config/redux/actions/productsByCategoryActions';
-import { fetchAllProducts, updateAllProductsPage, resetAllProducts } from '../../../config/redux/actions/fetchAllProductsActions';
+import {
+  fetchProductsByCategory,
+  resetProductsByCategory,
+} from '../../../config/redux/actions/productsByCategoryActions';
+import {
+  fetchAllProducts,
+  updateAllProductsPage,
+  resetAllProducts,
+} from '../../../config/redux/actions/fetchAllProductsActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { updateFcm } from '../../../config/redux/actions/customerActions';
+import {updateFcm} from '../../../config/redux/actions/customerActions';
 import AllCategoryProducts from '../../../components/AllCategoryProducts';
-import { fetchAllCategoryProducts, resetFetchAllCategoryProducts } from '../../../config/redux/actions/getallCategoryProductsActions';
+import {
+  fetchAllCategoryProducts,
+  resetFetchAllCategoryProducts,
+} from '../../../config/redux/actions/getallCategoryProductsActions';
 
+const {width} = Dimensions.get('window');
 
-const { width } = Dimensions.get('window');
-
-const HomeScreen = ({ navigation }) => {
+const HomeScreen = ({navigation}) => {
   const flatListRef = useRef(null);
 
   // Function to scroll to the top
   const scrollToTop = () => {
     if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
+      flatListRef.current.scrollToOffset({animated: true, offset: 0});
     }
   };
 
   const dispatch = useDispatch();
-  const { loading: categoryLoading, category, error: categoryError } = useSelector(
-    state => state.categories,
-  );
-  const { loading: bannerLoading, banners, error: bannerError } = useSelector(state => state.banners);
+  const {
+    loading: categoryLoading,
+    category,
+    error: categoryError,
+  } = useSelector(state => state.categories);
+  const {
+    loading: bannerLoading,
+    banners,
+    error: bannerError,
+  } = useSelector(state => state.banners);
 
-  const { data } = useSelector(state => state?.local);
+  const {data} = useSelector(state => state?.local);
 
-  const { loading: recentlyAddedLoading, products: recentlyAddedProducts, error: recentlyAddedError, } = useSelector(state => state.recentlyAddedProducts);
-  const { loading: onDiscountLoading, products: onDiscountProducts, error: onDiscountError, } = useSelector(state => state.discountedProducts);
-  const { loading: firstCategoryLoading, products: firstCategoryProducts, error: firstCategoryError, } = useSelector(state => state.categoryProducts);
-  const { loading: allCategoryProductsLoading, data: allCategoryProducts, error: allCategoryProductsError, } = useSelector(state => state.allCategoryProducts);
+  const {
+    loading: recentlyAddedLoading,
+    products: recentlyAddedProducts,
+    error: recentlyAddedError,
+  } = useSelector(state => state.recentlyAddedProducts);
+  const {
+    loading: onDiscountLoading,
+    products: onDiscountProducts,
+    error: onDiscountError,
+  } = useSelector(state => state.discountedProducts);
+  const {
+    loading: firstCategoryLoading,
+    products: firstCategoryProducts,
+    error: firstCategoryError,
+  } = useSelector(state => state.categoryProducts);
+  const {
+    loading: allCategoryProductsLoading,
+    data: allCategoryProducts,
+    error: allCategoryProductsError,
+  } = useSelector(state => state.allCategoryProducts);
 
   ////////////FETCH ALL PRODUCTS/////////////
-  const { loading: allProductsLoading, products: allProducts, error: allProductsError, page, limit, reachedEnd } = useSelector(state => state.allProducts);
+  const {
+    loading: allProductsLoading,
+    products: allProducts,
+    error: allProductsError,
+    page,
+    limit,
+    reachedEnd,
+  } = useSelector(state => state.allProducts);
 
-
-  console.log("allCategoryProducts==>>>", allCategoryProducts)
+  console.log('data?.user==>>>', data?.user);
 
   useEffect(() => {
     const fetchAndUpdateFcm = async () => {
@@ -77,13 +122,10 @@ const HomeScreen = ({ navigation }) => {
     fetchAndUpdateFcm();
   }, [data?.user?._id]);
 
-
   useEffect(() => {
     if (!reachedEnd && !allProductsLoading) {
-
-      console.log("more is calling it #####")
+      console.log('more is calling it #####');
       dispatch(fetchAllProducts(page, limit, data?.user.availableLocalities));
-
     }
   }, [page]);
 
@@ -94,7 +136,6 @@ const HomeScreen = ({ navigation }) => {
       // dispatch(fetchAllProducts(1, 4, data?.user.availableLocalities));
     };
   }, [dispatch]);
-
 
   const fetchMoreProducts = () => {
     if (!allProductsLoading && !reachedEnd) {
@@ -108,30 +149,34 @@ const HomeScreen = ({ navigation }) => {
     dispatch(getBanners());
   }, [dispatch]);
 
-
-
-
   useEffect(() => {
     if (!categoryLoading) {
       dispatch(fetchCategories());
     }
     if (!categoryLoading) {
-      dispatch(fetchRecentlyAddedProducts(1, 4, data?.user.availableLocalities))
+      dispatch(
+        fetchRecentlyAddedProducts(1, 4, data?.user.availableLocalities),
+      );
     }
     if (!onDiscountLoading) {
-      dispatch(fetchDiscountedProducts(1, 4, data?.user.availableLocalities))
+      dispatch(fetchDiscountedProducts(1, 4, data?.user.availableLocalities));
     }
 
     if (!allCategoryProductsLoading) {
-      dispatch(fetchAllCategoryProducts())
+      dispatch(fetchAllCategoryProducts());
     }
-
-
   }, [dispatch]);
 
   useEffect(() => {
     if (!firstCategoryLoading && category.length > 0) {
-      dispatch(fetchProductsByCategory(category[0]?._id, 1, 4, data?.user.availableLocalities))
+      dispatch(
+        fetchProductsByCategory(
+          category[0]?._id,
+          1,
+          4,
+          data?.user.availableLocalities,
+        ),
+      );
     }
   }, [category]);
 
@@ -141,46 +186,41 @@ const HomeScreen = ({ navigation }) => {
   //   };
   // }, [dispatch]);
 
-
   const handleCategoryNavigate = async () => {
     await dispatch(resetProductsByCategory());
     navigation.navigate('CategoryProducts', {
       categoryId: category[0]?._id,
       categoryTitle: category[0]?.name,
-    })
-  }
+    });
+  };
 
   const handleAllProductsNavigate = async () => {
     await dispatch(resetFetchAllCategoryProducts());
     navigation.navigate('CategoryProducts', {
       categoryId: category[0]?._id,
       categoryTitle: category[0]?.name,
-    })
-  }
-
-
+    });
+  };
 
   if (categoryError) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <Text>{categoryError}</Text>
       </View>
     );
   }
 
-  const handleNavigateProductsByCategory = async (item) => {
+  const handleNavigateProductsByCategory = async item => {
     await dispatch(resetProductsByCategory());
     navigation.navigate('CategoryProducts', {
       categoryId: item._id,
       categoryTitle: item.name,
-    })
-  }
+    });
+  };
 
-
-  const renderCategory = ({ item }) => (
+  const renderCategory = ({item}) => (
     <View>
-      <TouchableOpacity
-        onPress={() => handleNavigateProductsByCategory(item)}>
+      <TouchableOpacity onPress={() => handleNavigateProductsByCategory(item)}>
         <View
           style={{
             alignSelf: 'baseline',
@@ -188,51 +228,87 @@ const HomeScreen = ({ navigation }) => {
             padding: 10,
             // elevation: 10,
           }}>
-          <View style={{ borderWidth: 1, padding: 10, borderRadius: 5, borderColor: '#00006680' }}>
+          <View
+            style={{
+              borderWidth: 1,
+              padding: 10,
+              borderRadius: 5,
+              borderColor: '#00006680',
+            }}>
             <Image
-              source={{ uri: `${baseURL}${item?.images[0]}` }}
+              source={{uri: `${baseURL}${item?.images[0]}`}}
               style={{
-                width: 75, height: 75, borderRadius: 10,
+                width: 75,
+                height: 75,
+                borderRadius: 10,
               }}
             />
           </View>
 
-          <Text style={{ marginTop: 10, fontSize: 13, fontWeight: '400', color: "#000000" }}>{item.name}</Text>
+          <Text
+            style={{
+              marginTop: 10,
+              fontSize: 13,
+              fontWeight: '400',
+              color: '#000000',
+            }}>
+            {item.name}
+          </Text>
         </View>
       </TouchableOpacity>
     </View>
   );
 
-  const renderItems = ({ item }) => (
-
-    <TouchableOpacity style={{}} onPress={() =>
-      navigation.navigate('Details', { product: item })
-    }>
+  const renderItems = ({item}) => (
+    <TouchableOpacity
+      style={{}}
+      onPress={() => navigation.navigate('Details', {product: item})}>
       <ProductCard item={item} />
     </TouchableOpacity>
-
   );
 
-
   const ListHeaderComponent = () => (
-    <View style={{
-    }}>
-      <View style={{ marginTop: 20 }}>
-        <View style={{ marginHorizontal: -20 }}>
-          <CustomImageCarousal data={banners} autoPlay={true} pagination={true} />
+    <View style={{}}>
+      <View style={{marginTop: 20}}>
+        <View style={{marginHorizontal: -20}}>
+          <CustomImageCarousal
+            data={banners}
+            autoPlay={true}
+            pagination={true}
+          />
         </View>
       </View>
-      <View style={{ marginBottom: 10, }}>
+      <View style={{marginBottom: 10}}>
         {/* <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>Explore Categories</Text> */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>Explore Categories</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: '700',
+              marginVertical: 5,
+              color: '#000000',
+            }}>
+            Explore Categories
+          </Text>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('All Categories', { categoriesData: category })
+              navigation.navigate('All Categories', {categoriesData: category})
             }
-            style={{ flexDirection: 'row', alignItems: 'center' }}
-          >
-            <Text style={{ color: '#000066', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+            style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Text
+              style={{
+                color: '#000066',
+                marginRight: 5,
+                fontSize: 15,
+                fontWeight: 600,
+              }}>
+              View all
+            </Text>
             <Icon.AntDesign name="right" color="#000066" size={13} />
           </TouchableOpacity>
         </View>
@@ -241,10 +317,9 @@ const HomeScreen = ({ navigation }) => {
           showsHorizontalScrollIndicator={false}
           directionalLockEnabled={true}
           alwaysBounceVertical={false}
-          style={{ marginHorizontal: -10 }}
-        >
+          style={{marginHorizontal: -10}}>
           <FlatList
-            contentContainerStyle={{ alignSelf: "flex-start" }}
+            contentContainerStyle={{alignSelf: 'flex-start'}}
             numColumns={Math.ceil(category.length / 2)}
             showsVerticalScrollIndicator={false}
             showsHorizontalScrollIndicator={false}
@@ -254,36 +329,71 @@ const HomeScreen = ({ navigation }) => {
             renderItem={renderCategory}
           />
         </ScrollView>
-        <View style={{ marginBottom: 15 }}>
+        <View style={{marginBottom: 15}}>
           <DealOfDay navigation={navigation} />
         </View>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>Latest Products</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: '700',
+              marginVertical: 5,
+              color: '#000000',
+            }}>
+            Latest Products
+          </Text>
           <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('New Arrivals')
-            }
-            style={{ flexDirection: 'row', alignItems: 'center' }}
-          >
-            <Text style={{ color: '#000066', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+            onPress={() => navigation.navigate('New Arrivals')}
+            style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Text
+              style={{
+                color: '#000066',
+                marginRight: 5,
+                fontSize: 15,
+                fontWeight: 600,
+              }}>
+              View all
+            </Text>
             <Icon.AntDesign name="right" color="#000066" size={13} />
           </TouchableOpacity>
         </View>
-        <View style={{ marginHorizontal: -20 }}>
-
+        <View style={{marginHorizontal: -20}}>
           <ProductCarousel navigation={navigation} />
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>On Sale</Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: '700',
+            marginVertical: 5,
+            color: '#000000',
+          }}>
+          On Sale
+        </Text>
         <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('Discounted Products')
-          }
-          style={{ flexDirection: 'row', alignItems: 'center' }}
-        >
-          <Text style={{ color: '#000066', marginRight: 5, fontSize: 15, fontWeight: 600 }}>View all</Text>
+          onPress={() => navigation.navigate('Discounted Products')}
+          style={{flexDirection: 'row', alignItems: 'center'}}>
+          <Text
+            style={{
+              color: '#000066',
+              marginRight: 5,
+              fontSize: 15,
+              fontWeight: 600,
+            }}>
+            View all
+          </Text>
           <Icon.AntDesign name="right" color="#000066" size={13} />
         </TouchableOpacity>
       </View>
@@ -297,8 +407,7 @@ const HomeScreen = ({ navigation }) => {
           justifyContent: 'space-between', // Adjusts spacing between items horizontally
           marginBottom: 5, // Adjusts spacing between rows
         }}
-        contentContainerStyle={{ padding: 15 }}
-
+        contentContainerStyle={{padding: 15}}
       />
 
       {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -323,21 +432,32 @@ const HomeScreen = ({ navigation }) => {
         contentContainerStyle={{ padding: 15 }}
 
       /> */}
-       <AllCategoryProducts allCategoryProducts={allCategoryProducts}  />
+      <AllCategoryProducts allCategoryProducts={allCategoryProducts} />
 
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 5, color: "#000000" }}>All Products</Text>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}>
+        <Text
+          style={{
+            fontSize: 18,
+            fontWeight: '700',
+            marginVertical: 5,
+            color: '#000000',
+          }}>
+          All Products
+        </Text>
       </View>
     </View>
   );
 
-
   return (
-    <View style={{ flex: 1, paddingTop: 60 }}>
+    <View style={{flex: 1, paddingTop: 60}}>
       {categoryLoading && <Loading />}
 
       <SearchBar scrollToTop={scrollToTop} />
-
 
       <FlatList
         ref={flatListRef}
@@ -346,17 +466,19 @@ const HomeScreen = ({ navigation }) => {
         renderItem={renderItems}
         onEndReached={fetchMoreProducts}
         onEndReachedThreshold={0}
-        ListFooterComponent={allProductsLoading ? <ActivityIndicator size="large" color="#0000ff" /> : null}
+        ListFooterComponent={
+          allProductsLoading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : null
+        }
         ListHeaderComponent={ListHeaderComponent}
         numColumns={2}
         columnWrapperStyle={{
           justifyContent: 'space-between', // Adjusts spacing between items horizontally
           marginBottom: 5, // Adjusts spacing between rows
         }}
-        contentContainerStyle={{ padding: 15 }}
-
+        contentContainerStyle={{padding: 15}}
       />
-
     </View>
   );
 };
@@ -366,7 +488,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     padding: 15,
-    backgroundColor: "#F0F8FF50",
+    backgroundColor: '#F0F8FF50',
   },
   wrapper: {
     height: 160,
@@ -375,5 +497,4 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
   },
-
 });
