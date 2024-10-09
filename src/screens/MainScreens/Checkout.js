@@ -108,11 +108,7 @@ const CheckoutScreen = ({navigation}) => {
         Alert.alert('Success', 'Order Placed Successfully!', [
           {
             text: 'OK',
-            onPress: () =>
-              navigation.reset({
-                index: 0,
-                routes: [{name: 'My order', params: {screen: 'My Orders'}}],
-              }),
+            onPress: () => navigation.navigate('Home'),
           },
         ]);
       })
