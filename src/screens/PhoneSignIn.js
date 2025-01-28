@@ -1,14 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { Button, TextInput, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { useDispatch } from 'react-redux';
+import React, {useState, useEffect} from 'react';
+import {
+  Button,
+  TextInput,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import {useDispatch} from 'react-redux';
 import OtpInputScreen from '../components/OtpInputScreen';
-import { saveData } from '../config/redux/actions/storageActions';
-import { PhoneLogin } from '../config/redux/actions/authActions';
+import {saveData} from '../config/redux/actions/storageActions';
+import {PhoneLogin} from '../config/redux/actions/authActions';
 import Loading from '../components/Loading';
 import api from '../utils/api';
 import axios from 'axios';
 
-function PhoneSignIn({ navigation }) {
+function PhoneSignIn({navigation}) {
   const dispatch = useDispatch();
   const [confirm, setConfirm] = useState(null);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -19,12 +28,12 @@ function PhoneSignIn({ navigation }) {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [generatedOtp, setGeneratedOtp] = useState(null); // Store the generated OTP
 
-  const handlePhoneNumberChange = (text) => {
+  const handlePhoneNumberChange = text => {
     setPhoneNumber(text);
     setIsNextButtonEnabled(text.length === 10);
   };
 
-  const generateOtp = (phoneNumber) => {
+  const generateOtp = phoneNumber => {
     if (phoneNumber !== '8882202176') {
       return Math.floor(1000 + Math.random() * 9000).toString(); // Generate a 4-digit OTP
     } else {
@@ -33,13 +42,15 @@ function PhoneSignIn({ navigation }) {
   };
 
   const checkUserRestriction = async () => {
+    setLoading(true);
+
     if (phoneNumber === '8882202176') {
       // Directly log in for this specific number
       await handleLogin(phoneNumber);
     } else {
       try {
         const response = await api.post('/check-restricted', {
-          contactNumber: `+91${phoneNumber}` || undefined // Send contactNumber only if it's provided
+          contactNumber: `+91${phoneNumber}` || undefined, // Send contactNumber only if it's provided
         });
 
         if (response.status === 200) {
@@ -55,14 +66,16 @@ function PhoneSignIn({ navigation }) {
           }
         } else {
           // Other errors
-          Alert.alert('Error', 'Network error. Please check your internet connection.');
+          Alert.alert(
+            'Error',
+            'Network error. Please check your internet connection.',
+          );
         }
       }
     }
   };
 
-  const sendOtp = async (phoneNumber) => {
-    setLoading(true);
+  const sendOtp = async phoneNumber => {
     const otp = generateOtp(phoneNumber);
     setGeneratedOtp(otp);
     const API = '253f7b5d921338af34da817c00f42753'; // Replace with your actual API key
@@ -89,7 +102,7 @@ function PhoneSignIn({ navigation }) {
     }
   };
 
-  const confirmCode = async (code) => {
+  const confirmCode = async code => {
     setLoading(true);
     try {
       if (code.toString() === generatedOtp.toString()) {
@@ -108,7 +121,7 @@ function PhoneSignIn({ navigation }) {
     }
   };
 
-  const handleLogin = async (phoneNumber) => {
+  const handleLogin = async phoneNumber => {
     try {
       const body = {
         phoneNumber: phoneNumber,
@@ -131,10 +144,14 @@ function PhoneSignIn({ navigation }) {
   return (
     <>
       {loading && <Loading />}
-      <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View style={{flex: 1, backgroundColor: '#fff'}}>
         <View style={styles.Uppercontainer}>
-          <Text style={styles.headerText}>Let's start with your mobile number</Text>
-          <Text style={styles.subText}>We will send a text with a verification code.</Text>
+          <Text style={styles.headerText}>
+            Let's start with your mobile number
+          </Text>
+          <Text style={styles.subText}>
+            We will send a text with a verification code.
+          </Text>
           <View style={styles.inputContainer}>
             <Text style={styles.countryCode}>+91</Text>
             <TextInput
@@ -149,19 +166,30 @@ function PhoneSignIn({ navigation }) {
           <TouchableOpacity
             style={[
               styles.nextButton,
-              { backgroundColor: isNextButtonEnabled && !isResendButtonDisabled ? '#ff6600' : '#ccc' }
+              {
+                backgroundColor:
+                  isNextButtonEnabled && !isResendButtonDisabled
+                    ? '#ff6600'
+                    : '#ccc',
+              },
             ]}
             onPress={checkUserRestriction}
-            disabled={!isNextButtonEnabled || loading || isResendButtonDisabled}
-          >
-            <Text style={[
-              styles.nextButtonText,
-              { color: isNextButtonEnabled && !isResendButtonDisabled ? 'white' : 'black' }
-            ]}>
+            disabled={
+              !isNextButtonEnabled || loading || isResendButtonDisabled
+            }>
+            <Text
+              style={[
+                styles.nextButtonText,
+                {
+                  color:
+                    isNextButtonEnabled && !isResendButtonDisabled
+                      ? 'white'
+                      : 'black',
+                },
+              ]}>
               Next
             </Text>
           </TouchableOpacity>
-
         </View>
         {confirm && (
           <OtpInputScreen
@@ -188,7 +216,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginBottom: 10,
-    color: "#ff6600",
+    color: '#ff6600',
   },
   subText: {
     fontSize: 16,

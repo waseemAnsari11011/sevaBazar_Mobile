@@ -18,11 +18,6 @@ import LatestProducts from './components/LatestProducts';
 import OnSaleProducts from './components/OnSaleProducts';
 import DealOfDaySection from './components/DealOfDaySection';
 import ProductCard from '../../../components/ProductCard';
-import {getBanners} from '../../../config/redux/actions/bannerActions';
-import {fetchCategories} from '../../../config/redux/actions/categoryAction';
-import {fetchRecentlyAddedProducts} from '../../../config/redux/actions/recentlyAddedActions';
-import {fetchDiscountedProducts} from '../../../config/redux/actions/discountedProductsActions';
-import {fetchAllCategoryProducts} from '../../../config/redux/actions/getallCategoryProductsActions';
 
 const HomeScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -36,23 +31,11 @@ const HomeScreen = ({navigation}) => {
     reachedEnd,
   } = useSelector(state => state.allProducts);
   const {banners} = useSelector(state => state.banners);
-  const {
-    loading: onDiscountLoading,
-    products: onDiscountProducts,
-    error: onDiscountError,
-  } = useSelector(state => state.discountedProducts);
-  const {
-    loading: categoryLoading,
-    category,
-    error: categoryError,
-  } = useSelector(state => state.categories);
-  const {
-    loading: allCategoryProductsLoading,
-    data: allCategoryProducts,
-    error: allCategoryProductsError,
-  } = useSelector(state => state.allCategoryProducts);
+  const {category} = useSelector(state => state.categories);
+  const {products: onDiscountProducts} = useSelector(
+    state => state.discountedProducts,
+  );
 
-  const {data} = useSelector(state => state?.local);
   const scrollToTop = () => {
     if (flatListRef.current) {
       flatListRef.current.scrollToOffset({animated: true, offset: 0});
@@ -64,28 +47,6 @@ const HomeScreen = ({navigation}) => {
       dispatch(fetchAllProducts(page));
     }
   }, [page]);
-
-  useEffect(() => {
-    dispatch(getBanners());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (!categoryLoading) {
-      dispatch(fetchCategories());
-    }
-    if (!categoryLoading) {
-      dispatch(
-        fetchRecentlyAddedProducts(1, 4, data?.user.availableLocalities),
-      );
-    }
-    if (!onDiscountLoading) {
-      dispatch(fetchDiscountedProducts(1, 4, data?.user.availableLocalities));
-    }
-
-    if (!allCategoryProductsLoading) {
-      dispatch(fetchAllCategoryProducts());
-    }
-  }, [dispatch]);
 
   const fetchMoreProducts = () => {
     if (!allProductsLoading && !reachedEnd) {
