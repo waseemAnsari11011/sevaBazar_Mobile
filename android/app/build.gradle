@@ -79,7 +79,7 @@ android {
         applicationId "com.sevabazarapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 11
+        versionCode 13
         versionName "1.9"
     }
     signingConfigs {

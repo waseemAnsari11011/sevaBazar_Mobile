@@ -1,24 +1,38 @@
+//home/HomeScreen.js
 import {
+  StyleSheet,
   Text,
   View,
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
   Image,
+  Dimensions,
   FlatList,
 } from 'react-native';
-import React, {useEffect, useRef} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
+import Card from '../../../components/Card';
 import {useDispatch, useSelector} from 'react-redux';
+import {addToCart} from '../../../config/redux/actions/cartActions';
 
 import Loading from '../../../components/Loading';
 import Icon from '../../../components/Icons/Icon';
+import CardProducts from '../../../components/CardProducts';
 import SearchBar from '../../../components/SearchBar';
 import CustomImageCarousal from '../../../components/CustomImageCarousalLandscape';
 import ProductCard from '../../../components/ProductCard';
 import {baseURL} from '../../../utils/api';
-import {fetchRecentlyAddedProducts} from '../../../config/redux/actions/recentlyAddedActions';
+import {
+  fetchRecentlyAddedProducts,
+  updateRecentlyAddedProductsPage,
+  resetRecentlyAddedProducts,
+} from '../../../config/redux/actions/recentlyAddedActions';
 import {fetchCategories} from '../../../config/redux/actions/categoryAction';
-import {fetchDiscountedProducts} from '../../../config/redux/actions/discountedProductsActions';
+import {
+  fetchDiscountedProducts,
+  updateDiscountedProductsPage,
+  resetDiscountedProducts,
+} from '../../../config/redux/actions/discountedProductsActions';
 import {getBanners} from '../../../config/redux/actions/bannerActions';
 import DealOfDay from './DealOfDay';
 import ProductCarousel from './ProductCarousel';
@@ -34,7 +48,12 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {updateFcm} from '../../../config/redux/actions/customerActions';
 import AllCategoryProducts from '../../../components/AllCategoryProducts';
-import {fetchAllCategoryProducts} from '../../../config/redux/actions/getallCategoryProductsActions';
+import {
+  fetchAllCategoryProducts,
+  resetFetchAllCategoryProducts,
+} from '../../../config/redux/actions/getallCategoryProductsActions';
+
+const {width} = Dimensions.get('window');
 
 const HomeScreen = ({navigation}) => {
   const flatListRef = useRef(null);
@@ -59,6 +78,12 @@ const HomeScreen = ({navigation}) => {
   } = useSelector(state => state.banners);
 
   const {data} = useSelector(state => state?.local);
+
+  const {
+    loading: recentlyAddedLoading,
+    products: recentlyAddedProducts,
+    error: recentlyAddedError,
+  } = useSelector(state => state.recentlyAddedProducts);
 
   const {
     loading: onDiscountLoading,
@@ -140,7 +165,7 @@ const HomeScreen = ({navigation}) => {
     }
 
     if (!allCategoryProductsLoading) {
-      dispatch(fetchAllCategoryProducts());
+      dispatch(fetchAllCategoryProducts(data?.user.availableLocalities));
     }
   }, [dispatch]);
 
@@ -156,6 +181,28 @@ const HomeScreen = ({navigation}) => {
       );
     }
   }, [category]);
+
+  // useEffect(() => {
+  //   return () => {
+  //     dispatch(resetProductsByCategory());
+  //   };
+  // }, [dispatch]);
+
+  const handleCategoryNavigate = async () => {
+    await dispatch(resetProductsByCategory());
+    navigation.navigate('CategoryProducts', {
+      categoryId: category[0]?._id,
+      categoryTitle: category[0]?.name,
+    });
+  };
+
+  const handleAllProductsNavigate = async () => {
+    await dispatch(resetFetchAllCategoryProducts());
+    navigation.navigate('CategoryProducts', {
+      categoryId: category[0]?._id,
+      categoryTitle: category[0]?.name,
+    });
+  };
 
   if (categoryError) {
     return (
@@ -417,3 +464,17 @@ const HomeScreen = ({navigation}) => {
 };
 
 export default HomeScreen;
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 15,
+    backgroundColor: '#F0F8FF50',
+  },
+  wrapper: {
+    height: 160,
+  },
+  itemContainer: {
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+});

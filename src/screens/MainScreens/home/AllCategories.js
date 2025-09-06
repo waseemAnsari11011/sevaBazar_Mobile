@@ -1,29 +1,37 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image } from 'react-native';
+//home/AllCategories.js
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import React from 'react';
-import { baseURL } from '../../../utils/api';
-import { resetProductsByCategory } from '../../../config/redux/actions/productsByCategoryActions';
-import { useDispatch } from 'react-redux';
+import {baseURL} from '../../../utils/api';
+import {resetProductsByCategory} from '../../../config/redux/actions/productsByCategoryActions';
+import {useDispatch} from 'react-redux';
 
-const AllCategories = ({ route, navigation }) => {
-    const dispatch = useDispatch()
-  const { categoriesData } = route.params;
-  console.log("categoriesData", categoriesData);
+const AllCategories = ({route, navigation}) => {
+  const dispatch = useDispatch();
+  const {categoriesData} = route.params;
+  console.log('categoriesData', categoriesData);
 
-  const handleNavigateProductsByCategory = async (item) => {
+  const handleNavigateProductsByCategory = async item => {
     await dispatch(resetProductsByCategory());
     navigation.navigate('CategoryProducts', {
       categoryId: item._id,
       categoryTitle: item.name,
-    })
-  }
+    });
+  };
 
-  const renderCategory = ({ item }) => (
+  const renderCategory = ({item}) => (
     <View style={styles.categoryContainer}>
       <TouchableOpacity onPress={() => handleNavigateProductsByCategory(item)}>
         <View style={styles.categoryContent}>
           <View style={styles.imageContainer}>
             <Image
-              source={{ uri: `${baseURL}${item?.images[0]}` }}
+              source={{uri: `${baseURL}${item?.images[0]}`}}
               style={styles.categoryImage}
             />
           </View>
@@ -43,7 +51,7 @@ const AllCategories = ({ route, navigation }) => {
         directionalLockEnabled={true}
         alwaysBounceVertical={false}
         renderItem={renderCategory}
-        keyExtractor={(item) => item._id.toString()}
+        keyExtractor={item => item._id.toString()}
       />
     </View>
   );
@@ -61,7 +69,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
-    color:"black"
+    color: 'black',
   },
   flatListContent: {
     alignItems: 'center',
@@ -91,7 +99,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 13,
     fontWeight: '400',
-    color: "#000000",
+    color: '#000000',
     textAlign: 'center',
   },
 });

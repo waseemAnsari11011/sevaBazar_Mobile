@@ -1,31 +1,38 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Switch,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import ManualLocationSearch from './ManualLocationSearch';
 import ButtonComponent from '../../../components/Button';
 import api from '../../../utils/api';
-import { loadData, saveData } from '../../../config/redux/actions/storageActions';
-import { GOOGLE_API_KEY } from '@env';
+import {loadData, saveData} from '../../../config/redux/actions/storageActions';
+import {GOOGLE_API_KEY} from '@env';
 
 const GOOGLE_PLACES_API_KEY = GOOGLE_API_KEY;
 
-const LocationSearch = ({ navigation, route }) => {
+const LocationSearch = ({navigation, route}) => {
   const dispatch = useDispatch();
-  const { data } = useSelector(state => state.local);
+  const {data} = useSelector(state => state.local);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [searchLocation, setSearchLocation] = useState(false);
   const [manualLocation, setManualLocation] = useState({
     name: '',
     phone: '',
     description: '',
-    landmark:'',
+    landmark: '',
     pincode: '',
     state: '',
     country: '',
     city: '',
-    isActive:false
+    isActive: false,
   });
   const googlePlacesRef = useRef(null);
 
@@ -36,18 +43,18 @@ const LocationSearch = ({ navigation, route }) => {
     loadLocalData();
 
     if (route.params?.isEdit) {
-      const { address } = route.params;
+      const {address} = route.params;
 
       setManualLocation({
         name: address.name,
         phone: address.phone,
         description: address.address,
-        landmark:address.landmark,
+        landmark: address.landmark,
         pincode: address.postalCode,
         state: address.state,
         country: address.country,
         city: address.city,
-        isActive: address.isActive
+        isActive: address.isActive,
       });
       setSelectedLocation(address); // if using searchLocation as well
     }
@@ -60,11 +67,28 @@ const LocationSearch = ({ navigation, route }) => {
         return;
       }
 
-      const { description,landmark, city, state, country, pincode, name, phone, isActive } = location;
+      const {
+        description,
+        landmark,
+        city,
+        state,
+        country,
+        pincode,
+        name,
+        phone,
+        isActive,
+      } = location;
 
-      console.log("isActive-->", isActive)
+      console.log('isActive-->', isActive);
 
-      if (!description || !landmark || !city || !state || !country || !pincode) {
+      if (
+        !description ||
+        !landmark ||
+        !city ||
+        !state ||
+        !country ||
+        !pincode
+      ) {
         let missingFields = [];
         if (!description) missingFields.push('description');
         if (!landmark) missingFields.push('landmark');
@@ -73,7 +97,10 @@ const LocationSearch = ({ navigation, route }) => {
         if (!country) missingFields.push('country');
         if (!pincode) missingFields.push('pincode');
 
-        Alert.alert('Missing Information', `Please enter the following: ${missingFields.join(', ')}`);
+        Alert.alert(
+          'Missing Information',
+          `Please enter the following: ${missingFields.join(', ')}`,
+        );
         return;
       }
 
@@ -94,7 +121,7 @@ const LocationSearch = ({ navigation, route }) => {
           country,
           postalCode: pincode,
           availableLocalities,
-          isActive
+          isActive,
         });
       } else {
         response = await api.post(`/address/${userId}/`, {
@@ -122,20 +149,21 @@ const LocationSearch = ({ navigation, route }) => {
   };
 
   const handleLocationSelect = (data, details) => {
-    const pincode = details.address_components.find(
-      (component) => component.types.includes('postal_code')
-    )?.long_name;
-    const state = details.address_components.find(
-      (component) => component.types.includes('administrative_area_level_1')
-    )?.long_name;
-    const country = details.address_components.find(
-      (component) => component.types.includes('country')
-    )?.long_name;
-    const city = details.address_components.find(
-      (component) => component.types.includes('locality')
+    const pincode = details.address_components.find(component =>
+      component.types.includes('postal_code'),
     )?.long_name;
 
-    setSearchLocation(false)
+    const state = details.address_components.find(component =>
+      component.types.includes('administrative_area_level_1'),
+    )?.long_name;
+    const country = details.address_components.find(component =>
+      component.types.includes('country'),
+    )?.long_name;
+    const city = details.address_components.find(component =>
+      component.types.includes('locality'),
+    )?.long_name;
+
+    setSearchLocation(false);
 
     // if (!pincode) {
     //   alert('The selected location does not have a valid pincode. Please select another address.');
@@ -147,7 +175,6 @@ const LocationSearch = ({ navigation, route }) => {
     setManualLocation({
       ...manualLocation,
       description: data.description,
-      landmark,
       pincode: pincode,
       state: state,
       country,
@@ -156,22 +183,19 @@ const LocationSearch = ({ navigation, route }) => {
   };
 
   const handleManualLocationChange = (field, value) => {
-    setManualLocation((prevLocation) => ({
+    setManualLocation(prevLocation => ({
       ...prevLocation,
       [field]: value,
     }));
   };
 
-  console.log("manualLocation-->>>>", manualLocation)
+  console.log('manualLocation-->>>>', manualLocation);
 
   return (
     <View style={styles.container}>
       <View style={styles.switchContainer}>
         <Text style={styles.switchText}>Search Location</Text>
-        <Switch
-          value={searchLocation}
-          onValueChange={setSearchLocation}
-        />
+        <Switch value={searchLocation} onValueChange={setSearchLocation} />
       </View>
       {searchLocation ? (
         <GooglePlacesAutocomplete
