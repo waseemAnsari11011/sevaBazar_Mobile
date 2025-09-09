@@ -1,4 +1,4 @@
-import { combineReducers } from 'redux';
+import {combineReducers} from 'redux';
 import authReducer from './authReducer';
 import cartReducer from './cartReducer';
 import storageReducer from './storageReducer';
@@ -19,6 +19,7 @@ import productReducer from './productReducer';
 import allProductsReducer from './fetchAllProductsReducer';
 import chatOrderReducer from './chatOrderReducer';
 import allCategoryProductsReducer from './getallCategoryProductsReducer';
+import vendorsByCategoryReducer from './vendorsByCategoryReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -38,9 +39,10 @@ const rootReducer = combineReducers({
   customer: customerReducer,
   banners: bannerReducer,
   product: productReducer,
-  allProducts:allProductsReducer,
+  allProducts: allProductsReducer,
   chatOrder: chatOrderReducer,
-  allCategoryProducts:allCategoryProductsReducer,
+  allCategoryProducts: allCategoryProductsReducer,
+  vendorsByCategory: vendorsByCategoryReducer,
 });
 
 export default rootReducer;
