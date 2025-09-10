@@ -1,5 +1,4 @@
-import axios from 'axios';
-import {baseURL} from '../../../utils/api'; // Assuming you have baseURL configured
+import api from '../../../utils/api'; // Assuming you have baseURL configured
 import {
   FETCH_VENDORS_BY_CATEGORY_REQUEST,
   FETCH_VENDORS_BY_CATEGORY_SUCCESS,
@@ -12,9 +11,7 @@ export const fetchVendorsByCategory = categoryId => async dispatch => {
   dispatch({type: FETCH_VENDORS_BY_CATEGORY_REQUEST});
   try {
     // Your backend endpoint is '/vendors/by-category/:categoryId'
-    const {data} = await axios.get(
-      `${baseURL}/vendors/by-category/${categoryId}`,
-    );
+    const {data} = await api.get(`/vendors/by-category/${categoryId}`);
 
     console.log('vendors data==>>', data);
     dispatch({
@@ -22,12 +19,14 @@ export const fetchVendorsByCategory = categoryId => async dispatch => {
       payload: data, // The API returns the array of vendors directly
     });
   } catch (error) {
+    // Adopting the more robust error message pattern from the inspiration code.
+    const errorMessage =
+      error.response?.data?.message ||
+      'Failed to fetch vendors for this category.';
+    console.error('Error fetching vendors by category:', errorMessage);
     dispatch({
       type: FETCH_VENDORS_BY_CATEGORY_FAILURE,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.message,
+      payload: errorMessage,
     });
   }
 };

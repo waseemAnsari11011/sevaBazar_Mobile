@@ -18,62 +18,58 @@ import {
   resetVendorsByCategory,
 } from '../../../config/redux/actions/vendorActions';
 
-// A simple card component to display vendor information
-const VendorCard = ({vendor, onPress}) => (
-  <TouchableOpacity style={styles.card} onPress={onPress}>
-    <Image
-      // Using a placeholder, you can replace with vendor.profileImage or similar if available
-      source={{uri: 'https://placehold.co/600x400/EEE/31343C?text=Vendor'}}
-      style={styles.vendorImage}
-    />
-    <View style={styles.cardContent}>
-      <Text style={styles.vendorName}>{vendor.vendorInfo.businessName}</Text>
-      <Text style={styles.vendorAddress}>
-        {vendor.location?.address?.addressLine1 || 'Address not available'}
-      </Text>
-    </View>
-  </TouchableOpacity>
-);
-
 const VendorsByCategory = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const dispatch = useDispatch();
   const {categoryId, categoryTitle} = route.params;
 
-  // Get the state from the Redux store
   const {vendors, loading, error} = useSelector(
     state => state.vendorsByCategory,
   );
 
   useEffect(() => {
-    // Fetch vendors when the screen mounts
-    if (categoryId) {
-      dispatch(fetchVendorsByCategory(categoryId));
-    }
+    // 👇 Define an async function inside the useEffect hook
+    const loadVendors = async () => {
+      if (categoryId) {
+        console.log('Fetching vendors for categoryId==>>', categoryId);
+        try {
+          // Await the dispatch of the async thunk action
+          await dispatch(fetchVendorsByCategory(categoryId));
+        } catch (e) {
+          console.error('Failed to fetch vendors:', e);
+        }
+      }
+    };
 
-    // Cleanup function to reset the state when the screen is left
+    // Call the async function
+    loadVendors();
+
+    // Cleanup function to reset the state when the screen unmounts
     return () => {
       dispatch(resetVendorsByCategory());
     };
+    // 👇 FIX: Add dispatch and categoryId to the dependency array
   }, [dispatch, categoryId]);
 
-  // Render a loading indicator while fetching data
   if (loading) {
     return (
       <SafeScreen>
         <CustomHeader title={categoryTitle} navigation={navigation} />
-        <ActivityIndicator size="large" style={{flex: 1}} />
+        <View style={styles.centeredContainer}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>
       </SafeScreen>
     );
   }
 
-  // Render an error message if the API call fails
   if (error) {
     return (
       <SafeScreen>
         <CustomHeader title={categoryTitle} navigation={navigation} />
-        <Text style={styles.emptyText}>{error}</Text>
+        <View style={styles.centeredContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
       </SafeScreen>
     );
   }
@@ -96,9 +92,11 @@ const VendorsByCategory = () => {
           />
         )}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            No vendors found for this category.
-          </Text>
+          <View style={styles.centeredContainer}>
+            <Text style={styles.emptyText}>
+              No vendors found for this category.
+            </Text>
+          </View>
         }
         contentContainerStyle={styles.listContainer}
       />
@@ -106,9 +104,30 @@ const VendorsByCategory = () => {
   );
 };
 
+const VendorCard = ({vendor, onPress}) => (
+  <TouchableOpacity style={styles.card} onPress={onPress}>
+    <Image
+      source={{uri: 'https://placehold.co/600x400/EEE/31343C?text=Vendor'}}
+      style={styles.vendorImage}
+    />
+    <View style={styles.cardContent}>
+      <Text style={styles.vendorName}>{vendor.vendorInfo.businessName}</Text>
+      <Text style={styles.vendorAddress}>
+        {vendor.location?.address?.addressLine1 || 'Address not available'}
+      </Text>
+    </View>
+  </TouchableOpacity>
+);
+
 const styles = StyleSheet.create({
   listContainer: {
     padding: 15,
+    flexGrow: 1, // Ensures the container can grow to fill space
+  },
+  centeredContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   card: {
     backgroundColor: '#fff',
@@ -141,8 +160,13 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
-    marginTop: 50,
     fontSize: 16,
+    color: '#666',
+  },
+  errorText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: 'red',
   },
 });
 
