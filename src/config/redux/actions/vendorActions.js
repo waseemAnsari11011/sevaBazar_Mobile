@@ -35,3 +35,19 @@ export const fetchVendorsByCategory = categoryId => async dispatch => {
 export const resetVendorsByCategory = () => dispatch => {
   dispatch({type: RESET_VENDORS_BY_CATEGORY});
 };
+
+export const searchVendors = (categoryId, query) => async dispatch => {
+  dispatch({type: FETCH_VENDORS_BY_CATEGORY_REQUEST});
+  try {
+    // Call the new search API endpoint
+    const response = await api.get(`/vendors/search/${categoryId}?q=${query}`);
+    dispatch({
+      type: FETCH_VENDORS_BY_CATEGORY_SUCCESS,
+      payload: response.data,
+    });
+  } catch (error) {
+    const message =
+      error.response?.data?.message || 'Failed to search for vendors';
+    dispatch({type: FETCH_VENDORS_BY_CATEGORY_FAILURE, payload: message});
+  }
+};

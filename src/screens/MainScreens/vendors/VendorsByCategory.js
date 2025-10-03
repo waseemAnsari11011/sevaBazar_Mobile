@@ -1,6 +1,6 @@
 // src/screens/MainScreens/vendors/VendorsByCategory.js
 
-import React, {useEffect} from 'react'; // 👈 Removed useState
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
-  // 👇 Platform and PermissionsAndroid are no longer needed here
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -18,9 +17,11 @@ import CustomHeader from '../../../components/CustomHeader';
 import {
   fetchVendorsByCategory,
   resetVendorsByCategory,
+  searchVendors,
 } from '../../../config/redux/actions/vendorActions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-// 👇 Geolocation is no longer needed here
+import SearchBar from '../../../components/SearchBar';
+import {debounce} from 'lodash';
 
 const FALLBACK_IMAGE_URL =
   'https://placehold.co/600x400/EEE/31343C?text=Vendor';
@@ -57,31 +58,40 @@ const VendorsByCategory = () => {
   const {vendors, loading, error} = useSelector(
     state => state.vendorsByCategory,
   );
-  // 👇 Get user location from the global Redux state
   const {location: userLocation} = useSelector(state => state.location);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // This useEffect now ONLY handles fetching vendors
+  // Initial fetch on component mount
   useEffect(() => {
-    const loadVendors = async () => {
-      if (categoryId) {
-        try {
-          await dispatch(fetchVendorsByCategory(categoryId));
-        } catch (e) {
-          console.error('Failed to fetch vendors:', e);
-        }
-      }
-    };
-    loadVendors();
+    dispatch(fetchVendorsByCategory(categoryId));
+
+    // Cleanup on unmount
     return () => {
       dispatch(resetVendorsByCategory());
     };
   }, [dispatch, categoryId]);
 
-  // ❌ The useEffect for requesting location permission has been REMOVED.
+  // Debounced search handler to avoid excessive API calls
+  const debouncedSearch = useCallback(
+    debounce((id, query) => {
+      if (query.length > 1) {
+        dispatch(searchVendors(id, query));
+      } else if (query.length === 0) {
+        // If search is cleared, fetch all vendors again
+        dispatch(fetchVendorsByCategory(id));
+      }
+    }, 500), // 500ms delay
+    [dispatch],
+  );
+
+  const handleSearch = text => {
+    setSearchQuery(text);
+    debouncedSearch(categoryId, text);
+  };
 
   const renderContent = () => {
-    // ... (This function remains the same as before)
-    if (loading) {
+    if (loading && vendors.length === 0) {
+      // Show loader only on initial load
       return (
         <View style={styles.centeredContainer}>
           <ActivityIndicator size="large" color="#4a90e2" />
@@ -122,12 +132,12 @@ const VendorsByCategory = () => {
           );
         }}
         ListEmptyComponent={
-          <View style={styles.centeredContainer}>
-            <Icon name="store-search-outline" size={60} color="#ccc" />
-            <Text style={styles.emptyText}>
-              No vendors found in this category.
-            </Text>
-          </View>
+          !loading && ( // Hide "no vendors" message while loading
+            <View style={styles.centeredContainer}>
+              <Icon name="store-search-outline" size={60} color="#ccc" />
+              <Text style={styles.emptyText}>No vendors found.</Text>
+            </View>
+          )
         }
         contentContainerStyle={styles.listContainer}
       />
@@ -137,14 +147,21 @@ const VendorsByCategory = () => {
   return (
     <SafeScreen style={styles.screen}>
       <CustomHeader title={categoryTitle} navigation={navigation} />
-      {renderContent()}
+      <View style={styles.searchContainer}>
+        <SearchBar
+          placeholder="Search for services or vendors..."
+          value={searchQuery}
+          onChangeText={handleSearch}
+        />
+      </View>
+      {/* This View ensures the FlatList takes the remaining space */}
+      <View style={{flex: 1}}>{renderContent()}</View>
     </SafeScreen>
   );
 };
 
-// 👇 The VendorCard component and the styles remain exactly the same.
-// ... (keep VendorCard and styles StyleSheet as they were)
 const VendorCard = ({vendor, distance, onPress}) => {
+  // ... (This component remains unchanged)
   const imageUrl =
     vendor.documents?.shopPhoto?.length > 0
       ? vendor.documents.shopPhoto[0]
@@ -191,9 +208,16 @@ const styles = StyleSheet.create({
   screen: {
     backgroundColor: '#f4f6f8',
   },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 5,
+    backgroundColor: '#f4f6f8',
+  },
   listContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingTop: 10,
+    paddingBottom: 20,
     flexGrow: 1,
   },
   centeredContainer: {
