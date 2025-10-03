@@ -61,10 +61,7 @@ const CategoryList = ({categories}) => {
             <TouchableOpacity onPress={() => handleNavigateToVendors(item)}>
               <View style={styles.categoryItem}>
                 <View style={styles.imageContainer}>
-                  <Image
-                    source={{uri: `${baseURL}${item?.images[0]}`}}
-                    style={styles.image}
-                  />
+                  <Image source={{uri: item?.images[0]}} style={styles.image} />
                 </View>
                 <Text style={styles.categoryName}>{item.name}</Text>
               </View>
