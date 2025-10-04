@@ -155,7 +155,7 @@ const VendorsByCategory = () => {
         />
       </View>
       {/* This View ensures the FlatList takes the remaining space */}
-      <View style={{flex: 1}}>{renderContent()}</View>
+      <View style={{flex: 1, marginTop: 60}}>{renderContent()}</View>
     </SafeScreen>
   );
 };
