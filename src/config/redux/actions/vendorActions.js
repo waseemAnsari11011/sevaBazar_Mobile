@@ -13,7 +13,7 @@ export const fetchVendorsByCategory = categoryId => async dispatch => {
     // Your backend endpoint is '/vendors/by-category/:categoryId'
     const {data} = await api.get(`/vendors/by-category/${categoryId}`);
 
-    console.log('vendors data==>>', data);
+    // console.log('vendors data==>>', data);
     dispatch({
       type: FETCH_VENDORS_BY_CATEGORY_SUCCESS,
       payload: data, // The API returns the array of vendors directly
@@ -46,6 +46,7 @@ export const searchVendors = (categoryId, query) => async dispatch => {
       payload: response.data,
     });
   } catch (error) {
+    console.log('error===>>>', error);
     const message =
       error.response?.data?.message || 'Failed to search for vendors';
     dispatch({type: FETCH_VENDORS_BY_CATEGORY_FAILURE, payload: message});
