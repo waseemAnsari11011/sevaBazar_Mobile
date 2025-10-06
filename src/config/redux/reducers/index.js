@@ -21,6 +21,8 @@ import chatOrderReducer from './chatOrderReducer';
 import allCategoryProductsReducer from './getallCategoryProductsReducer';
 import vendorsByCategoryReducer from './vendorsByCategoryReducer';
 import locationReducer from './locationReducer'; // 👈 Import the new reducer
+import vendorDetailsReducer from './vendorDetailsReducer';
+import productsByVendorReducer from './productsByVendorReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -45,6 +47,8 @@ const rootReducer = combineReducers({
   allCategoryProducts: allCategoryProductsReducer,
   vendorsByCategory: vendorsByCategoryReducer,
   location: locationReducer, // 👈 Add the location reducer
+  vendorDetails: vendorDetailsReducer,
+  productsByVendor: productsByVendorReducer,
 });
 
 export default rootReducer;

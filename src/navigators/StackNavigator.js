@@ -28,6 +28,7 @@ import OrderHistoryTopTabNavigator from './OrderHistoryTopTabNavigator';
 import ShippingAddressesList from '../screens/MainScreens/location/ShippingAddressesList';
 // 👇 Import the new screen
 import VendorsByCategory from '../screens/MainScreens/vendors/VendorsByCategory';
+import VendorDetails from '../screens/MainScreens/vendors/VendorDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,6 +71,8 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         component={VendorsByCategory}
       />
+      <Stack.Screen name="VendorDetails" component={VendorDetails} />
+
       <Stack.Screen name="Edit Address" component={EditAddress} />
       <Stack.Screen name="Notifications" component={Notifications} />
       <Stack.Screen
