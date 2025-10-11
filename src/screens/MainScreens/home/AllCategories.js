@@ -31,7 +31,7 @@ const AllCategories = ({route, navigation}) => {
         <View style={styles.categoryContent}>
           <View style={styles.imageContainer}>
             <Image
-              source={{uri: `${baseURL}${item?.images[0]}`}}
+              source={{uri: item?.images[0]}}
               style={styles.categoryImage}
             />
           </View>

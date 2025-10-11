@@ -74,7 +74,7 @@ const ProfileScreen = ({navigation}) => {
                   borderRadius: 25,
                   marginRight: 15,
                 }}
-                source={{uri: `${baseURL}${url}`}}
+                source={{uri: url}}
               />
             )}
             {!url && (

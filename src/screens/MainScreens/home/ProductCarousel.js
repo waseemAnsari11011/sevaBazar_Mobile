@@ -44,7 +44,7 @@ const ProductCarousel = ({navigation}) => {
             style={styles.productContainer}
             key={item.id}>
             <Image
-              source={{uri: `${baseURL}${item?.images[0]}`}}
+              source={{uri: item?.images[0]}}
               style={styles.productImage}
             />
             <Text style={styles.productName}>{item.name}</Text>

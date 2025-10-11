@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
-import { View, Image, TouchableOpacity, Text } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
+import React, {useState} from 'react';
+import {View, Image, TouchableOpacity, Text} from 'react-native';
+import {launchImageLibrary} from 'react-native-image-picker';
 import Icon from './Icons/Icon';
-import { useSelector } from 'react-redux';
-import { baseURL } from '../utils/api';
+import {useSelector} from 'react-redux';
+import {baseURL} from '../utils/api';
 
-const ImagePickerComponent = ({ handleImage, url }) => {
-
+const ImagePickerComponent = ({handleImage, url}) => {
   const [image, setImage] = useState(url);
 
-  const getImageTypeFromUri = (uri) => {
+  const getImageTypeFromUri = uri => {
     const extension = uri.split('.').pop(); // Extract the file extension from the URI
     const imageTypes = {
       png: 'image/png',
@@ -32,7 +31,7 @@ const ImagePickerComponent = ({ handleImage, url }) => {
       quality: 1,
     };
 
-    launchImageLibrary(options, (response) => {
+    launchImageLibrary(options, response => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
       } else if (response.error) {
@@ -49,24 +48,22 @@ const ImagePickerComponent = ({ handleImage, url }) => {
     });
   };
 
-  console.log("image-->>", image)
+  console.log('image-->>', image);
 
   return (
-    <View style={{ alignItems: 'center' }}>
+    <View style={{alignItems: 'center'}}>
       <TouchableOpacity onPress={pickImage}>
         {image ? (
           <View>
             <Image
               source={
-                image.includes('uploads/customer') 
-                  ? { uri:  `${baseURL}${image}` }
-                  : { uri:  image }
+                image.includes('uploads/customer') ? {uri: image} : {uri: image}
               }
-              style={{ width: 140, height: 140, borderRadius: 75 }}
+              style={{width: 140, height: 140, borderRadius: 75}}
             />
             <TouchableOpacity
               onPress={() => setImage(null)}
-              style={{ position: 'absolute', right: 0, bottom: 0 }}>
+              style={{position: 'absolute', right: 0, bottom: 0}}>
               <Icon.AntDesign name="closecircle" size={32} color="red" />
             </TouchableOpacity>
           </View>
@@ -85,7 +82,7 @@ const ImagePickerComponent = ({ handleImage, url }) => {
               name="pluscircle"
               size={32}
               color="grey"
-              style={{ position: 'absolute', right: 0, bottom: 0 }}
+              style={{position: 'absolute', right: 0, bottom: 0}}
             />
           </View>
         )}

@@ -8,6 +8,7 @@ import {
   FlatList,
   ActivityIndicator,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -96,15 +97,19 @@ const VendorDetails = () => {
         data={products}
         keyExtractor={item => item._id}
         ListHeaderComponent={renderHeader}
+        // Add numColumns prop for a 2-column grid
+        numColumns={2}
         renderItem={({item}) => (
-          <View style={styles.productCardContainer}>
+          <TouchableOpacity
+            style={styles.productCardContainer}
+            onPress={() => navigation.navigate('Details', {product: item})}>
             <ProductCard
               item={item}
               onPress={() =>
                 navigation.navigate('Details', {productId: item._id})
               }
             />
-          </View>
+          </TouchableOpacity>
         )}
         ListEmptyComponent={
           !productsLoading && (
@@ -170,11 +175,15 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   listContainer: {
+    // Add horizontal padding for outer spacing
+    paddingHorizontal: 8,
     paddingBottom: 20,
   },
   productCardContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    // Make each item take up half the space
+    flex: 1 / 2,
+    // Add margin for spacing between items
+    margin: 8,
   },
   emptyText: {
     textAlign: 'center',

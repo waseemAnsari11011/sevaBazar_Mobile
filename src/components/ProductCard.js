@@ -17,7 +17,7 @@ const ProductCard = ({item = {}}) => {
   const discount = variation?.discount ?? 0;
   const discountedPrice = calculateDiscountedPrice(originalPrice, discount);
   const imageUrl = item?.images?.[0]
-    ? `${baseURL}${item.images[0]}`
+    ? item.images[0]
     : `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4sEG5g9GFcy4SUxbzWNzUTf1jMISTDZrTw&s`;
 
   return (

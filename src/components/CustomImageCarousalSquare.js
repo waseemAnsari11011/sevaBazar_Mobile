@@ -1,5 +1,12 @@
-import { StyleSheet, View, Image, Text, useWindowDimensions, TouchableOpacity } from 'react-native';
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import {
+  StyleSheet,
+  View,
+  Image,
+  Text,
+  useWindowDimensions,
+  TouchableOpacity,
+} from 'react-native';
+import React, {useState, useEffect, useRef, useMemo} from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
@@ -9,16 +16,16 @@ import Animated, {
 } from 'react-native-reanimated';
 import ImageViewing from 'react-native-image-viewing';
 import Pagination from './Pagination';
-import { baseURL } from '../utils/api';
+import {baseURL} from '../utils/api';
 
-const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
+const CustomImageCarousalSquare = ({data, autoPlay, pagination}) => {
   const scrollViewRef = useAnimatedRef(null);
   const interval = useRef();
   const [isAutoPlay, setIsAutoPlay] = useState(autoPlay);
   const [currentPage, setCurrentPage] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const { width } = useWindowDimensions();
+  const {width} = useWindowDimensions();
   const SIZE = width;
   const SPACER = (width - SIZE) / 2;
   const x = useSharedValue(0);
@@ -33,7 +40,7 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
         } else {
           _offSet += SIZE;
         }
-        scrollViewRef.current.scrollTo({ x: _offSet, y: 0, animated: true });
+        scrollViewRef.current.scrollTo({x: _offSet, y: 0, animated: true});
         setCurrentPage(_offSet / SIZE);
       }, 2000);
     } else {
@@ -43,17 +50,16 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
     return () => clearInterval(interval.current); // Clean up on unmount
   }, [SIZE, isAutoPlay, data.length, offSet.value, scrollViewRef]);
 
-  const newData = useMemo(() => [
-    { key: 'spacer-left' },
-    ...data,
-    { key: 'spacer-right' },
-  ], [data]);
+  const newData = useMemo(
+    () => [{key: 'spacer-left'}, ...data, {key: 'spacer-right'}],
+    [data],
+  );
 
   const onScroll = useAnimatedScrollHandler({
-    onScroll: (event) => {
+    onScroll: event => {
       x.value = event.contentOffset.x;
     },
-    onMomentumScrollEnd: (event) => {
+    onMomentumScrollEnd: event => {
       const index = Math.round(event.contentOffset.x / SIZE);
       setCurrentPage(index);
     },
@@ -65,7 +71,7 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
         ref={scrollViewRef}
         onScroll={onScroll}
         onScrollBeginDrag={() => setIsAutoPlay(false)}
-        onMomentumScrollEnd={(e) => {
+        onMomentumScrollEnd={e => {
           offSet.value = e.nativeEvent.contentOffset.x;
           setIsAutoPlay(autoPlay);
         }}
@@ -74,31 +80,31 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
         snapToInterval={SIZE}
         horizontal
         bounces={false}
-        showsHorizontalScrollIndicator={false}
-      >
+        showsHorizontalScrollIndicator={false}>
         {newData.map((item, index) => {
           const style = useAnimatedStyle(() => {
             const scale = interpolate(
               x.value,
               [(index - 2) * SIZE, (index - 1) * SIZE, index * SIZE],
-              [0.8, 1, 0.8]
+              [0.8, 1, 0.8],
             );
-            return { transform: [{ scale }] };
+            return {transform: [{scale}]};
           });
 
           if (!item.image) {
-            return <View style={{ width: SPACER }} key={index} />;
+            return <View style={{width: SPACER}} key={index} />;
           }
 
           return (
-            <View style={{ width: SIZE }} key={index}>
-              <View style={[styles.imageContainer,{marginRight:40}]}>
+            <View style={{width: SIZE}} key={index}>
+              <View style={[styles.imageContainer, {marginRight: 40}]}>
                 <Animated.View style={[style]}>
-                  <TouchableOpacity onPress={() => {
-                    setCurrentImageIndex(index - 1); // Adjust for spacer offset
-                    setIsVisible(true);
-                  }}>
-                    <Image source={{ uri: `${baseURL}${item.image}` }} style={styles.image} />
+                  <TouchableOpacity
+                    onPress={() => {
+                      setCurrentImageIndex(index - 1); // Adjust for spacer offset
+                      setIsVisible(true);
+                    }}>
+                    <Image source={{uri: item.image}} style={styles.image} />
                   </TouchableOpacity>
                   <Text style={styles.pageNumber}>
                     {index - 1}/{data.length}
@@ -116,7 +122,7 @@ const CustomImageCarousalSquare = ({ data, autoPlay, pagination }) => {
       )}
       {isVisible && (
         <ImageViewing
-          images={data.map((img) => ({ uri: `${baseURL}${img.image}` }))}
+          images={data.map(img => ({uri: img.image}))}
           imageIndex={currentImageIndex} // Start preview from the current image
           visible={isVisible}
           onRequestClose={() => setIsVisible(false)}
@@ -130,8 +136,8 @@ export default CustomImageCarousalSquare;
 
 const styles = StyleSheet.create({
   // container: { position: 'relative' },
-  imageContainer: { borderRadius: 10, overflow: 'hidden' ,},
-  image: { width: '100%', aspectRatio: 16 / 16, resizeMode: 'contain',  },
+  imageContainer: {borderRadius: 10, overflow: 'hidden'},
+  image: {width: '100%', aspectRatio: 16 / 16, resizeMode: 'contain'},
   // paginationContainer: {
   //   position: 'absolute',
   //   bottom: 10,

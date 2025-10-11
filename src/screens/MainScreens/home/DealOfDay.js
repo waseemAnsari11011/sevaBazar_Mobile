@@ -54,7 +54,7 @@ const DealOfDay = ({navigation}) => {
             )}
             {item?.images?.length !== 0 && (
               <Image
-                source={{uri: `${baseURL}${item?.images[0]}`}}
+                source={{uri: item?.images[0]}}
                 style={styles.productImage}
               />
             )}
