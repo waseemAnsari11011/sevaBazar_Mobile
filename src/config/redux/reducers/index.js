@@ -23,6 +23,7 @@ import vendorsByCategoryReducer from './vendorsByCategoryReducer';
 import locationReducer from './locationReducer'; // 👈 Import the new reducer
 import vendorDetailsReducer from './vendorDetailsReducer';
 import productsByVendorReducer from './productsByVendorReducer';
+import recentlyAddedVendorsReducer from './recentlyAddedVendorsReducer';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -49,6 +50,7 @@ const rootReducer = combineReducers({
   location: locationReducer, // 👈 Add the location reducer
   vendorDetails: vendorDetailsReducer,
   productsByVendor: productsByVendorReducer,
+  recentlyAddedVendors: recentlyAddedVendorsReducer, // 👈 Add
 });
 
 export default rootReducer;

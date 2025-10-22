@@ -29,6 +29,7 @@ import ShippingAddressesList from '../screens/MainScreens/location/ShippingAddre
 // 👇 Import the new screen
 import VendorsByCategory from '../screens/MainScreens/vendors/VendorsByCategory';
 import VendorDetails from '../screens/MainScreens/vendors/VendorDetails';
+import NewlyAddedVendorsScreen from '../screens/MainScreens/vendors/NewlyAddedVendorsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -94,6 +95,11 @@ const StackNavigator = () => {
         name="New Arrivals"
         options={{headerShown: true}}
         component={RecentlyAddedProducts}
+      />
+      <Stack.Screen
+        name="New Dukaans"
+        options={{headerShown: false}}
+        component={NewlyAddedVendorsScreen}
       />
       <Stack.Screen
         name="Search Your Products"

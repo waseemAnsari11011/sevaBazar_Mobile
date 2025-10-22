@@ -1,335 +1,232 @@
-import React, {useEffect, useState} from 'react';
+// src/screens/MainScreens/details/Details.js
+
+import React, {useEffect, useMemo} from 'react';
 import {
   View,
   Text,
   ActivityIndicator,
   FlatList,
-  TouchableOpacity,
   StyleSheet,
-  Modal,
-  Image,
 } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
 import {useDispatch, useSelector} from 'react-redux';
-import CustomImageCarousal from '../../../components/CustomImageCarousalLandscape';
 
-import AddToCartBtn from '../../../components/AddToCartBtn';
-import QuantityUpdater from '../../../components/QuantityUpdater';
+// --- Local Imports ---
+import useProductVariations from './useProductVariations';
+import {getProductById} from '../../../config/redux/actions/productAction';
+import {getImages} from './utils';
+import HorizontalSelector from './HorizontalSelector';
+
+// --- Component Imports ---
+import CustomImageCarousalSquare from '../../../components/CustomImageCarousalSquare';
 import StickyButton from '../../../components/stickyBottomCartBtn';
 import ProductCard from '../../../components/ProductCard';
 import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
-import useProductVariations from './useProductVariations';
-import {getProductById} from '../../../config/redux/actions/productAction';
-import {
-  getFirstElementOfEachVariationType,
-  getImages,
-  isImagePresent,
-} from './utils';
-import DropDownPicker from 'react-native-dropdown-picker';
-import HorizontalSelector from './HorizontalSelector';
-import CustomImageCarousalSquare from '../../../components/CustomImageCarousalSquare';
-import Icon from '../../../components/Icons/Icon';
 
 const ProductDetails = ({route, navigation}) => {
-  console.log('oute.params.product-->>', route.params.product);
   const dispatch = useDispatch();
-  const [productId, setProductId] = useState(route.params.product._id);
+  const productId = route.params.product._id;
 
+  // --- Redux State ---
   const {
     product: productDetails,
     loading: productDetailsLoading,
     error: productDetailsError,
   } = useSelector(state => state.product);
 
+  console.log('productDetails-->>', productDetails);
+
+  // --- Custom Hook for Variation Logic ---
+  const {
+    currentVariation,
+    attributeTypes,
+    selectedAttributes,
+    handleSelectAttribute,
+    getAvailableOptions,
+    isOptionAvailable, // Get the new function from the hook
+  } = useProductVariations(productDetails?.variations);
+
+  // --- Data Fetching ---
   useEffect(() => {
-    setProductId(route.params.product._id);
-    dispatch(getProductById(route.params.product._id));
-  }, [dispatch, route.params.product._id]);
+    if (productId) {
+      dispatch(getProductById(productId));
+    }
+  }, [dispatch, productId]);
 
-  const {
-    product,
-    selectedVariations,
-    handleVariationChange,
-    getVariationOptions,
-    getColorVariationOptions,
-    flatListRef,
-    existingItemIndex,
-    quantity,
-    loading,
-    products,
-    fetchMoreProducts,
-  } = useProductVariations(productDetails, route);
+  // --- Memoized Price Calculation ---
+  // This safely calculates the price and only re-runs when the variation changes.
+  const {discountedPrice, originalPrice} = useMemo(
+    () =>
+      calculateDiscountedPrice(
+        currentVariation?.price,
+        currentVariation?.discount,
+      ),
+    [currentVariation],
+  );
 
-  // console.log("selectedVariations color, selectedVariations-->>",getVariationOptions('color', selectedVariations) )
-
+  // --- Loading State ---
   if (productDetailsLoading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
-
-  if (productDetailsError) {
-    return <Text>Error: {productDetailsError}</Text>;
-  }
-
-  if (!productDetails || !product) {
-    return null;
-  }
-
-  const {
-    name,
-    images,
-    description,
-    price,
-    discount,
-    variations,
-    isReturnAllowed,
-  } = product;
-  let imagesData = [];
-  let productimages = [];
-  let variationImages = getImages(
-    productDetails.variations,
-    Object.values(selectedVariations),
-  );
-
-  // imagesData = images.concat(variationImages).map(item => {
-  //   return { image: item }
-  // });
-
-  console.log(variationImages);
-  if (variationImages.length > 0 && variationImages[0] !== undefined) {
-    imagesData = variationImages.map(item => {
-      return {image: item};
-    });
-  }
-
-  if (images.length > 0 && images[0] !== undefined) {
-    productimages = images.map(item => {
-      return {image: item};
-    });
-  }
-
-  const ListHeaderComponent = () => (
-    <View style={styles.headerContainer}>
-      <View style={styles.carousel}>
-        <CustomImageCarousalSquare data={productimages} pagination />
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#e84118" />
       </View>
-      <View style={styles.contentContainer}>
-        <Text style={styles.name}>{name}</Text>
-        {isReturnAllowed && (
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginTop: 5,
-              paddingTop: 10,
-            }}>
-            <Icon.FontAwesome6
-              name="people-carry-box"
-              size={25}
-              color={'#ff6600'}
-            />
-            <Text
-              style={{
-                // width: windowWidth - 210,
-                marginLeft: 10,
-                fontWeight: '700',
-                color: 'black',
-              }}>
-              Hand-To-Hand Return
-            </Text>
-          </View>
-        )}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginTop: 10,
-            alignItems: 'center',
-          }}>
-          <View style={styles.priceContainer}>
-            <Text style={styles.discountedPrice}>
-              ₹{calculateDiscountedPrice(price, discount)}
-            </Text>
-            <Text style={styles.originalPrice}>₹{price}</Text>
-          </View>
-          {existingItemIndex === -1 ? (
-            <AddToCartBtn product={product} />
+    );
+  }
+
+  // --- Error State ---
+  if (productDetailsError || !productDetails) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.errorText}>
+          Could not load product. Please try again.
+        </Text>
+      </View>
+    );
+  }
+
+  // --- Header Component for FlatList ---
+  const ListHeaderComponent = () => {
+    // **CRASH FIX:** Ensure the carousel always gets an array.
+    const carouselImages = getImages(currentVariation, productDetails) || [];
+    // console.log('carouselImages', carouselImages);
+
+    return (
+      <View>
+        <CustomImageCarousalSquare images={carouselImages} />
+        <View style={styles.detailsContainer}>
+          <Text style={styles.productName}>{productDetails.name}</Text>
+
+          {/* Conditionally render price section only when a variation is selected */}
+          {currentVariation ? (
+            <View style={styles.priceContainer}>
+              <Text style={styles.discountedPrice}>₹{discountedPrice}</Text>
+              {parseFloat(originalPrice) > parseFloat(discountedPrice) && (
+                <Text style={styles.originalPrice}>₹{originalPrice}</Text>
+              )}
+              {currentVariation.discount > 0 && (
+                <Text style={styles.discountBadge}>
+                  {currentVariation.discount}% OFF
+                </Text>
+              )}
+            </View>
           ) : (
-            <QuantityUpdater quantity={quantity} item={product} />
+            <Text style={styles.unavailableText}>
+              This combination is unavailable.
+            </Text>
           )}
+
+          {/* Attribute selectors */}
+          {attributeTypes.map(name => (
+            <HorizontalSelector
+              key={name}
+              attributeName={name}
+              options={getAvailableOptions(name)}
+              selectedValue={selectedAttributes[name]}
+              onSelect={handleSelectAttribute}
+              isOptionAvailable={isOptionAvailable} // Pass the function down as a prop
+            />
+          ))}
+
+          <Text style={styles.descriptionTitle}>Description</Text>
+          <Text style={styles.descriptionText}>
+            {productDetails.description}
+          </Text>
+          {/* <Text style={styles.frequentlyBoughtTitle}>Similar Products</Text> */}
         </View>
-        {getVariationTypes().map(type => (
-          <View key={type} style={styles.variationContainer}>
-            <Text style={styles.variationLabel}>{type}</Text>
-            {isImagePresent(productDetails.variations, type) ? (
-              <HorizontalSelector
-                items={getColorVariationOptions(type, selectedVariations)}
-                selectedValue={selectedVariations[type]}
-                onValueChange={value => handleVariationChange(type, value)}
-              />
-            ) : (
-              <View style={styles.pickercontainer}>
-                <Picker
-                  selectedValue={selectedVariations[type]}
-                  onValueChange={value => handleVariationChange(type, value)}
-                  style={styles.variationPicker}>
-                  {selectedVariations &&
-                    getVariationOptions(type, selectedVariations).map(
-                      option => (
-                        <Picker.Item
-                          key={option}
-                          label={option}
-                          value={option}
-                        />
-                      ),
-                    )}
-                </Picker>
-                <Icon.MaterialIcons
-                  name="arrow-drop-down"
-                  size={35}
-                  color="#ff6600"
-                  style={styles.icon}
-                />
-              </View>
-            )}
-          </View>
-        ))}
-
-        <Text style={styles.details}>{description}</Text>
-        <Text style={styles.frequentlyBoughtTitle}>Similar Products</Text>
       </View>
-    </View>
-  );
-
-  const getVariationTypes = () => {
-    return [
-      ...new Set(productDetails.variations.map(v => v.attributes.selected)),
-    ];
+    );
   };
 
-  // console.log("getColorVariationOptions(type, selectedVariations)->", getColorVariationOptions('color', selectedVariations))
-
+  // --- Main Render ---
   return (
-    <View style={styles.container}>
+    <View style={styles.flex}>
       <FlatList
-        ref={flatListRef}
-        data={products}
-        keyExtractor={item => item._id.toString()}
+        data={[]} // Replace with similar products data source
         renderItem={({item}) => (
-          <TouchableOpacity
-            onPress={() => {
-              navigation.navigate('Details', {product: item});
-              flatListRef.current.scrollToOffset({offset: 0, animated: true});
-            }}>
-            <ProductCard item={item} />
-          </TouchableOpacity>
+          <ProductCard product={item} navigation={navigation} />
         )}
-        onEndReached={fetchMoreProducts}
-        onEndReachedThreshold={0}
-        ListHeaderComponent={ListHeaderComponent}
-        ListFooterComponent={
-          loading ? <ActivityIndicator size="large" color="#0000ff" /> : null
-        }
-        columnWrapperStyle={{justifyContent: 'space-between', marginBottom: 5}}
+        keyExtractor={item => item._id}
         numColumns={2}
-        contentContainerStyle={{
-          padding: 15,
-          paddingBottom: existingItemIndex !== -1 ? 100 : 10,
-        }}
+        ListHeaderComponent={ListHeaderComponent}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
       />
-      {existingItemIndex !== -1 && <StickyButton navigation={navigation} />}
+      {/* Sticky button only appears when a valid variation is selected */}
+      {/* {currentVariation && <StickyButton product={currentVariation} />} */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
+  flex: {flex: 1, backgroundColor: '#fff'},
+  center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+  errorText: {fontSize: 16, color: 'red'},
+  detailsContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    backgroundColor: '#fff',
   },
-  pickercontainer: {
-    borderWidth: 1,
-    borderRadius: 5,
-    marginTop: 5,
-    borderColor: '#000066',
-    position: 'relative',
-  },
-  variationPicker: {
-    width: '100%',
-    height: 50,
-    color: 'black',
-  },
-  icon: {
-    position: 'absolute',
-    right: 7,
-    top: '50%',
-    marginTop: -18, // Adjust this value to center the icon vertically
-    color: '#000066',
-  },
-  carousel: {
-    marginHorizontal: 5,
-    borderWidth: 2,
-    // padding:10,
-    borderRadius: 15,
-    borderColor: '#D3D3D3',
-    overflow: 'hidden',
-    // marginTop:15
-  },
-  contentContainer: {
-    padding: 5,
-  },
-  name: {
-    fontSize: 17,
-    fontWeight: '600',
-    marginTop: 8,
-    color: 'black',
-  },
-  variationLabel: {
-    fontSize: 15,
-    fontWeight: '500',
-    marginTop: 8,
-    color: 'black',
-  },
-  price: {
-    fontSize: 15,
-    color: '#ff6600',
-    marginTop: 8,
-    fontWeight: '800',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 4,
-  },
-  rating: {
-    fontSize: 13,
-    color: '#FDCC0D',
-  },
-  details: {
-    fontSize: 16,
-    color: '#757575',
-    marginVertical: 10,
-  },
-  frequentlyBoughtTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginVertical: 5,
-    color: '#000000',
+  productName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginBottom: 8,
   },
   priceContainer: {
     flexDirection: 'row',
-    alignItems: 'baseline',
-    marginTop: 7,
+    alignItems: 'center',
+    marginBottom: 16,
   },
   discountedPrice: {
-    color: 'red',
+    fontSize: 22,
     fontWeight: 'bold',
-    fontSize: 15,
+    color: '#e84118',
   },
   originalPrice: {
+    fontSize: 16,
+    color: '#7f8c8d',
     textDecorationLine: 'line-through',
-    marginLeft: 15,
-    fontSize: 17,
+    marginLeft: 10,
+  },
+  discountBadge: {
+    fontSize: 12,
+    color: 'green',
+    fontWeight: 'bold',
+    marginLeft: 10,
+    backgroundColor: '#d4edda',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  unavailableText: {
+    fontSize: 16,
+    color: '#c0392b',
+    marginVertical: 10,
+    fontWeight: '500',
+  },
+  descriptionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333',
+    marginTop: 16,
+    marginBottom: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+    paddingTop: 16,
+  },
+  descriptionText: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#34495e',
+  },
+  frequentlyBoughtTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  listContent: {
+    paddingBottom: 80, // Space for the sticky button
   },
 });
 

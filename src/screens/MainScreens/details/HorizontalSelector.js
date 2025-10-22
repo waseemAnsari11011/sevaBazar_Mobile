@@ -1,57 +1,96 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
-import {baseURL} from '../../../utils/api';
+// src/screens/MainScreens/details/HorizontalSelector.js
 
-const HorizontalSelector = ({items, selectedValue, onValueChange}) => {
-  // console.log("items HorizontalSelectors-->>", items)
+import React from 'react';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+
+const HorizontalSelector = ({
+  attributeName,
+  options,
+  selectedValue,
+  onSelect,
+  isOptionAvailable,
+}) => {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={styles.scrollView}>
-      {items.map(item => (
-        <View key={item.value} style={{alignItems: 'center'}}>
-          <TouchableOpacity
-            key={item.value}
-            style={[
-              styles.itemContainer,
-              item.value === selectedValue && styles.selectedItemContainer,
-            ]}
-            onPress={() => onValueChange(item.value)}>
-            <Image source={{uri: item.icon.uri}} style={styles.itemImage} />
-          </TouchableOpacity>
-          <Text style={{fontWeight: '600'}}>{item.value}</Text>
-        </View>
-      ))}
-    </ScrollView>
+    <View style={styles.container}>
+      <Text style={styles.label}>{attributeName}:</Text>
+      <View style={styles.optionsContainer}>
+        {options.map(option => {
+          const isSelected = selectedValue === option;
+          const isAvailable = isOptionAvailable(attributeName, option);
+
+          return (
+            <TouchableOpacity
+              key={option}
+              style={[
+                styles.option,
+                isSelected && styles.selectedOption,
+                !isAvailable && styles.disabledOption,
+              ]}
+              onPress={() => isAvailable && onSelect(attributeName, option)}
+              activeOpacity={isAvailable ? 0.7 : 1}
+              disabled={!isAvailable}>
+              <Text
+                style={[
+                  styles.optionText,
+                  isSelected && styles.selectedOptionText,
+                  !isAvailable && styles.disabledOptionText,
+                ]}>
+                {option}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    marginVertical: 10,
+  container: {
+    marginVertical: 8,
+    paddingHorizontal: 16,
   },
-  itemContainer: {
-    padding: 5,
+  label: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+    textTransform: 'capitalize',
+  },
+  optionsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  option: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
-    marginHorizontal: 5,
-    marginBottom: 5,
+    borderRadius: 20,
+    marginRight: 10,
+    marginBottom: 10,
+    backgroundColor: '#fff',
   },
-  selectedItemContainer: {
-    borderColor: 'blue',
+  selectedOption: {
+    borderColor: '#e84118',
+    backgroundColor: '#e84118',
   },
-  itemImage: {
-    width: 60,
-    height: 60,
+  disabledOption: {
+    borderColor: '#e0e0e0',
+    backgroundColor: '#f5f5f5',
+    opacity: 0.5,
+  },
+  optionText: {
+    fontSize: 14,
+    color: '#555',
+  },
+  selectedOptionText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  disabledOptionText: {
+    color: '#bbb',
+    textDecorationLine: 'line-through',
   },
 });
 

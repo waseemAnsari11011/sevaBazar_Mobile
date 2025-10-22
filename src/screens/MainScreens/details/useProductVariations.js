@@ -1,236 +1,143 @@
-// src/hooks/useProductVariations.js
-import { useState, useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { modifyProduct, processProductVariations } from './utils'; // Adjust the import path if needed
-import { fetchSimilarProducts, resetSimilarProducts } from '../../../config/redux/actions/similiarProductsActions';
-import { updateSimilarProductsPage } from '../../../config/redux/actions/searchActions';
-import { removeItem } from '../../../config/redux/actions/cartActions';
+// src/screens/MainScreens/details/useProductVariations.js
 
-const useProductVariations = (productDetails, route) => {
-    const dispatch = useDispatch();
-    const [selectedVariations, setSelectedVariations] = useState([]);
-    const [product, setProduct] = useState(null);
-    const { loading, page, limit, reachedEnd, products } = useSelector(state => state.similarProducts);
-    const cartItems = useSelector(state => state.cart.cartItems);
-    const { data } = useSelector(state => state.local); // Ensure this selector points to the correct state slice
-    const existingItemIndex = cartItems.findIndex(i => i._id === productDetails?._id);
-    const quantity = existingItemIndex !== -1 ? cartItems[existingItemIndex].quantity : 0;
-    const flatListRef = useRef(null);
+import {useState, useEffect, useMemo, useCallback} from 'react';
 
+const useProductVariations = variations => {
+  const [selectedAttributes, setSelectedAttributes] = useState({});
+  const [currentVariation, setCurrentVariation] = useState(null);
 
-    useEffect(() => {
-        if (productDetails) {
-            console.log("productDetails.variations", productDetails.variations)
-            setSelectedVariations(processProductVariations(productDetails.variations));
-            setProduct(modifyProduct(productDetails));
-        }
-    }, [productDetails]);
+  const attributeTypes = useMemo(() => {
+    if (!variations || variations.length === 0) return [];
+    const types = new Set();
+    variations.forEach(v => v.attributes.forEach(attr => types.add(attr.name)));
+    return Array.from(types);
+  }, [variations]);
 
-    useEffect(() => {
-        if (productDetails && !reachedEnd && !loading) {
-            dispatch(fetchSimilarProducts(productDetails._id, page, limit, data?.user.availableLocalities));
-        }
-    }, [page]);
+  // This effect finds the currently active variation based on the selections
+  useEffect(() => {
+    if (!variations || Object.keys(selectedAttributes).length === 0) return;
 
-    useEffect(() => {
-        return () => {
-            dispatch(resetSimilarProducts());
-        };
-    }, [dispatch]);
-
-    useEffect(() => {
-        if (productDetails && Object.values(selectedVariations).length > 0) {
-            // setSelectedVariations(processProductVariations(productDetails.variations));
-            const selectedVariationsArr = Object.values(selectedVariations);
-            const variationsArr = productDetails.variations;
-            let filteredVariationsArr = variationsArr.filter(variation => selectedVariationsArr.includes(variation.attributes.value));
-
-            filteredVariationsArr = filteredVariationsArr.map(variation => ({
-                ...variation,
-                quantity: 1,
-            }));
-
-            const totalPrice = filteredVariationsArr.reduce((sum, variation) =>
-                sum + variation.price, 0);
-
-            const modifiedProduct = { ...productDetails, variations: filteredVariationsArr, price: totalPrice };
-            setProduct(modifyProduct(modifiedProduct));
-        }
-    }, [selectedVariations, quantity, productDetails]);
-
-    useEffect(() => {
-        if (productDetails) {
-            dispatch(removeItem(route.params.product._id));
-        }
-    }, [selectedVariations, dispatch, route.params.product._id, productDetails]);
-
-    const handleVariationChange = (type, value) => {
-        console.log("type, value-->>", type, value)
-        const variations = productDetails.variations;
-        let selectedVariation = null;
-        let parentVariation = null;
-        let childVariation = null;
-
-        // Find the variation with the given type and value
-        selectedVariation = variations.find(variation =>
-            variation.attributes.selected === type && variation.attributes.value === value
+    const foundVariation = variations.find(variation => {
+      // A variation matches if for EACH attribute type, at least one of the
+      // variation's attributes of that type matches the selected value
+      return attributeTypes.every(type => {
+        const selectedValue = selectedAttributes[type];
+        // Find if this variation has the selected value for this attribute type
+        return variation.attributes.some(
+          attr => attr.name === type && attr.value === selectedValue,
         );
+      });
+    });
 
+    setCurrentVariation(foundVariation || null);
+  }, [selectedAttributes, variations, attributeTypes]);
 
-        if (selectedVariation) {
-            if (selectedVariation.parentVariation === null) {
-                // It's a parent, find its first child
-                parentVariation = selectedVariation;
-                childVariation = variations.find(variation =>
-                    variation.parentVariation === selectedVariation._id
-                );
-            } else {
-                // It's a child, find its parent
-                childVariation = selectedVariation;
-                parentVariation = variations.find(variation =>
-                    variation._id === selectedVariation.parentVariation
-                );
-            }
+  // Set the initial default variation on load
+  useEffect(() => {
+    if (variations && variations.length > 0) {
+      const firstVariation = variations[0];
+      const initialSelections = {};
+
+      // For each attribute type, pick the first value found
+      attributeTypes.forEach(attrType => {
+        const firstAttr = firstVariation.attributes.find(
+          attr => attr.name === attrType,
+        );
+        if (firstAttr) {
+          initialSelections[attrType] = firstAttr.value;
         }
+      });
 
-        const result = {
-            parent_selected: parentVariation ? parentVariation.attributes.selected : null,
-            parent_value: parentVariation ? parentVariation.attributes.value : null,
-            child_selected: childVariation ? childVariation.attributes.selected : null,
-            child_value: childVariation ? childVariation.attributes.value : null
-        };
+      setSelectedAttributes(initialSelections);
+    }
+  }, [variations, attributeTypes]);
 
-        console.log("Result:", result);
+  // Gets all unique options for a given attribute type across ALL variations
+  const getAvailableOptions = useCallback(
+    attributeName => {
+      if (!variations) return [];
+      const options = new Set();
+      variations.forEach(variation => {
+        // A variation can have multiple attributes with the same name
+        variation.attributes.forEach(attr => {
+          if (attr.name === attributeName) {
+            options.add(attr.value);
+          }
+        });
+      });
+      return Array.from(options);
+    },
+    [variations],
+  );
 
-        // Dynamically create the updated selected variations
-        const updatedSelectedVariations = {};
-        if (result.parent_selected && result.parent_value) {
-            updatedSelectedVariations[result.parent_selected] = result.parent_value;
-        }
-        if (result.child_selected && result.child_value) {
-            updatedSelectedVariations[result.child_selected] = result.child_value;
-        }
+  /**
+   * Check if an option exists in the product at all
+   * All real options should always be clickable - auto-adjustment handles invalid combos
+   */
+  const isOptionAvailable = useCallback(
+    (attributeName, optionValue) => {
+      if (!variations) return false;
 
-        setSelectedVariations(prevState => ({
-            ...prevState,
-            ...updatedSelectedVariations
-        }));
-    };
+      // An option is available if it exists in at least one variation
+      return variations.some(variation =>
+        variation.attributes.some(
+          attr => attr.name === attributeName && attr.value === optionValue,
+        ),
+      );
+    },
+    [variations],
+  );
 
+  /**
+   * Handle attribute selection with smart behavior
+   */
+  const handleSelectAttribute = (name, value) => {
+    // Create potential new selection
+    const potentialSelection = {...selectedAttributes, [name]: value};
 
+    // Check if this exact combination exists in any variation
+    const matchingVariation = variations.find(variation => {
+      return attributeTypes.every(type => {
+        const selectedValue = potentialSelection[type];
+        return variation.attributes.some(
+          attr => attr.name === type && attr.value === selectedValue,
+        );
+      });
+    });
 
-    // const getVariationOptions = (type, selectedVariations) => {
-    //     let variations = productDetails.variations
-    //     console.log("type-->>", type)
-    //     console.log("selectedVariations-->>", selectedVariations)
+    if (matchingVariation) {
+      // Direct match found - just update the selection
+      setSelectedAttributes(potentialSelection);
+    } else {
+      // No direct match - find best variation with this attribute value
+      const bestMatch = variations.find(variation =>
+        variation.attributes.some(
+          attr => attr.name === name && attr.value === value,
+        ),
+      );
 
-    //     return productDetails
-    //         ? [...new Set(productDetails.variations.filter(v => v.attributes.selected === type).map(v => v.attributes.value))]
-    //         : [];
-    // };
+      if (bestMatch) {
+        // Build full selection from this variation (taking first value for each attribute type)
+        const fullSelection = {};
+        attributeTypes.forEach(attrType => {
+          const attr = bestMatch.attributes.find(a => a.name === attrType);
+          if (attr) {
+            fullSelection[attrType] = attr.value;
+          }
+        });
+        setSelectedAttributes(fullSelection);
+      }
+    }
+  };
 
-    const getVariationOptions = (type, selectedVariations) => {
-        // console.log("type, selectedVariations-->>", type, selectedVariations)
-        // Filter variations based on the selected type
-        const filteredVariations = productDetails?.variations.filter(variation => variation.attributes.selected === type);
-
-        // Check if the type exists in selectedVariations and get its value
-        const foundValueInSelectedVariations = selectedVariations[type];
-
-        // Determine if foundValueInSelectedVariations is a parent or child
-        let options = [];
-        if (foundValueInSelectedVariations) {
-            const isParent = filteredVariations.some(variation => variation.attributes.value === foundValueInSelectedVariations && !variation.parentVariation);
-            const isChild = filteredVariations.some(variation => variation.attributes.value === foundValueInSelectedVariations && variation.parentVariation);
-
-            if (isParent) {
-                // Find other parents of the same type
-                options = filteredVariations
-                    .filter(variation => !variation.parentVariation)
-                    .map(variation => variation.attributes.value);
-            } else if (isChild) {
-                // Find other children of the same type
-                const parentVariationId = filteredVariations.find(variation => variation.attributes.value === foundValueInSelectedVariations && variation.parentVariation)?.parentVariation;
-                options = filteredVariations
-                    .filter(variation => variation.parentVariation === parentVariationId)
-                    .map(variation => variation.attributes.value);
-            }
-        } else {
-            // No selected value, return all values for the type
-            options = filteredVariations?.map(variation => variation.attributes.value);
-        }
-
-        // Ensure unique values and return the result
-        return [...new Set(options)];
-    };
-
-    const getColorVariationOptions = (type, selectedVariations) => {
-        // console.log("type, selectedVariations-->>", type, selectedVariations);
-        
-        // Filter variations based on the selected type
-        const filteredVariations = productDetails.variations.filter(variation => variation.attributes.selected === type);
-    
-        // Check if the type exists in selectedVariations and get its value
-        const foundValueInSelectedVariations = selectedVariations[type];
-    
-        // Determine if foundValueInSelectedVariations is a parent or child
-        let options = [];
-        if (foundValueInSelectedVariations) {
-            const isParent = filteredVariations.some(variation => variation.attributes.value === foundValueInSelectedVariations && !variation.parentVariation);
-            const isChild = filteredVariations.some(variation => variation.attributes.value === foundValueInSelectedVariations && variation.parentVariation);
-    
-            if (isParent) {
-                // Find other parents of the same type
-                options = filteredVariations
-                    .filter(variation => !variation.parentVariation)
-                    .map(variation => ({
-                        label: variation.attributes.value.charAt(0).toUpperCase() + variation.attributes.value.slice(1),
-                        value: variation.attributes.value,
-                        icon: { uri: variation.images[0] } // Assuming the image URL is stored here
-                    }));
-            } else if (isChild) {
-                // Find other children of the same type
-                const parentVariationId = filteredVariations.find(variation => variation.attributes.value === foundValueInSelectedVariations && variation.parentVariation)?.parentVariation;
-                options = filteredVariations
-                    .filter(variation => variation.parentVariation === parentVariationId)
-                    .map(variation => ({
-                        label: variation.attributes.value.charAt(0).toUpperCase() + variation.attributes.value.slice(1),
-                        value: variation.attributes.value,
-                        icon: { uri: variation.images[0] } // Assuming the image URL is stored here
-                    }));
-            }
-        } else {
-            // No selected value, return all values for the type
-            options = filteredVariations.map(variation => ({
-                label: variation.attributes.value.charAt(0).toUpperCase() + variation.attributes.value.slice(1),
-                value: variation.attributes.value,
-                icon: { uri: variation.attributes.image } // Assuming the image URL is stored here
-            }));
-        }
-    
-        // Ensure unique values and return the result
-        return [...new Set(options.map(option => JSON.stringify(option)))].map(item => JSON.parse(item));
-    };
-    
-
-
-    return {
-        product,
-        selectedVariations,
-        handleVariationChange,
-        getVariationOptions,
-        getColorVariationOptions,
-        flatListRef,
-        existingItemIndex,
-        quantity,
-        loading,
-        products,
-        fetchMoreProducts: () => {
-            if (!loading && !reachedEnd) {
-                dispatch(updateSimilarProductsPage(page + 1));
-            }
-        },
-    };
+  return {
+    currentVariation,
+    attributeTypes,
+    selectedAttributes,
+    handleSelectAttribute,
+    getAvailableOptions,
+    isOptionAvailable,
+  };
 };
 
 export default useProductVariations;

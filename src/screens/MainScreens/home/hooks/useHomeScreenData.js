@@ -6,6 +6,10 @@ import {fetchDiscountedProducts} from '../../../../config/redux/actions/discount
 import {fetchAllCategoryProducts} from '../../../../config/redux/actions/getallCategoryProductsActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {updateFcm} from '../../../../config/redux/actions/customerActions';
+import {
+  fetchRecentlyAddedVendors,
+  resetRecentlyAddedVendors,
+} from '../../../../config/redux/actions/recentlyAddedVendorsActions';
 
 /**
  * Custom hook to fetch and manage initial data for the HomeScreen.
@@ -51,6 +55,11 @@ export const useHomeScreenData = () => {
     dispatch(fetchCategories());
     dispatch(fetchDiscountedProducts(1, 4, availableLocalities));
     dispatch(fetchAllCategoryProducts(availableLocalities));
+
+    // 👇 ADDED THIS SECTION
+    // Reset any previous vendor data and fetch the first page of new vendors
+    dispatch(resetRecentlyAddedVendors());
+    dispatch(fetchRecentlyAddedVendors(1, 10));
   }, [dispatch, user]);
 
   return {

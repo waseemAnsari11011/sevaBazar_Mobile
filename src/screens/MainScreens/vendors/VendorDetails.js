@@ -8,7 +8,6 @@ import {
   FlatList,
   ActivityIndicator,
   Image,
-  TouchableOpacity,
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -20,7 +19,7 @@ import {
 } from '../../../config/redux/actions/vendorActions';
 import {fetchProductsByVendor} from '../../../config/redux/actions/productAction';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import ProductCard from '../../../components/ProductCard';
+import ProductCard from '../../../components/ProductCard'; // Ensure this path is correct
 
 const FALLBACK_IMAGE_URL =
   'https://placehold.co/600x400/EEE/31343C?text=Vendor';
@@ -36,10 +35,13 @@ const VendorDetails = () => {
     state => state.productsByVendor,
   );
 
-  useEffect(() => {
-    dispatch(fetchVendorDetails(vendorId));
-    dispatch(fetchProductsByVendor(vendorId));
+  console.log('vendor details prod==>>', products);
 
+  useEffect(() => {
+    if (vendorId) {
+      dispatch(fetchVendorDetails(vendorId));
+      dispatch(fetchProductsByVendor(vendorId));
+    }
     return () => {
       dispatch(resetVendorDetails());
     };
@@ -47,12 +49,10 @@ const VendorDetails = () => {
 
   const renderHeader = () => {
     if (!vendor) return null;
-
     const imageUrl =
       vendor.documents?.shopPhoto?.length > 0
         ? vendor.documents.shopPhoto[0]
         : FALLBACK_IMAGE_URL;
-
     return (
       <View>
         <Image source={{uri: imageUrl}} style={styles.vendorImage} />
@@ -97,19 +97,15 @@ const VendorDetails = () => {
         data={products}
         keyExtractor={item => item._id}
         ListHeaderComponent={renderHeader}
-        // Add numColumns prop for a 2-column grid
         numColumns={2}
+        // --- FIX IS HERE ---
+        // Removed the wrapping TouchableOpacity.
+        // The ProductCard handles its own press event.
+        // We pass the navigation prop down to it.
         renderItem={({item}) => (
-          <TouchableOpacity
-            style={styles.productCardContainer}
-            onPress={() => navigation.navigate('Details', {product: item})}>
-            <ProductCard
-              item={item}
-              onPress={() =>
-                navigation.navigate('Details', {productId: item._id})
-              }
-            />
-          </TouchableOpacity>
+          <View style={styles.productCardContainer}>
+            <ProductCard item={item} navigation={navigation} />
+          </View>
         )}
         ListEmptyComponent={
           !productsLoading && (
@@ -127,6 +123,7 @@ const VendorDetails = () => {
   );
 };
 
+// Styles remain the same
 const styles = StyleSheet.create({
   screen: {
     backgroundColor: '#f8f9fa',
@@ -175,15 +172,13 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   listContainer: {
-    // Add horizontal padding for outer spacing
-    paddingHorizontal: 8,
+    paddingHorizontal: 5, // Adjusted for card margins
     paddingBottom: 20,
   },
+  // This View now acts as a wrapper for layout purposes
   productCardContainer: {
-    // Make each item take up half the space
     flex: 1 / 2,
-    // Add margin for spacing between items
-    margin: 8,
+    padding: 5,
   },
   emptyText: {
     textAlign: 'center',

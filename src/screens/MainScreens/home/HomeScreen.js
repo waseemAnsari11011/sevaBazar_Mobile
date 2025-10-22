@@ -13,6 +13,7 @@ import ProductCard from '../../../components/ProductCard';
 import {useHomeScreenData} from './hooks/useHomeScreenData';
 import {useInfiniteScroll} from './hooks/useInfiniteScroll';
 import HomeScreenHeader from './components/HomeScreenHeader';
+import { fetchRecentlyAddedVendors, resetRecentlyAddedVendors } from '../../../config/redux/actions/recentlyAddedVendorsActions';
 
 const HomeScreen = ({navigation}) => {
   const flatListRef = useRef(null);

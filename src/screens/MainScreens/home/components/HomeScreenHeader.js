@@ -4,6 +4,7 @@ import BannerCarousel from './BannerCarousel';
 import CategoryList from './CategoryList';
 import DealOfDay from '../DealOfDay';
 import ProductCarousel from '../ProductCarousel';
+import VendorCarousel from '../components/VendorCarousel'; // 👈 Import new component
 import ProductSection from './ProductSection';
 import AllCategoryProducts from '../../../../components/AllCategoryProducts';
 import Icon from '../../../../components/Icons/Icon';
@@ -28,34 +29,34 @@ const HomeScreenHeader = ({
         <DealOfDay navigation={navigation} />
       </View>
 
-      {/* Latest Products Section */}
+      {/* Recently added Section */}
       <View style={styles.header}>
-        <Text style={styles.title}>Latest Products</Text>
+        <Text style={styles.title}>New Dukaan</Text>
         <TouchableOpacity
-          onPress={() => navigation.navigate('New Arrivals')}
+          onPress={() => navigation.navigate('New Dukaans')}
           style={styles.viewAllButton}>
           <Text style={styles.viewAllText}>View all</Text>
           <Icon.AntDesign name="right" color="#000066" size={13} />
         </TouchableOpacity>
       </View>
       <View style={{marginHorizontal: -20, marginBottom: 15}}>
-        <ProductCarousel navigation={navigation} />
+        <VendorCarousel navigation={navigation} />
       </View>
 
       {/* On Sale Section */}
-      <ProductSection
+      {/* <ProductSection
         title="On Sale"
         products={onDiscountProducts}
         navigation={navigation}
         navigateToScreen="Discounted Products"
-      />
+      /> */}
 
-      <AllCategoryProducts allCategoryProducts={allCategoryProducts} />
+      {/* <AllCategoryProducts allCategoryProducts={allCategoryProducts} /> */}
 
       {/* All Products Title */}
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.title}>All Products</Text>
-      </View>
+      </View> */}
     </View>
   );
 };
