@@ -30,7 +30,7 @@ const VendorDetails = () => {
   const dispatch = useDispatch();
   const {vendorId} = route.params;
 
-  const {vendor, loading, error} = useSelector(state => state.vendorDetails);
+  const {vendor, loading, error} = useSelector(state => state.vendors.details);
   const {products, loading: productsLoading} = useSelector(
     state => state.productsByVendor,
   );

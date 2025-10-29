@@ -19,12 +19,12 @@ import productReducer from './productReducer';
 import allProductsReducer from './fetchAllProductsReducer';
 import chatOrderReducer from './chatOrderReducer';
 import allCategoryProductsReducer from './getallCategoryProductsReducer';
-import vendorsByCategoryReducer from './vendorsByCategoryReducer';
 import locationReducer from './locationReducer'; // 👈 Import the new reducer
-import vendorDetailsReducer from './vendorDetailsReducer';
 import productsByVendorReducer from './productsByVendorReducer';
 import recentlyAddedVendorsReducer from './recentlyAddedVendorsReducer';
+import vendorsWithDiscountsReducer from './vendorsWithDiscountsReducer'; // 👈 Import the new reducer
 
+import vendorReducer from './vendorReducer';
 const rootReducer = combineReducers({
   auth: authReducer,
   cart: cartReducer,
@@ -46,11 +46,11 @@ const rootReducer = combineReducers({
   allProducts: allProductsReducer,
   chatOrder: chatOrderReducer,
   allCategoryProducts: allCategoryProductsReducer,
-  vendorsByCategory: vendorsByCategoryReducer,
   location: locationReducer, // 👈 Add the location reducer
-  vendorDetails: vendorDetailsReducer,
   productsByVendor: productsByVendorReducer,
   recentlyAddedVendors: recentlyAddedVendorsReducer, // 👈 Add
+  vendorsWithDiscounts: vendorsWithDiscountsReducer,
+  vendors: vendorReducer,
 });
 
 export default rootReducer;

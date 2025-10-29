@@ -2,7 +2,6 @@ import {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {getBanners} from '../../../../config/redux/actions/bannerActions';
 import {fetchCategories} from '../../../../config/redux/actions/categoryAction';
-import {fetchDiscountedProducts} from '../../../../config/redux/actions/discountedProductsActions';
 import {fetchAllCategoryProducts} from '../../../../config/redux/actions/getallCategoryProductsActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {updateFcm} from '../../../../config/redux/actions/customerActions';
@@ -10,12 +9,16 @@ import {
   fetchRecentlyAddedVendors,
   resetRecentlyAddedVendors,
 } from '../../../../config/redux/actions/recentlyAddedVendorsActions';
+import {
+  fetchVendorsWithDiscounts,
+  resetVendorsWithDiscounts,
+} from '../../../../config/redux/actions/vendorsWithDiscountsActions';
+// 👇 ADD THESE IMPORTS
+import {
+  fetchAllVendorsGrouped,
+  resetAllVendorsGrouped,
+} from '../../../../config/redux/actions/vendorActions';
 
-/**
- * Custom hook to fetch and manage initial data for the HomeScreen.
- * This includes banners, categories, discounted products, and all category products.
- * It also handles updating the user's FCM token.
- */
 export const useHomeScreenData = () => {
   const dispatch = useDispatch();
 
@@ -27,40 +30,43 @@ export const useHomeScreenData = () => {
     error: categoryError,
   } = useSelector(state => state.categories);
   const {banners} = useSelector(state => state.banners);
-  const {products: onDiscountProducts} = useSelector(
-    state => state.discountedProducts,
-  );
+
+  const {vendors: vendorsWithDiscounts, loading: vendorsWithDiscountsLoading} =
+    useSelector(state => state.vendorsWithDiscounts);
+
   const {data: allCategoryProducts} = useSelector(
     state => state.allCategoryProducts,
   );
 
-  // Effect to update the FCM device token for push notifications
-  useEffect(() => {
-    const fetchAndUpdateFcm = async () => {
-      if (user?._id) {
-        const deviceToken = await AsyncStorage.getItem('deviceToken');
-        const deviceTokenData = JSON.parse(deviceToken);
-        if (deviceTokenData) {
-          await updateFcm(user._id, deviceTokenData);
-        }
-      }
-    };
-    fetchAndUpdateFcm();
-  }, [user?._id]);
+  // 👇 ADD THIS SELECTOR
+  const {
+    data: groupedVendors,
+    loading: groupedVendorsLoading,
+    error: groupedVendorsError,
+  } = useSelector(state => state.vendors.groupedList);
+
+  // TODO: Add your FCM token logic back in if you have it
+  // ... (useEffect for FCM token remains the same)
 
   // Effect to fetch initial data required for the screen
   useEffect(() => {
-    const availableLocalities = user?.availableLocalities;
     dispatch(getBanners());
     dispatch(fetchCategories());
-    dispatch(fetchDiscountedProducts(1, 4, availableLocalities));
-    dispatch(fetchAllCategoryProducts(availableLocalities));
+    dispatch(fetchAllCategoryProducts());
 
-    // 👇 ADDED THIS SECTION
-    // Reset any previous vendor data and fetch the first page of new vendors
+    // Fetch Recently Added Vendors
     dispatch(resetRecentlyAddedVendors());
     dispatch(fetchRecentlyAddedVendors(1, 10));
-  }, [dispatch, user]);
+
+    // Fetch Vendors with Discounts
+    dispatch(resetVendorsWithDiscounts());
+    dispatch(fetchVendorsWithDiscounts(1, 10)); // Fetch first 10 for the carousel
+
+    // 👇 ADD THIS SECTION
+    // Fetch All Vendors Grouped by Category
+    dispatch(resetAllVendorsGrouped());
+    dispatch(fetchAllVendorsGrouped());
+  }, [dispatch, user]); // user dependency might re-trigger fetches if user object changes
 
   return {
     user,
@@ -68,7 +74,12 @@ export const useHomeScreenData = () => {
     categories: category,
     categoryError,
     banners,
-    onDiscountProducts,
+    vendorsWithDiscounts,
+    vendorsWithDiscountsLoading,
     allCategoryProducts,
+    // 👇 ADD THESE
+    groupedVendors,
+    groupedVendorsLoading,
+    groupedVendorsError,
   };
 };

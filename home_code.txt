@@ -1,0 +1,1172 @@
+//home/ProductCarousel.js
+
+import React from 'react';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import Carousel from 'react-native-reanimated-carousel';
+import {useSelector} from 'react-redux';
+import {baseURL} from '../../../utils/api';
+import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
+
+const ProductCarousel = ({navigation}) => {
+  const {
+    loading: recentlyAddedLoading,
+    products,
+    error: recentlyAddedError,
+  } = useSelector(state => state.recentlyAddedProducts);
+
+  const autoPlay = true;
+  const loop = true;
+  const pagingEnabled = false;
+  const snapEnabled = false;
+  const mode = 'parallax';
+  const snapDirection = 'left';
+
+  return (
+    <View style={styles.container}>
+      <Carousel
+        style={styles.carousel}
+        width={300}
+        height={210}
+        pagingEnabled={pagingEnabled}
+        snapEnabled={snapEnabled}
+        enabled
+        // mode={mode}
+        loop={loop}
+        autoPlay={autoPlay}
+        data={products}
+        modeConfig={{
+          snapDirection,
+          stackInterval: mode === 'vertical-stack' ? 8 : 18,
+        }}
+        renderItem={({item}) => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Details', {product: item})}
+            style={styles.productContainer}
+            key={item.id}>
+            <Image
+              source={{uri: item?.images[0]}}
+              style={styles.productImage}
+            />
+            <Text style={styles.productName}>{item.name}</Text>
+            <Text style={styles.discountedPrice}>
+              ₹
+              {calculateDiscountedPrice(
+                item.variations[0].price,
+                item.variations[0].discount,
+              )}
+            </Text>
+          </TouchableOpacity>
+        )}
+      />
+    </View>
+  );
+};
+
+export default ProductCarousel;
+
+const styles = StyleSheet.create({
+  container: {
+    // flex: 1,
+    // justifyContent: "center",
+    // alignItems: "center",
+  },
+  productName: {
+    fontWeight: 'bold',
+    color: 'black',
+    fontSize: 18,
+  },
+  carousel: {
+    width: '100%',
+    height: 240,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  productContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    margin: 10,
+  },
+  productImage: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+  },
+  productName: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
+//home/DealOfDay.js
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+} from 'react-native';
+import React from 'react';
+import {useSelector} from 'react-redux';
+import {baseURL} from '../../../utils/api';
+import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
+const windowWidth = Dimensions.get('window').width;
+
+const DealOfDay = ({navigation}) => {
+  const {
+    loading: onDiscountLoading,
+    products: onDiscountProducts,
+    error: onDiscountError,
+  } = useSelector(state => state.discountedProducts);
+  const item = onDiscountProducts[0];
+
+  return (
+    <>
+      {item && (
+        <View
+          style={{
+            backgroundColor: '#ff660030',
+            marginHorizontal: -15,
+            alignItems: 'center',
+            padding: 20,
+            marginTop: 15,
+          }}>
+          <Text
+            style={{
+              marginBottom: 15,
+              color: '#000066',
+              fontWeight: '600',
+              fontSize: 17,
+            }}>
+            Deal Of the Day
+          </Text>
+          <TouchableOpacity
+            style={styles.container}
+            onPress={() => navigation.navigate('Details', {product: item})}>
+            {item?.images?.length === 0 && (
+              <Image
+                source={{
+                  uri: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4sEG5g9GFcy4SUxbzWNzUTf1jMISTDZrTw&s`,
+                }} // Replace with your image url
+                style={styles.productImage}
+              />
+            )}
+            {item?.images?.length !== 0 && (
+              <Image
+                source={{uri: item?.images[0]}}
+                style={styles.productImage}
+              />
+            )}
+            <View style={styles.detailsContainer}>
+              <Text style={styles.productName}>{item?.name}</Text>
+              <Text style={styles.productWeight}>
+                {item?.variations[0]?.attributes.value}
+              </Text>
+              <View style={styles.priceContainer}>
+                <Text style={styles.discountedPrice}>
+                  ₹
+                  {calculateDiscountedPrice(
+                    item?.variations[0].price,
+                    item?.variations[0]?.discount,
+                  )}
+                </Text>
+                <Text style={styles.originalPrice}>
+                  ₹{item?.variations[0]?.price}
+                </Text>
+              </View>
+              <Text style={styles.discountPercentage}>
+                -{item?.variations[0]?.discount}%
+              </Text>
+              {/* <View style={styles.addContainer}>
+        {existingItemIndex === -1 ? (
+          <AddToCartBtn product={item} />
+        ) : (
+          <QuantityUpdater quantity={quantity} item={item} />
+        )}
+      </View> */}
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+    </>
+  );
+};
+
+export default DealOfDay;
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    elevation: 3,
+  },
+  productImage: {
+    width: windowWidth / 3,
+    height: windowWidth / 3,
+    marginRight: 15,
+    resizeMode: 'contain',
+  },
+  detailsContainer: {
+    flex: 1,
+    padding: 15,
+  },
+  productName: {
+    fontWeight: 'bold',
+    color: 'black',
+    fontSize: 13,
+  },
+  productWeight: {
+    color: '#000066',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    marginTop: 7,
+  },
+  discountedPrice: {
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
+  originalPrice: {
+    textDecorationLine: 'line-through',
+    marginLeft: 15,
+    fontSize: 17,
+  },
+  discountPercentage: {
+    color: '#ff6600',
+    marginTop: 2,
+    fontSize: 15,
+  },
+  addContainer: {
+    flexDirection: 'row-reverse',
+  },
+
+  addButtonText: {
+    color: '#fff',
+  },
+  callIconContainer: {
+    // Style for your call icon container
+  },
+});
+import React, {useRef} from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
+import Loading from '../../../components/Loading';
+import SearchBar from '../../../components/SearchBar';
+import ProductCard from '../../../components/ProductCard';
+import {useHomeScreenData} from './hooks/useHomeScreenData';
+import {useInfiniteScroll} from './hooks/useInfiniteScroll';
+import HomeScreenHeader from './components/HomeScreenHeader';
+
+const HomeScreen = ({navigation}) => {
+  const flatListRef = useRef(null);
+
+  // Use custom hooks to abstract away logic
+  const {
+    user,
+    categoryLoading,
+    categories,
+    categoryError,
+    banners,
+    vendorsWithDiscounts,
+    vendorsWithDiscountsLoading,
+    allCategoryProducts,
+  } = useHomeScreenData();
+
+  const {allProducts, allProductsLoading, fetchMoreProducts} =
+    useInfiniteScroll(user);
+
+  const scrollToTop = () => {
+    flatListRef.current?.scrollToOffset({animated: true, offset: 0});
+  };
+
+  const renderProductItem = ({item}) => (
+    <TouchableOpacity
+      onPress={() => navigation.navigate('Details', {product: item})}>
+      <ProductCard item={item} />
+    </TouchableOpacity>
+  );
+
+  // Handle error state
+  if (categoryError) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text>{categoryError}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      {categoryLoading && <Loading />}
+
+      <SearchBar scrollToTop={scrollToTop} />
+
+      <FlatList
+        ref={flatListRef}
+        data={allProducts}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
+        renderItem={renderProductItem}
+        numColumns={2}
+        onEndReached={fetchMoreProducts}
+        onEndReachedThreshold={0.5}
+        ListHeaderComponent={
+          <HomeScreenHeader
+            navigation={navigation}
+            banners={banners}
+            categories={categories}
+            vendorsWithDiscounts={vendorsWithDiscounts}
+            vendorsWithDiscountsLoading={vendorsWithDiscountsLoading}
+            allCategoryProducts={allCategoryProducts}
+          />
+        }
+        ListFooterComponent={
+          allProductsLoading ? (
+            <ActivityIndicator size="large" color="#0000ff" />
+          ) : null
+        }
+        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={styles.contentContainer}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 60, // For custom header/search bar
+    backgroundColor: '#FFFFFF',
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  contentContainer: {
+    padding: 15,
+  },
+});
+
+export default HomeScreen;
+import React from 'react';
+import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import Carousel from 'react-native-reanimated-carousel';
+import {useSelector} from 'react-redux';
+
+const FALLBACK_IMAGE_URL = 'https://placehold.co/150x150/EEE/31343C?text=Photo';
+
+const VendorCarousel = ({navigation}) => {
+  // Select state from the new vendors reducer
+  const {
+    loading: vendorsLoading,
+    vendors,
+    error: vendorsError,
+  } = useSelector(state => state.recentlyAddedVendors);
+
+  const autoPlay = true;
+  const loop = true;
+  const pagingEnabled = false;
+  const snapEnabled = false;
+
+  // Handle loading or error states if needed
+  if (vendorsLoading && vendors.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading new vendors...</Text>
+      </View>
+    );
+  }
+
+  if (vendorsError) {
+    return (
+      <View style={styles.container}>
+        <Text>Error: {vendorsError}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Carousel
+        style={styles.carousel}
+        width={300} // Adjust width as needed
+        height={210}
+        pagingEnabled={pagingEnabled}
+        snapEnabled={snapEnabled}
+        enabled
+        loop={loop}
+        autoPlay={autoPlay}
+        data={vendors}
+        renderItem={({item}) => {
+          const imageUrl =
+            item?.documents?.shopPhoto?.length > 0
+              ? item.documents.shopPhoto[0]
+              : FALLBACK_IMAGE_URL;
+
+          return (
+            <TouchableOpacity
+              // --- FIX IS HERE ---
+              // Changed to pass `vendorId` which VendorDetails screen expects
+              onPress={() =>
+                navigation.navigate('VendorDetails', {vendorId: item._id})
+              }
+              style={styles.vendorContainer}
+              key={item._id}>
+              <Image source={{uri: imageUrl}} style={styles.vendorImage} />
+              <Text style={styles.vendorName} numberOfLines={1}>
+                {item.vendorInfo.businessName}
+              </Text>
+              <Text style={styles.vendorLocation} numberOfLines={1}>
+                {item.location.address.city}
+              </Text>
+            </TouchableOpacity>
+          );
+        }}
+      />
+    </View>
+  );
+};
+
+export default VendorCarousel;
+
+const styles = StyleSheet.create({
+  container: {
+    // flex: 1,
+  },
+  carousel: {
+    width: '100%',
+    height: 240,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  vendorContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    margin: 10,
+    // Add shadow for better appearance
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.23,
+    shadowRadius: 2.62,
+    elevation: 4,
+  },
+  vendorImage: {
+    width: 150,
+    height: 150,
+    resizeMode: 'contain',
+    borderRadius: 8, // Optional: round corners
+    backgroundColor: '#f0f0f0',
+  },
+  vendorName: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  vendorLocation: {
+    fontSize: 14,
+    color: 'gray',
+  },
+});
+import React from 'react';
+import {View} from 'react-native';
+import CustomImageCarousal from '../../../../components/CustomImageCarousalLandscape';
+
+const BannerCarousel = ({banners}) => {
+  if (!banners || banners.length === 0) {
+    return null;
+  }
+
+  return (
+    <View style={{marginTop: 20, marginHorizontal: -20}}>
+      <CustomImageCarousal data={banners} autoPlay={true} pagination={true} />
+    </View>
+  );
+};
+
+export default BannerCarousel;
+import React from 'react';
+import {View, Text, TouchableOpacity, FlatList, StyleSheet} from 'react-native';
+import Icon from '../../../../components/Icons/Icon';
+import ProductCard from '../../../../components/ProductCard';
+
+const ProductSection = ({title, products, navigation, navigateToScreen}) => {
+  const renderItems = ({item}) => (
+    <TouchableOpacity
+      onPress={() => navigation.navigate('Details', {product: item})}>
+      <ProductCard item={item} />
+    </TouchableOpacity>
+  );
+
+  return (
+    <View>
+      <View style={styles.header}>
+        <Text style={styles.title}>{title}</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate(navigateToScreen)}
+          style={styles.viewAllButton}>
+          <Text style={styles.viewAllText}>View all</Text>
+          <Icon.AntDesign name="right" color="#000066" size={13} />
+        </TouchableOpacity>
+      </View>
+      <FlatList
+        data={products}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
+        renderItem={renderItems}
+        numColumns={2}
+        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={{paddingVertical: 5}}
+        scrollEnabled={false} // Important for FlatList inside ScrollView
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginVertical: 5,
+    color: '#000000',
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  viewAllText: {
+    color: '#000066',
+    marginRight: 5,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  columnWrapper: {
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+});
+
+export default ProductSection;
+import React from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
+import Icon from '../../../../components/Icons/Icon';
+
+const VENDOR_PLACEHOLDER_IMAGE = 'https://via.placeholder.com/150';
+
+/**
+ * Renders a single vendor card for the grid.
+ */
+const VendorCard = ({item, navigation}) => {
+  const imageUrl = item.documents?.shopPhoto?.[0] || VENDOR_PLACEHOLDER_IMAGE;
+
+  return (
+    <TouchableOpacity
+      style={styles.cardContainer}
+      onPress={() =>
+        navigation.navigate('VendorDetails', {vendorId: item._id})
+      }>
+      <Image source={{uri: imageUrl}} style={styles.image} />
+      <View style={styles.discountBadge}>
+        <Text style={styles.discountText}>UPTO {item.maxDiscount}% OFF</Text>
+      </View>
+      <View style={styles.infoContainer}>
+        <Text style={styles.vendorName} numberOfLines={1}>
+          {item.vendorInfo?.businessName || item.name}
+        </Text>
+        <Text style={styles.vendorCity} numberOfLines={1}>
+          {item.location?.address?.city}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+/**
+ * A 2x2 grid component to display the top 4 vendors offering discounts.
+ */
+const VendorsWithDiscounts = ({vendors, loading, navigation}) => {
+  if (!loading && (!vendors || vendors.length === 0)) {
+    return null;
+  }
+
+  // Slice the array to only get the first 4 vendors for the grid
+  const gridVendors = vendors.slice(0, 4);
+
+  return (
+    <View style={styles.container}>
+      {/* Section Header */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Top Deals from Dukaans</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Top Deals from Dukaans')}
+          style={styles.viewAllButton}>
+          <Text style={styles.viewAllText}>View all</Text>
+          <Icon.AntDesign name="right" color="#000066" size={13} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Grid */}
+      {loading ? (
+        <ActivityIndicator size="large" color="#000066" style={{height: 160}} />
+      ) : (
+        <FlatList
+          data={gridVendors}
+          renderItem={({item}) => (
+            <VendorCard item={item} navigation={navigation} />
+          )}
+          keyExtractor={item => item._id}
+          numColumns={2} // Arrange items in 2 columns
+          scrollEnabled={false} // Disable scrolling for the grid
+          columnWrapperStyle={{justifyContent: 'space-between'}} // Add space between columns
+        />
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 15,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000000',
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  viewAllText: {
+    color: '#000066',
+    marginRight: 5,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  cardContainer: {
+    flex: 1,
+    maxWidth: '48%', // Ensures a gap between the two columns
+    marginBottom: 15,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  image: {
+    width: '100%',
+    height: 100,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  discountBadge: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: '#FF4136',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  discountText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  infoContainer: {
+    padding: 8,
+  },
+  vendorName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+  },
+  vendorCity: {
+    fontSize: 12,
+    color: '#777',
+    marginTop: 2,
+  },
+});
+
+export default VendorsWithDiscounts;
+import React from 'react';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import BannerCarousel from './BannerCarousel';
+import CategoryList from './CategoryList';
+import DealOfDay from '../DealOfDay';
+import VendorCarousel from '../components/VendorCarousel';
+import VendorsWithDiscounts from './VendorsWithDiscounts';
+import Icon from '../../../../components/Icons/Icon';
+
+/**
+ * The header component for the HomeScreen's main FlatList.
+ * It composes various sections like banners, categories, and vendor showcases.
+ */
+const HomeScreenHeader = ({
+  banners,
+  categories,
+  vendorsWithDiscounts,
+  vendorsWithDiscountsLoading,
+  navigation,
+}) => {
+  return (
+    <View>
+      <BannerCarousel banners={banners} />
+      <CategoryList categories={categories} navigation={navigation} />
+
+      <View style={{marginBottom: 15}}>
+        <DealOfDay navigation={navigation} />
+      </View>
+
+      {/* Recently added Section */}
+      <View style={styles.header}>
+        <Text style={styles.title}>New Dukaan</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('New Dukaans')}
+          style={styles.viewAllButton}>
+          <Text style={styles.viewAllText}>View all</Text>
+          <Icon.AntDesign name="right" color="#000066" size={13} />
+        </TouchableOpacity>
+      </View>
+      <View style={{marginHorizontal: -20, marginBottom: 15}}>
+        <VendorCarousel navigation={navigation} />
+      </View>
+
+      {/* Vendors with discounts Section */}
+      <VendorsWithDiscounts
+        vendors={vendorsWithDiscounts}
+        loading={vendorsWithDiscountsLoading}
+        navigation={navigation}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginVertical: 5,
+    color: '#000000',
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  viewAllText: {
+    color: '#000066',
+    marginRight: 5,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+});
+
+export default HomeScreenHeader;
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {useDispatch} from 'react-redux';
+import {resetProductsByCategory} from '../../../../config/redux/actions/productsByCategoryActions';
+import {baseURL} from '../../../../utils/api';
+import Icon from '../../../../components/Icons/Icon';
+
+const CategoryList = ({categories}) => {
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+
+  const handleNavigateToVendors = item => {
+    navigation.navigate('VendorsByCategory', {
+      categoryId: item._id,
+      categoryTitle: item.name,
+    });
+  };
+
+  // Calculate the number of columns based on the categories array length.
+  // This will be 0 initially and change when data arrives.
+  const numColumns = Math.ceil(categories.length / 2);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Explore Categories</Text>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('All Categories', {categoriesData: categories})
+          }
+          style={styles.viewAllButton}>
+          <Text style={styles.viewAllText}>View all</Text>
+          <Icon.AntDesign name="right" color="#000066" size={13} />
+        </TouchableOpacity>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollViewContent}
+        style={styles.scrollView}>
+        <FlatList
+          // 👇 FIX: Add a key that changes with numColumns.
+          // This forces a re-render and avoids the invariant violation error.
+          key={numColumns}
+          contentContainerStyle={{alignSelf: 'flex-start'}}
+          numColumns={numColumns}
+          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
+          data={categories}
+          scrollEnabled={false} // The parent ScrollView handles scrolling
+          renderItem={({item}) => (
+            <TouchableOpacity onPress={() => handleNavigateToVendors(item)}>
+              <View style={styles.categoryItem}>
+                <View style={styles.imageContainer}>
+                  <Image source={{uri: item?.images[0]}} style={styles.image} />
+                </View>
+                <Text style={styles.categoryName}>{item.name}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    marginBottom: 10,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#000000',
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  viewAllText: {
+    color: '#000066',
+    marginRight: 5,
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  scrollView: {
+    marginHorizontal: -15, // Negative margin to extend to screen edges
+  },
+  scrollViewContent: {
+    paddingHorizontal: 15, // Add padding back inside the ScrollView
+  },
+  categoryItem: {
+    alignItems: 'center',
+    padding: 10,
+    width: 100, // Fixed width for consistent item size
+  },
+  imageContainer: {
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 5,
+    borderColor: '#00006680',
+  },
+  image: {
+    width: 75,
+    height: 75,
+    borderRadius: 10,
+  },
+  categoryName: {
+    marginTop: 10,
+    fontSize: 13,
+    fontWeight: '400',
+    color: '#000000',
+    textAlign: 'center',
+  },
+});
+
+export default CategoryList;
+import {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  fetchAllProducts,
+  updateAllProductsPage,
+  resetAllProducts,
+} from '../../../../config/redux/actions/fetchAllProductsActions';
+
+/**
+ * Custom hook to manage the state and logic for infinitely scrolling "All Products".
+ */
+export const useInfiniteScroll = user => {
+  const dispatch = useDispatch();
+
+  const {
+    loading: allProductsLoading,
+    products: allProducts,
+    error: allProductsError,
+    page,
+    limit,
+    reachedEnd,
+  } = useSelector(state => state.allProducts);
+
+  // Effect to fetch the next page of products when the page number changes
+  useEffect(() => {
+    if (!reachedEnd && !allProductsLoading) {
+      dispatch(fetchAllProducts(page, limit, user?.availableLocalities));
+    }
+  }, [page, dispatch, user]);
+
+  // Effect to reset the products list when the component unmounts
+  useEffect(() => {
+    return () => {
+      dispatch(resetAllProducts());
+    };
+  }, [dispatch]);
+
+  // Function to trigger fetching the next page
+  const fetchMoreProducts = () => {
+    if (!allProductsLoading && !reachedEnd) {
+      dispatch(updateAllProductsPage(page + 1));
+    }
+  };
+
+  return {
+    allProducts,
+    allProductsLoading,
+    allProductsError,
+    fetchMoreProducts,
+  };
+};
+// home/hooks/useHomeScreenData.js
+import {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {getBanners} from '../../../../config/redux/actions/bannerActions';
+import {fetchCategories} from '../../../../config/redux/actions/categoryAction';
+// REMOVED: import {fetchDiscountedProducts} from '../../../../config/redux/actions/discountedProductsActions';
+import {fetchAllCategoryProducts} from '../../../../config/redux/actions/getallCategoryProductsActions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {updateFcm} from '../../../../config/redux/actions/customerActions';
+import {
+  fetchRecentlyAddedVendors,
+  resetRecentlyAddedVendors,
+} from '../../../../config/redux/actions/recentlyAddedVendorsActions';
+// 👇 ADDED THIS IMPORT
+import {
+  fetchVendorsWithDiscounts,
+  resetVendorsWithDiscounts,
+} from '../../../../config/redux/actions/vendorsWithDiscountsActions';
+
+export const useHomeScreenData = () => {
+  const dispatch = useDispatch();
+
+  // Selectors to get data from the Redux store
+  const {user} = useSelector(state => state?.local?.data || {});
+  const {
+    loading: categoryLoading,
+    category,
+    error: categoryError,
+  } = useSelector(state => state.categories);
+  const {banners} = useSelector(state => state.banners);
+
+  // REMOVED: const {products: onDiscountProducts} = useSelector(state => state.discountedProducts);
+
+  // 👇 ADDED THIS SELECTOR
+  const {vendors: vendorsWithDiscounts, loading: vendorsWithDiscountsLoading} =
+    useSelector(state => state.vendorsWithDiscounts);
+
+  const {data: allCategoryProducts} = useSelector(
+    state => state.allCategoryProducts,
+  );
+
+  // ... (useEffect for FCM token remains the same)
+
+  // Effect to fetch initial data required for the screen
+  useEffect(() => {
+    dispatch(getBanners());
+    dispatch(fetchCategories());
+    dispatch(fetchAllCategoryProducts());
+
+    // Fetch Recently Added Vendors
+    dispatch(resetRecentlyAddedVendors());
+    dispatch(fetchRecentlyAddedVendors(1, 10));
+
+    // 👇 ADDED THIS SECTION
+    // Fetch Vendors with Discounts
+    dispatch(resetVendorsWithDiscounts());
+    dispatch(fetchVendorsWithDiscounts(1, 10)); // Fetch first 10 for the carousel
+  }, [dispatch, user]);
+
+  return {
+    user,
+    categoryLoading,
+    categories: category,
+    categoryError,
+    banners,
+    // REMOVED: onDiscountProducts,
+    vendorsWithDiscounts, // 👇 ADDED
+    vendorsWithDiscountsLoading, // 👇 ADDED
+    allCategoryProducts,
+  };
+};
+//home/AllCategories.js
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import React from 'react';
+import {baseURL} from '../../../utils/api';
+import {resetProductsByCategory} from '../../../config/redux/actions/productsByCategoryActions';
+import {useDispatch} from 'react-redux';
+
+const AllCategories = ({route, navigation}) => {
+  const dispatch = useDispatch();
+  const {categoriesData} = route.params;
+  console.log('categoriesData', categoriesData);
+
+  const handleNavigateProductsByCategory = async item => {
+    await dispatch(resetProductsByCategory());
+    navigation.navigate('CategoryProducts', {
+      categoryId: item._id,
+      categoryTitle: item.name,
+    });
+  };
+
+  const renderCategory = ({item}) => (
+    <View style={styles.categoryContainer}>
+      <TouchableOpacity onPress={() => handleNavigateProductsByCategory(item)}>
+        <View style={styles.categoryContent}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={{uri: item?.images[0]}}
+              style={styles.categoryImage}
+            />
+          </View>
+          <Text style={styles.categoryName}>{item.name}</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>All Categories</Text>
+      <FlatList
+        contentContainerStyle={styles.flatListContent}
+        numColumns={3}
+        data={categoriesData}
+        directionalLockEnabled={true}
+        alwaysBounceVertical={false}
+        renderItem={renderCategory}
+        keyExtractor={item => item._id.toString()}
+      />
+    </View>
+  );
+};
+
+export default AllCategories;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+    color: 'black',
+  },
+  flatListContent: {
+    alignItems: 'center',
+  },
+  categoryContainer: {
+    flex: 1,
+    flexBasis: '30%', // Ensures three items per row
+    margin: 5,
+    alignItems: 'center',
+  },
+  categoryContent: {
+    alignItems: 'center',
+    padding: 10,
+  },
+  imageContainer: {
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 5,
+    borderColor: '#00006680',
+  },
+  categoryImage: {
+    width: 75,
+    height: 75,
+    borderRadius: 10,
+  },
+  categoryName: {
+    marginTop: 10,
+    fontSize: 13,
+    fontWeight: '400',
+    color: '#000000',
+    textAlign: 'center',
+  },
+});

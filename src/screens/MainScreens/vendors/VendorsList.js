@@ -77,7 +77,7 @@ const VendorCard = ({vendor, distance, onPress}) => {
         </Text>
         <View style={styles.addressContainer}>
           <Icon name="map-marker" size={16} color="#7f8c8d" />
-          <Text style={styles.vendorAddress} numberOfLines={2}>
+          <Text style={styles.vendorAddress} numberOfLines={1}>
             {vendor.location?.address?.addressLine1 || 'Address not available'}
           </Text>
         </View>
@@ -88,7 +88,7 @@ const VendorCard = ({vendor, distance, onPress}) => {
           </View>
         )}
         <View style={styles.viewDetailsContainer}>
-          <Text style={styles.viewDetailsText}>View Details</Text>
+          <Text style={styles.viewDetailsText}>Details</Text>
           <Icon name="chevron-right" size={18} color="#ff6600" />
         </View>
       </View>
@@ -133,6 +133,7 @@ const VendorsList = ({
     <FlatList
       data={vendors}
       keyExtractor={item => item._id}
+      numColumns={2} // <-- This creates the 2-column layout
       renderItem={({item}) => {
         const vendorCoords =
           item.location?.coordinates?.length === 2
@@ -181,9 +182,8 @@ VendorsList.propTypes = {
 
 const styles = StyleSheet.create({
   listContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 20,
+    paddingHorizontal: 8, // Adjusted for grid spacing
+    paddingTop: 8,
     flexGrow: 1,
   },
   centeredContainer: {
@@ -199,9 +199,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   card: {
+    flex: 1, // Added to make cards take up equal column space
+    margin: 8, // Changed from marginBottom to provide all-around spacing
     backgroundColor: '#fff',
     borderRadius: 16,
-    marginBottom: 16,
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
   },
   vendorImage: {
     width: '100%',
-    height: 180,
+    height: 140, // Reduced height for a more compact grid card
     backgroundColor: '#ecf0f1',
   },
   imageOverlay: {
@@ -250,10 +251,10 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   cardContent: {
-    padding: 16,
+    padding: 12, // Reduced padding for a more compact card
   },
   vendorName: {
-    fontSize: 19,
+    fontSize: 17, // Reduced font size
     fontWeight: '700',
     color: '#2c3e50',
     marginBottom: 8,
@@ -265,17 +266,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   vendorAddress: {
-    fontSize: 14,
+    fontSize: 13, // Slightly smaller font
     color: '#7f8c8d',
     marginLeft: 6,
     flex: 1,
-    lineHeight: 20,
+    lineHeight: 18,
   },
   distanceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
     backgroundColor: '#fff3e6',
     borderRadius: 8,
     alignSelf: 'flex-start',
@@ -283,7 +284,7 @@ const styles = StyleSheet.create({
   },
   distanceText: {
     marginLeft: 6,
-    fontSize: 13,
+    fontSize: 12,
     color: '#ff6600',
     fontWeight: '600',
   },

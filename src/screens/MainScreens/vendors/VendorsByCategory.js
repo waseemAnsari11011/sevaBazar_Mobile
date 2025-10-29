@@ -19,9 +19,7 @@ const VendorsByCategory = () => {
   const {categoryId, categoryTitle} = route.params;
 
   // The parent screen is now responsible for getting data from Redux
-  const {vendors, loading, error} = useSelector(
-    state => state.vendorsByCategory,
-  );
+  const {vendors, loading, error} = useSelector(state => state.vendors.list);
   const {location: userLocation} = useSelector(state => state.location);
 
   // Fetch data on component mount

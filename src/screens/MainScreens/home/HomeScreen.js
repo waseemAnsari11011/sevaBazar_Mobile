@@ -13,7 +13,6 @@ import ProductCard from '../../../components/ProductCard';
 import {useHomeScreenData} from './hooks/useHomeScreenData';
 import {useInfiniteScroll} from './hooks/useInfiniteScroll';
 import HomeScreenHeader from './components/HomeScreenHeader';
-import { fetchRecentlyAddedVendors, resetRecentlyAddedVendors } from '../../../config/redux/actions/recentlyAddedVendorsActions';
 
 const HomeScreen = ({navigation}) => {
   const flatListRef = useRef(null);
@@ -25,8 +24,12 @@ const HomeScreen = ({navigation}) => {
     categories,
     categoryError,
     banners,
-    onDiscountProducts,
+    vendorsWithDiscounts,
+    vendorsWithDiscountsLoading,
     allCategoryProducts,
+    // 👇 GET THE NEW DATA
+    groupedVendors,
+    groupedVendorsLoading,
   } = useHomeScreenData();
 
   const {allProducts, allProductsLoading, fetchMoreProducts} =
@@ -71,8 +74,12 @@ const HomeScreen = ({navigation}) => {
             navigation={navigation}
             banners={banners}
             categories={categories}
-            onDiscountProducts={onDiscountProducts}
-            allCategoryProducts={allCategoryProducts}
+            vendorsWithDiscounts={vendorsWithDiscounts}
+            vendorsWithDiscountsLoading={vendorsWithDiscountsLoading}
+            allCategoryProducts={allCategoryProducts} // This prop seems unused in the header, but left it
+            // 👇 PASS THE NEW PROPS
+            groupedVendors={groupedVendors}
+            groupedVendorsLoading={groupedVendorsLoading}
           />
         }
         ListFooterComponent={

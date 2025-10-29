@@ -15,7 +15,7 @@ export const fetchRecentlyAddedVendors =
     try {
       console.log('Fetching vendors page, limit', page, limit);
       // We use the /all/vendor route which we will modify to accept pagination
-      const response = await api.get(`vendors/all/vendor`, {
+      const response = await api.get(`vendors/customer/`, {
         params: {page, limit},
       });
 

@@ -3,22 +3,25 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import BannerCarousel from './BannerCarousel';
 import CategoryList from './CategoryList';
 import DealOfDay from '../DealOfDay';
-import ProductCarousel from '../ProductCarousel';
-import VendorCarousel from '../components/VendorCarousel'; // 👈 Import new component
-import ProductSection from './ProductSection';
-import AllCategoryProducts from '../../../../components/AllCategoryProducts';
+import VendorCarousel from '../components/VendorCarousel';
+import VendorsWithDiscounts from './VendorsWithDiscounts';
 import Icon from '../../../../components/Icons/Icon';
+// 👇 IMPORT THE NEW COMPONENT
+import GroupedVendorSections from './GroupedVendorSections';
 
 /**
  * The header component for the HomeScreen's main FlatList.
- * It composes various sections like banners, categories, and product showcases.
+ * It composes various sections like banners, categories, and vendor showcases.
  */
 const HomeScreenHeader = ({
   banners,
   categories,
-  onDiscountProducts,
-  allCategoryProducts,
+  vendorsWithDiscounts,
+  vendorsWithDiscountsLoading,
   navigation,
+  // 👇 RECEIVE THE NEW PROPS
+  groupedVendors,
+  groupedVendorsLoading,
 }) => {
   return (
     <View>
@@ -43,20 +46,18 @@ const HomeScreenHeader = ({
         <VendorCarousel navigation={navigation} />
       </View>
 
-      {/* On Sale Section */}
-      {/* <ProductSection
-        title="On Sale"
-        products={onDiscountProducts}
+      {/* Vendors with discounts Section */}
+      <VendorsWithDiscounts
+        vendors={vendorsWithDiscounts}
+        loading={vendorsWithDiscountsLoading}
         navigation={navigation}
-        navigateToScreen="Discounted Products"
-      /> */}
+      />
 
-      {/* <AllCategoryProducts allCategoryProducts={allCategoryProducts} /> */}
-
-      {/* All Products Title */}
-      {/* <View style={styles.header}>
-        <Text style={styles.title}>All Products</Text>
-      </View> */}
+      {/* 👇 RENDER THE NEW COMPONENT HERE */}
+      <GroupedVendorSections
+        groupedVendors={groupedVendors}
+        loading={groupedVendorsLoading}
+      />
     </View>
   );
 };
