@@ -26,6 +26,8 @@ const VendorCard = ({item, navigation}) => {
     ? shopPhoto[0] // It's an array, get the first item
     : shopPhoto || // It's a string, use it directly
       VENDOR_PLACEHOLDER_IMAGE; // Fallback if it's null/undefined
+
+      
   return (
     <TouchableOpacity
       style={cardStyles.cardContainer}
