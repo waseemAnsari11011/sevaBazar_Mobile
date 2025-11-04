@@ -19,7 +19,8 @@ const AllCategories = ({route, navigation}) => {
 
   const handleNavigateProductsByCategory = async item => {
     await dispatch(resetProductsByCategory());
-    navigation.navigate('CategoryProducts', {
+
+    navigation.navigate('VendorsByCategory', {
       categoryId: item._id,
       categoryTitle: item.name,
     });

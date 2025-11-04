@@ -32,7 +32,7 @@ const CategoryList = ({categories}) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Explore Categories</Text>
+        <Text style={styles.title}>Explore Dukaans</Text>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('All Categories', {categoriesData: categories})
