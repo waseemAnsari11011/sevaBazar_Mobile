@@ -7,76 +7,255 @@ import {
   Text,
   useWindowDimensions,
   TouchableOpacity,
+  ActivityIndicator,
+  Modal,
+  StatusBar,
+  Platform,
 } from 'react-native';
-import React, {useState, useEffect, useRef, useMemo} from 'react';
+import React, {useState, useEffect, useRef, useMemo, useCallback} from 'react';
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   interpolate,
   useAnimatedRef,
+  runOnJS,
 } from 'react-native-reanimated';
 import ImageViewing from 'react-native-image-viewing';
-import Pagination from './Pagination'; // Assuming this component exists
+import Video from 'react-native-video';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Or your preferred icon library
+import Pagination from './Pagination';
 
-// --- FIX 1: Rename 'data' prop to 'images' and provide a default empty array ---
+// Helper function to determine if URL is a video
+const isVideoUrl = url => {
+  if (!url) return false;
+  const videoExtensions = [
+    '.mp4',
+    '.mov',
+    '.avi',
+    '.webm',
+    '.mkv',
+    '.m4v',
+    '.3gp',
+  ];
+  const lowercaseUrl = url.toLowerCase();
+  return videoExtensions.some(ext => lowercaseUrl.includes(ext));
+};
+
+// Video Player Component for fullscreen
+const VideoPlayer = ({visible, videoUrl, onClose}) => {
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [showControls, setShowControls] = useState(true);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const videoRef = useRef(null);
+  const controlsTimeout = useRef(null);
+
+  useEffect(() => {
+    if (visible) {
+      setIsPlaying(true);
+      setShowControls(true);
+      hideControlsAfterDelay();
+    }
+    return () => {
+      if (controlsTimeout.current) {
+        clearTimeout(controlsTimeout.current);
+      }
+    };
+  }, [visible]);
+
+  const hideControlsAfterDelay = () => {
+    if (controlsTimeout.current) {
+      clearTimeout(controlsTimeout.current);
+    }
+    controlsTimeout.current = setTimeout(() => {
+      setShowControls(false);
+    }, 3000);
+  };
+
+  const toggleControls = () => {
+    setShowControls(!showControls);
+    if (!showControls) {
+      hideControlsAfterDelay();
+    }
+  };
+
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+    hideControlsAfterDelay();
+  };
+
+  const formatTime = seconds => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  };
+
+  if (!visible) return null;
+
+  return (
+    <Modal
+      visible={visible}
+      transparent={false}
+      animationType="fade"
+      onRequestClose={onClose}
+      statusBarTranslucent>
+      <StatusBar hidden />
+      <View style={styles.videoModalContainer}>
+        <TouchableOpacity
+          activeOpacity={1}
+          style={styles.videoWrapper}
+          onPress={toggleControls}>
+          <Video
+            ref={videoRef}
+            source={{uri: videoUrl}}
+            style={styles.fullscreenVideo}
+            resizeMode="contain"
+            paused={!isPlaying}
+            onLoad={data => {
+              setDuration(data.duration);
+              setIsLoading(false);
+            }}
+            onProgress={data => {
+              setCurrentTime(data.currentTime);
+            }}
+            onEnd={() => setIsPlaying(false)}
+            repeat={false}
+          />
+
+          {isLoading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator size="large" color="#fff" />
+            </View>
+          )}
+
+          {showControls && (
+            <View style={styles.videoControls}>
+              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <Icon name="close" size={30} color="#fff" />
+              </TouchableOpacity>
+
+              <View style={styles.playPauseContainer}>
+                <TouchableOpacity
+                  onPress={togglePlayPause}
+                  style={styles.playPauseButton}>
+                  <Icon
+                    name={isPlaying ? 'pause' : 'play-arrow'}
+                    size={50}
+                    color="#fff"
+                  />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.timeContainer}>
+                <Text style={styles.timeText}>
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </Text>
+              </View>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+};
+
+// Main Carousel Component
 const CustomImageCarousalSquare = ({images = [], autoPlay, pagination}) => {
   const scrollViewRef = useAnimatedRef(null);
   const interval = useRef();
   const [isAutoPlay, setIsAutoPlay] = useState(autoPlay);
   const [isVisible, setIsVisible] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
+  const [currentVisibleIndex, setCurrentVisibleIndex] = useState(0);
+  const [videoModalVisible, setVideoModalVisible] = useState(false);
+  const [selectedVideoUrl, setSelectedVideoUrl] = useState(null);
   const {width} = useWindowDimensions();
   const SIZE = width;
   const SPACER = (width - SIZE) / 2;
   const x = useSharedValue(0);
   const offSet = useSharedValue(0);
 
-  // --- FIX 2: Transform the array of strings into an array of objects ---
-  // This memoized value converts ['url1', 'url2'] into [{ image: 'url1' }, { image: 'url2' }]
-  // so the rest of the component's logic works without changes.
-  const formattedImages = useMemo(
-    () => images.map(url => ({image: url})),
+  // Transform URLs into media objects with type information
+  const formattedMedia = useMemo(
+    () =>
+      images.map(url => ({
+        url: url,
+        type: isVideoUrl(url) ? 'video' : 'image',
+      })),
     [images],
   );
 
+  // Track current visible index for video playback control
+  const updateVisibleIndex = useCallback(
+    scrollX => {
+      const index = Math.round(scrollX / SIZE);
+      setCurrentVisibleIndex(index);
+    },
+    [SIZE],
+  );
+
   useEffect(() => {
-    if (isAutoPlay && formattedImages.length > 1) {
+    if (isAutoPlay && formattedMedia.length > 1) {
       let _offSet = offSet.value;
       interval.current = setInterval(() => {
-        if (_offSet >= Math.floor(SIZE * (formattedImages.length - 1))) {
+        if (_offSet >= Math.floor(SIZE * (formattedMedia.length - 1))) {
           _offSet = 0;
         } else {
           _offSet += SIZE;
         }
         scrollViewRef.current?.scrollTo({x: _offSet, y: 0, animated: true});
-      }, 3000); // Increased interval for better user experience
+      }, 4000); // Increased for video content
     } else {
       clearInterval(interval.current);
     }
     return () => clearInterval(interval.current);
-  }, [SIZE, isAutoPlay, formattedImages.length, offSet.value, scrollViewRef]);
+  }, [SIZE, isAutoPlay, formattedMedia.length, offSet.value, scrollViewRef]);
 
-  // Add spacers for the carousel effect
+  // Add spacers for carousel effect
   const newData = useMemo(
-    () => [{key: 'spacer-left'}, ...formattedImages, {key: 'spacer-right'}],
-    [formattedImages],
+    () => [{key: 'spacer-left'}, ...formattedMedia, {key: 'spacer-right'}],
+    [formattedMedia],
   );
 
   const onScroll = useAnimatedScrollHandler({
     onScroll: event => {
       x.value = event.contentOffset.x;
+      runOnJS(updateVisibleIndex)(event.contentOffset.x);
     },
   });
 
-  // Return a placeholder if there are no images
+  // Handle media item press
+  const handleMediaPress = (item, index) => {
+    if (item.type === 'video') {
+      setSelectedVideoUrl(item.url);
+      setVideoModalVisible(true);
+    } else {
+      setCurrentMediaIndex(index);
+      setIsVisible(true);
+    }
+  };
+
+  // Return placeholder if no media
   if (!images || images.length === 0) {
     return (
       <View style={[styles.imageContainer, styles.placeholder]}>
-        <Text style={styles.placeholderText}>No Image</Text>
+        <Text style={styles.placeholderText}>No Media</Text>
       </View>
     );
   }
+
+  // Filter only images for ImageViewing component
+  const imageOnlyData = formattedMedia
+    .map((item, index) =>
+      item.type === 'image' ? {uri: item.url, originalIndex: index} : null,
+    )
+    .filter(Boolean);
+
+  const currentImageIndex = formattedMedia
+    .slice(0, currentMediaIndex)
+    .filter(item => item.type === 'image').length;
 
   return (
     <View>
@@ -100,27 +279,51 @@ const CustomImageCarousalSquare = ({images = [], autoPlay, pagination}) => {
             const scale = interpolate(
               x.value,
               [(index - 2) * SIZE, (index - 1) * SIZE, index * SIZE],
-              [0.9, 1, 0.9], // Adjusted scale for a subtler effect
+              [0.9, 1, 0.9],
             );
             return {transform: [{scale}]};
           });
 
           // Render spacers
-          if (!item.image) {
+          if (!item.url) {
             return <View style={{width: SPACER}} key={index} />;
           }
 
-          // Render the actual image item
+          const actualIndex = index - 1; // Adjust for left spacer
+          const isCurrentlyVisible = actualIndex === currentVisibleIndex;
+
+          // Render media item
           return (
             <View style={{width: SIZE}} key={index}>
               <Animated.View style={[styles.imageContainer, style]}>
                 <TouchableOpacity
                   activeOpacity={0.9}
-                  onPress={() => {
-                    setCurrentImageIndex(index - 1); // Adjust for spacer
-                    setIsVisible(true);
-                  }}>
-                  <Image source={{uri: item.image}} style={styles.image} />
+                  onPress={() => handleMediaPress(item, actualIndex)}>
+                  {item.type === 'video' ? (
+                    <View style={styles.videoContainer}>
+                      <Video
+                        source={{uri: item.url}}
+                        style={styles.image}
+                        resizeMode="cover"
+                        paused={!isCurrentlyVisible || !isAutoPlay}
+                        muted={true}
+                        repeat={true}
+                        onError={error => console.log('Video error:', error)}
+                      />
+                      <View style={styles.videoOverlay}>
+                        <Icon
+                          name="play-circle-outline"
+                          size={50}
+                          color="#fff"
+                        />
+                      </View>
+                      <View style={styles.videoIndicator}>
+                        <Icon name="videocam" size={20} color="#fff" />
+                      </View>
+                    </View>
+                  ) : (
+                    <Image source={{uri: item.url}} style={styles.image} />
+                  )}
                 </TouchableOpacity>
               </Animated.View>
             </View>
@@ -131,19 +334,29 @@ const CustomImageCarousalSquare = ({images = [], autoPlay, pagination}) => {
       {/* Page number indicator */}
       <View style={styles.pageNumberContainer}>
         <Text style={styles.pageNumber}>
-          {Math.round(x.value / SIZE) + 1} / {formattedImages.length}
+          {Math.round(x.value / SIZE) + 1} / {formattedMedia.length}
         </Text>
       </View>
 
       {/* Optional Pagination dots */}
-      {pagination && <Pagination data={formattedImages} x={x} size={SIZE} />}
+      {pagination && <Pagination data={formattedMedia} x={x} size={SIZE} />}
 
       {/* Full-screen image viewer */}
       <ImageViewing
-        images={images.map(url => ({uri: url}))} // ImageViewing expects { uri: '...' }
+        images={imageOnlyData.map(item => ({uri: item.uri}))}
         imageIndex={currentImageIndex}
         visible={isVisible}
         onRequestClose={() => setIsVisible(false)}
+      />
+
+      {/* Full-screen video player */}
+      <VideoPlayer
+        visible={videoModalVisible}
+        videoUrl={selectedVideoUrl}
+        onClose={() => {
+          setVideoModalVisible(false);
+          setSelectedVideoUrl(null);
+        }}
       />
     </View>
   );
@@ -155,13 +368,36 @@ const styles = StyleSheet.create({
   imageContainer: {
     borderRadius: 12,
     overflow: 'hidden',
-    marginHorizontal: 10, // Add some spacing
-    backgroundColor: '#f0f0f0', // Background for images
+    marginHorizontal: 10,
+    backgroundColor: '#f0f0f0',
   },
   image: {
     width: '100%',
-    aspectRatio: 1, // Make it a perfect square
+    aspectRatio: 1,
     resizeMode: 'cover',
+  },
+  videoContainer: {
+    position: 'relative',
+    width: '100%',
+    aspectRatio: 1,
+  },
+  videoOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  videoIndicator: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 20,
+    padding: 5,
   },
   pageNumberContainer: {
     position: 'absolute',
@@ -187,5 +423,70 @@ const styles = StyleSheet.create({
   placeholderText: {
     color: '#adb5bd',
     fontSize: 16,
+  },
+  // Video Player Modal Styles
+  videoModalContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoWrapper: {
+    flex: 1,
+    width: '100%',
+  },
+  fullscreenVideo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  videoControls: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  closeButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 50 : 30,
+    right: 20,
+    padding: 10,
+    zIndex: 1,
+  },
+  playPauseContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playPauseButton: {
+    padding: 20,
+  },
+  timeContainer: {
+    position: 'absolute',
+    bottom: 30,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  timeText: {
+    color: '#fff',
+    fontSize: 14,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
   },
 });

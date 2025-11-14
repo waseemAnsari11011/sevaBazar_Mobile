@@ -1,15 +1,12 @@
 // src/screens/MainScreens/vendors/VendorDetails.js
 
-import React, {useEffect, useState, useRef} from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
   ActivityIndicator,
-  Image,
-  Dimensions,
-  ScrollView,
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -22,12 +19,10 @@ import {
 import {fetchProductsByVendor} from '../../../config/redux/actions/productAction';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ProductCard from '../../../components/ProductCard';
+import CustomImageCarousalSquare from '../../../components/CustomImageCarousalSquare';
 
 const FALLBACK_IMAGE_URL =
   'https://placehold.co/600x400/EEE/31343C?text=Vendor';
-const {width: SCREEN_WIDTH} = Dimensions.get('window');
-const IMAGE_HEIGHT = 200;
-const AUTO_SCROLL_INTERVAL = 3000; // 3 seconds
 
 const VendorDetails = () => {
   const navigation = useNavigation();
@@ -40,10 +35,6 @@ const VendorDetails = () => {
     state => state.productsByVendor,
   );
 
-  const [activeIndex, setActiveIndex] = useState(0);
-  const scrollViewRef = useRef(null);
-  const intervalRef = useRef(null);
-
   useEffect(() => {
     if (vendorId) {
       dispatch(fetchVendorDetails(vendorId));
@@ -52,87 +43,26 @@ const VendorDetails = () => {
 
     return () => {
       dispatch(resetVendorDetails());
-      if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [dispatch, vendorId]);
 
-  // ✅ FIX: Proper auto-scroll with fresh reference to images
-  useEffect(() => {
-    const images = vendor?.documents?.shopPhoto || [];
+  const renderImageCarousel = () => {
+    // 1. Get both arrays, defaulting to an empty array if null/undefined
+    const shopPhotos = vendor?.documents?.shopPhoto || [];
+    const shopVideos = vendor?.documents?.shopVideo || [];
 
-    if (images.length > 1) {
-      // Clear any previous interval
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+    // 2. Combine them into a single media array
+    const allMedia = [...shopPhotos, ...shopVideos];
 
-      let currentIndex = 0;
-      intervalRef.current = setInterval(() => {
-        currentIndex = (currentIndex + 1) % images.length;
-        setActiveIndex(currentIndex);
-
-        if (scrollViewRef.current) {
-          scrollViewRef.current.scrollTo({
-            x: currentIndex * SCREEN_WIDTH,
-            animated: true,
-          });
-        }
-      }, AUTO_SCROLL_INTERVAL);
-    }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [vendor?.documents?.shopPhoto]);
-
-  const onScrollEnd = event => {
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / SCREEN_WIDTH);
-    setActiveIndex(index);
-  };
-
-  const renderImageSlider = () => {
-    const images =
-      vendor?.documents?.shopPhoto?.length > 0
-        ? vendor.documents.shopPhoto
-        : [FALLBACK_IMAGE_URL];
+    // 3. Use the combined array, or the fallback if the combined array is empty
+    const images = allMedia.length > 0 ? allMedia : [FALLBACK_IMAGE_URL];
 
     return (
-      <View style={styles.sliderContainer}>
-        <ScrollView
-          ref={scrollViewRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={onScrollEnd}
-          scrollEventThrottle={16}>
-          {images.map((imageUrl, index) => (
-            <View key={index} style={styles.imageWrapper}>
-              <Image
-                source={{uri: imageUrl}}
-                style={styles.vendorImage}
-                resizeMode="cover"
-              />
-            </View>
-          ))}
-        </ScrollView>
-
-        {images.length > 1 && (
-          <View style={styles.paginationContainer}>
-            {images.map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.paginationDot,
-                  activeIndex === index && styles.paginationDotActive,
-                ]}
-              />
-            ))}
-          </View>
-        )}
-      </View>
+      <CustomImageCarousalSquare
+        images={images}
+        autoPlay={true}
+        pagination={true}
+      />
     );
   };
 
@@ -141,7 +71,7 @@ const VendorDetails = () => {
 
     return (
       <View>
-        {renderImageSlider()}
+        {renderImageCarousel()}
         <View style={styles.vendorInfoContainer}>
           <Text style={styles.vendorName}>
             {vendor.vendorInfo?.businessName}
@@ -224,40 +154,6 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     fontSize: 16,
-  },
-  sliderContainer: {
-    height: IMAGE_HEIGHT,
-    width: SCREEN_WIDTH,
-  },
-  imageWrapper: {
-    width: SCREEN_WIDTH,
-    height: IMAGE_HEIGHT,
-  },
-  vendorImage: {
-    width: '100%',
-    height: '100%',
-  },
-  paginationContainer: {
-    position: 'absolute',
-    bottom: 12,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    marginHorizontal: 4,
-  },
-  paginationDotActive: {
-    backgroundColor: '#fff',
-    width: 10,
-    height: 10,
-    borderRadius: 5,
   },
   vendorInfoContainer: {
     padding: 16,
