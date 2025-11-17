@@ -107,9 +107,9 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   vendorImage: {
-    width: 150,
+    width: '100%',
     height: 150,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: 8, // Optional: round corners
     backgroundColor: '#f0f0f0',
   },

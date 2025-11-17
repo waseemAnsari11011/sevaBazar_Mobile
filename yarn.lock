@@ -1815,6 +1815,11 @@
   dependencies:
     invariant "^2.2.4"
 
+"@react-native-community/slider@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.npmjs.org/@react-native-community/slider/-/slider-5.1.1.tgz"
+  integrity sha512-W98If/LnTaziU3/0h5+G1LvJaRhMc6iLQBte6UWa4WBIHDMaDPglNBIFKcCXc9Dxp83W+f+5Wv22Olq9M2HJYA==
+
 "@react-native-firebase/app@20.1.0":
   version "20.1.0"
   resolved "https://registry.npmjs.org/@react-native-firebase/app/-/app-20.1.0.tgz"
@@ -5667,7 +5672,7 @@ lodash.throttle@^4.1.1:
   resolved "https://registry.npmjs.org/lodash.throttle/-/lodash.throttle-4.1.1.tgz"
   integrity sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==
 
-lodash@^4.17.21:
+lodash@^4.16.4, lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
@@ -7025,6 +7030,11 @@ react-native-image-viewing@^0.2.2:
   resolved "https://registry.npmjs.org/react-native-image-viewing/-/react-native-image-viewing-0.2.2.tgz"
   integrity sha512-osWieG+p/d2NPbAyonOMubttajtYEYiRGQaJA54slFxZ69j1V4/dCmcrVQry47ktVKy8/qpFwCpW1eT6MH5T2Q==
 
+react-native-media-controls@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.npmjs.org/react-native-media-controls/-/react-native-media-controls-2.3.0.tgz"
+  integrity sha512-N10i12ZO+GIXjmdA9hQk/HuBm5u9xWPIOydG/2SvLEZcnY3xg3D8d2IJXRolzSm2jBRgEGSO4rMgRBU6MpdNMg==
+
 react-native-pager-view@*, react-native-pager-view@^6.3.1, "react-native-pager-view@>= 4.0.0":
   version "6.3.1"
   resolved "https://registry.npmjs.org/react-native-pager-view/-/react-native-pager-view-6.3.1.tgz"
@@ -7101,12 +7111,19 @@ react-native-vector-icons@*, react-native-vector-icons@^10.1.0:
     prop-types "^15.7.2"
     yargs "^16.1.1"
 
-react-native-video@^6.17.0:
+react-native-video-controls@^2.8.1:
+  version "2.8.1"
+  resolved "https://registry.npmjs.org/react-native-video-controls/-/react-native-video-controls-2.8.1.tgz"
+  integrity sha512-dBmrE3TAKaR1gYMfbukjAM6Xo8OMZyRrxPzZtnaUgWcvGo11PQwzaI/j8HPD5fLgO+rlweP2pDpEJyIBsJvJkw==
+  dependencies:
+    lodash "^4.16.4"
+
+react-native-video@^6.17.0, react-native-video@>=2.0.0:
   version "6.17.0"
   resolved "https://registry.npmjs.org/react-native-video/-/react-native-video-6.17.0.tgz"
   integrity sha512-sslmQo5paSNLmSJ93t3lkC7kl4yFGIc+LWoBdu44hkL4EKG7OIZNd5iaX+/SedAdqecifJrOZHAozxHzVh3TsQ==
 
-react-native@*, "react-native@^0.0.0-0 || >=0.60 <1.0", "react-native@>= 0.59", react-native@>=0.33, react-native@>=0.47, react-native@>=0.57, react-native@>=0.58.4, react-native@>=0.6.0, react-native@>=0.61.3, react-native@>=0.66.0, react-native@>=0.70.0, react-native@0.74.1:
+react-native@*, "react-native@^0.0.0-0 || >=0.60 <1.0", "react-native@>= 0.59", react-native@>=0.33, react-native@>=0.46.0, react-native@>=0.47, react-native@>=0.57, react-native@>=0.58.4, react-native@>=0.6.0, react-native@>=0.60, react-native@>=0.61.3, react-native@>=0.66.0, react-native@>=0.70.0, react-native@0.74.1:
   version "0.74.1"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.74.1.tgz"
   integrity sha512-0H2XpmghwOtfPpM2LKqHIN7gxy+7G/r1hwJHKLV6uoyXGC/gCojRtoo5NqyKrWpFC8cqyT6wTYCLuG7CxEKilg==

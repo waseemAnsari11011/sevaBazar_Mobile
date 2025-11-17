@@ -19,7 +19,7 @@ import {
 import {fetchProductsByVendor} from '../../../config/redux/actions/productAction';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ProductCard from '../../../components/ProductCard';
-import CustomImageCarousalSquare from '../../../components/CustomImageCarousalSquare';
+import VendorDetailsCarousel from '../../../components/VendorDetailsCarousel';
 
 const FALLBACK_IMAGE_URL =
   'https://placehold.co/600x400/EEE/31343C?text=Vendor';
@@ -58,7 +58,7 @@ const VendorDetails = () => {
     const images = allMedia.length > 0 ? allMedia : [FALLBACK_IMAGE_URL];
 
     return (
-      <CustomImageCarousalSquare
+      <VendorDetailsCarousel
         images={images}
         autoPlay={true}
         pagination={true}

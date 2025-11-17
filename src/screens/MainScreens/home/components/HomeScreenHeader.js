@@ -4,10 +4,12 @@ import BannerCarousel from './BannerCarousel';
 import CategoryList from './CategoryList';
 import DealOfDay from '../DealOfDay';
 import VendorCarousel from '../components/VendorCarousel';
+
 import VendorsWithDiscounts from './VendorsWithDiscounts';
 import Icon from '../../../../components/Icons/Icon';
 // 👇 IMPORT THE NEW COMPONENT
 import GroupedVendorSections from './GroupedVendorSections';
+import AllVendorList from './AllVendorList';
 
 /**
  * The header component for the HomeScreen's main FlatList.
@@ -58,6 +60,20 @@ const HomeScreenHeader = ({
         groupedVendors={groupedVendors}
         loading={groupedVendorsLoading}
       />
+
+      {/*All Dukaans Section */}
+      <View style={styles.header}>
+        <Text style={styles.title}>All Dukaans</Text>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('New Dukaans')}
+          style={styles.viewAllButton}>
+          <Text style={styles.viewAllText}>View all</Text>
+          <Icon.AntDesign name="right" color="#000066" size={13} />
+        </TouchableOpacity>
+      </View>
+      <View>
+        <AllVendorList navigation={navigation} />
+      </View>
     </View>
   );
 };
