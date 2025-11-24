@@ -55,40 +55,61 @@ const VendorCard = ({vendor, userLocation, onPress}) => {
   const distance = userLocation
     ? getDistance(userLocation, vendorCoords)
     : null;
+
+  // Use isOnline as the source of truth. 
+  // The 'status' field might be 'online' even if isOnline is false (user toggled off).
+  const isVendorOnline = vendor.isOnline;
   // --- End of moved logic ---
 
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={[styles.card, !isVendorOnline && {backgroundColor: '#f5f5f5'}]}
+      onPress={onPress}
+      activeOpacity={0.7}
+      disabled={!isVendorOnline}>
       <View style={styles.imageContainer}>
         <Image source={{uri: imageUrl}} style={styles.vendorImage} />
-        <View style={styles.imageOverlay} />
+        <View style={[styles.imageOverlay, !isVendorOnline && styles.offlineOverlay]} />
         <View
           style={[
             styles.statusIndicator,
-            {backgroundColor: vendor.isOnline ? 'green' : '#95a5a6'},
+            {backgroundColor: isVendorOnline ? 'green' : '#2c3e50'},
           ]}>
-          <View style={styles.statusDot} />
-          <Text style={styles.statusText}>
-            {vendor.isOnline ? 'Open' : 'Closed'}
-          </Text>
+          <View style={isVendorOnline ? styles.statusDot : null} />
+          {isVendorOnline ? (
+            <Text style={styles.statusText}>Open</Text>
+          ) : (
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Icon
+                name="lock"
+                size={12}
+                color="#fff"
+                style={{marginRight: 4}}
+              />
+              <Text style={styles.statusText}>Closed</Text>
+            </View>
+          )}
         </View>
       </View>
-
-      <View style={styles.cardContent}>
-        <Text style={styles.vendorName} numberOfLines={1}>
-          {vendor.vendorInfo.businessName}
-        </Text>
-        <View style={styles.bottomRow}>
+      <View style={[styles.cardContent, !isVendorOnline && {opacity: 0.5}]}>
+        <View style={styles.headerRow}>
+          <Text style={styles.businessName} numberOfLines={1}>
+            {vendor.vendorInfo?.businessName || vendor.name}
+          </Text>
           {distance && (
-            <View style={styles.distanceContainer}>
-              <Icon name="navigation" size={14} color="#ff6600" />
+            <View style={styles.distanceBadge}>
+              <Icon name="map-marker" size={12} color="#ff6600" />
               <Text style={styles.distanceText}>{distance}</Text>
             </View>
           )}
-          <View style={styles.viewDetailsContainer}>
-            <Text style={styles.viewDetailsText}>Details</Text>
-            <Icon name="chevron-right" size={18} color="#ff6600" />
-          </View>
+        </View>
+
+        <View style={styles.infoRow}>
+          <Icon name="map-marker-outline" size={14} color="#7f8c8d" />
+          <Text style={styles.addressText} numberOfLines={1}>
+            {vendor.location?.address?.city ||
+              vendor.location?.address?.addressLine1}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -138,6 +159,10 @@ const styles = StyleSheet.create({
   imageOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.05)',
+  },
+  offlineOverlay: {
+    backgroundColor: 'rgba(255,255,255,0.8)', // Heavy white overlay to simulate "faded/disabled" look
+    // Or use black if preferred: 'rgba(0,0,0,0.6)'
   },
   statusIndicator: {
     position: 'absolute',

@@ -29,6 +29,7 @@ import ShippingAddressesList from '../screens/MainScreens/location/ShippingAddre
 // 👇 Import the new screen
 import VendorsByCategory from '../screens/MainScreens/vendors/VendorsByCategory';
 import VendorDetails from '../screens/MainScreens/vendors/VendorDetails';
+import VendorCategoryProducts from '../screens/MainScreens/vendors/VendorCategoryProducts';
 import NewlyAddedVendorsScreen from '../screens/MainScreens/vendors/NewlyAddedVendorsScreen';
 import VendorsWithDiscount from '../screens/MainScreens/vendors/VendorsWithDiscount';
 
@@ -74,6 +75,11 @@ const StackNavigator = () => {
         component={VendorsByCategory}
       />
       <Stack.Screen name="VendorDetails" component={VendorDetails} />
+      <Stack.Screen
+        name="VendorCategoryProducts"
+        options={{headerShown: false}}
+        component={VendorCategoryProducts}
+      />
 
       <Stack.Screen name="Edit Address" component={EditAddress} />
       <Stack.Screen name="Notifications" component={Notifications} />

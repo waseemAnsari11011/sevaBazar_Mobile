@@ -23,6 +23,7 @@ import locationReducer from './locationReducer'; // 👈 Import the new reducer
 import productsByVendorReducer from './productsByVendorReducer';
 import recentlyAddedVendorsReducer from './recentlyAddedVendorsReducer';
 import vendorsWithDiscountsReducer from './vendorsWithDiscountsReducer'; // 👈 Import the new reducer
+import vendorProductCategoryReducer from './vendorProductCategoryReducer';
 
 import vendorReducer from './vendorReducer';
 const rootReducer = combineReducers({
@@ -50,6 +51,7 @@ const rootReducer = combineReducers({
   productsByVendor: productsByVendorReducer,
   recentlyAddedVendors: recentlyAddedVendorsReducer, // 👈 Add
   vendorsWithDiscounts: vendorsWithDiscountsReducer,
+  vendorProductCategories: vendorProductCategoryReducer,
   vendors: vendorReducer,
 });
 

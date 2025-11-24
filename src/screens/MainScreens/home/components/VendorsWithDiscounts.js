@@ -18,17 +18,34 @@ const VENDOR_PLACEHOLDER_IMAGE = 'https://via.placeholder.com/150';
 const VendorCard = ({item, navigation}) => {
   const imageUrl = item.documents?.shopPhoto?.[0] || VENDOR_PLACEHOLDER_IMAGE;
 
+  const isOnline = item.isOnline;
+  
   return (
     <TouchableOpacity
-      style={styles.cardContainer}
+      style={[
+        styles.cardContainer,
+        !isOnline && {backgroundColor: '#f5f5f5'},
+      ]}
+      disabled={!isOnline}
       onPress={() =>
         navigation.navigate('VendorDetails', {vendorId: item._id})
       }>
-      <Image source={{uri: imageUrl}} style={styles.image} />
+      <View style={{position: 'relative'}}>
+        <Image source={{uri: imageUrl}} style={styles.image} />
+        {!isOnline && <View style={styles.offlineOverlay} />}
+        <View
+          style={[
+            styles.statusIndicator,
+            {backgroundColor: isOnline ? 'green' : '#2c3e50'},
+          ]}>
+          {!isOnline && <Icon.MaterialCommunityIcons name="lock" size={10} color="#fff" />}
+          {isOnline && <View style={styles.statusDot} />}
+        </View>
+      </View>
       <View style={styles.discountBadge}>
         <Text style={styles.discountText}>UPTO {item.maxDiscount}% OFF</Text>
       </View>
-      <View style={styles.infoContainer}>
+      <View style={[styles.infoContainer, !isOnline && {opacity: 0.5}]}>
         <Text style={styles.vendorName} numberOfLines={1}>
           {item.vendorInfo?.businessName || item.name}
         </Text>
@@ -152,6 +169,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#777',
     marginTop: 2,
+  },
+  offlineOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  statusIndicator: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    padding: 4,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#fff',
   },
 });
 

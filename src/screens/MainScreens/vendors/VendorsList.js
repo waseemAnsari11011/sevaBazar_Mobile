@@ -46,9 +46,20 @@ const VendorsList = ({
     );
   }
 
+  // Sort vendors: Online first, then Offline
+  // Sort vendors: Online first, then Offline
+  // Sort vendors: Online first, then Offline
+  const sortedVendors = [...vendors].sort((a, b) => {
+    const isAOnline = a.isOnline;
+    const isBOnline = b.isOnline;
+    
+    if (!!isAOnline === !!isBOnline) return 0;
+    return isAOnline ? -1 : 1;
+  });
+
   return (
     <FlatList
-      data={vendors}
+      data={sortedVendors}
       keyExtractor={item => item._id}
       numColumns={1}
       renderItem={({item}) => {

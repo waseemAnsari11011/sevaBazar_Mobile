@@ -27,14 +27,31 @@ const VendorCard = ({item, navigation}) => {
     : shopPhoto || // It's a string, use it directly
       VENDOR_PLACEHOLDER_IMAGE; // Fallback if it's null/undefined
 
+  const isOnline = item.isOnline;
+  
   return (
     <TouchableOpacity
-      style={cardStyles.cardContainer}
+      style={[
+        cardStyles.cardContainer,
+        !isOnline && {backgroundColor: '#f5f5f5'},
+      ]}
+      disabled={!isOnline}
       onPress={() =>
         navigation.navigate('VendorDetails', {vendorId: item._id})
       }>
-      <Image source={{uri: imageUrl}} style={cardStyles.image} />
-      <View style={cardStyles.infoContainer}>
+      <View style={{position: 'relative'}}>
+        <Image source={{uri: imageUrl}} style={cardStyles.image} />
+        {!isOnline && <View style={cardStyles.offlineOverlay} />}
+        <View
+          style={[
+            cardStyles.statusIndicator,
+            {backgroundColor: isOnline ? 'green' : '#2c3e50'},
+          ]}>
+          {!isOnline && <Icon.MaterialCommunityIcons name="lock" size={10} color="#fff" />}
+          {isOnline && <View style={cardStyles.statusDot} />}
+        </View>
+      </View>
+      <View style={[cardStyles.infoContainer, !isOnline && {opacity: 0.5}]}>
         <Text style={cardStyles.vendorName} numberOfLines={1}>
           {item.vendorInfo?.businessName || item.name}
         </Text>
@@ -180,6 +197,27 @@ const cardStyles = StyleSheet.create({
     fontSize: 12,
     color: '#777',
     marginTop: 2,
+  },
+  offlineOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+  },
+  statusIndicator: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    padding: 4,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#fff',
   },
 });
 

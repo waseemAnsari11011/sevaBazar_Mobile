@@ -53,6 +53,8 @@ const VendorCarousel = ({navigation}) => {
               ? item.documents.shopPhoto[0]
               : FALLBACK_IMAGE_URL;
 
+          const isOnline = item.isOnline;
+          
           return (
             <TouchableOpacity
               // --- FIX IS HERE ---
@@ -60,13 +62,35 @@ const VendorCarousel = ({navigation}) => {
               onPress={() =>
                 navigation.navigate('VendorDetails', {vendorId: item._id})
               }
-              style={styles.vendorContainer}
-              key={item._id}>
-              <Image source={{uri: imageUrl}} style={styles.vendorImage} />
-              <Text style={styles.vendorName} numberOfLines={1}>
+              style={[
+                styles.vendorContainer,
+                !isOnline && {backgroundColor: '#f5f5f5'},
+              ]}
+              key={item._id}
+              disabled={!isOnline}>
+              <View style={{width: '100%', height: 150}}>
+                <Image source={{uri: imageUrl}} style={styles.vendorImage} />
+                {!isOnline && <View style={styles.offlineOverlay} />}
+                <View
+                  style={[
+                    styles.statusIndicator,
+                    {backgroundColor: isOnline ? 'green' : '#2c3e50'},
+                  ]}>
+                  {!isOnline && (
+                    // Simple lock icon or text
+                    <Text style={styles.statusText}>Closed</Text>
+                  )}
+                  {isOnline && <View style={styles.statusDot} />}
+                </View>
+              </View>
+              <Text
+                style={[styles.vendorName, !isOnline && {opacity: 0.5}]}
+                numberOfLines={1}>
                 {item.vendorInfo.businessName}
               </Text>
-              <Text style={styles.vendorLocation} numberOfLines={1}>
+              <Text
+                style={[styles.vendorLocation, !isOnline && {opacity: 0.5}]}
+                numberOfLines={1}>
                 {item.location.address.city}
               </Text>
             </TouchableOpacity>
@@ -122,5 +146,31 @@ const styles = StyleSheet.create({
   vendorLocation: {
     fontSize: 14,
     color: 'gray',
+  },
+  offlineOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    borderRadius: 8,
+  },
+  statusIndicator: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#fff',
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
 });

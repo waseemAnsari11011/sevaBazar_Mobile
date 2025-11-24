@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f0f0f0',
     // --- BORDER ADDED HERE ---
     borderWidth: 1.5,
-    borderColor: '#000080', // Light gray color
+    borderColor: 'grey', // Light gray color
     // -------------------------
   },
   image: {

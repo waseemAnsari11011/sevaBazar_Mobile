@@ -1,6 +1,6 @@
 // src/screens/MainScreens/vendors/VendorDetails.js
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import {
   View,
   Text,
@@ -17,9 +17,11 @@ import {
   resetVendorDetails,
 } from '../../../config/redux/actions/vendorActions';
 import {fetchProductsByVendor} from '../../../config/redux/actions/productAction';
+import {fetchVendorProductCategories} from '../../../config/redux/actions/vendorProductCategoryActions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ProductCard from '../../../components/ProductCard';
 import VendorDetailsCarousel from '../../../components/VendorDetailsCarousel';
+import VendorCategoryList from './components/VendorCategoryList';
 
 const FALLBACK_IMAGE_URL =
   'https://placehold.co/600x400/EEE/31343C?text=Vendor';
@@ -34,11 +36,13 @@ const VendorDetails = () => {
   const {products, loading: productsLoading} = useSelector(
     state => state.productsByVendor,
   );
+  const {categories} = useSelector(state => state.vendorProductCategories);
 
   useEffect(() => {
     if (vendorId) {
       dispatch(fetchVendorDetails(vendorId));
       dispatch(fetchProductsByVendor(vendorId));
+      dispatch(fetchVendorProductCategories(vendorId));
     }
 
     return () => {
@@ -70,7 +74,7 @@ const VendorDetails = () => {
     if (!vendor) return null;
 
     return (
-      <View>
+      <View style={{ marginHorizontal: -5 }}>
         {renderImageCarousel()}
         <View style={styles.vendorInfoContainer}>
           <Text style={styles.vendorName}>
@@ -85,7 +89,87 @@ const VendorDetails = () => {
           </View>
         </View>
         <View style={styles.separator} />
-        <Text style={styles.productsHeader}>Products</Text>
+        <VendorCategoryList categories={categories} vendorId={vendorId} />
+        <View style={styles.separator} />
+      </View>
+    );
+  };
+
+  // Move useMemo BEFORE conditional returns
+  const groupedProducts = useMemo(() => {
+    if (!products) return [];
+
+    const grouped = [];
+    
+    // 1. Group by existing categories
+    if (categories && categories.length > 0) {
+      categories.forEach(cat => {
+        const catProducts = products.filter(
+          p => p.vendorProductCategory === cat._id,
+        );
+        if (catProducts.length > 0) {
+          grouped.push({
+            ...cat,
+            data: catProducts,
+          });
+        }
+      });
+    }
+
+    // 2. Handle Uncategorized (products with no vendorProductCategory or not matching any fetched category)
+    const categorizedIds = grouped.flatMap(g => g.data.map(p => p._id));
+    const uncategorized = products.filter(p => !categorizedIds.includes(p._id));
+
+    if (uncategorized.length > 0) {
+      grouped.push({
+        _id: 'uncategorized',
+        name: 'Uncategorized',
+        data: uncategorized,
+      });
+    }
+
+    // 3. Add "All Products" section containing all products
+    if (products.length > 0) {
+      grouped.push({
+        _id: 'all_products',
+        name: 'All Products',
+        data: products,
+      });
+    }
+
+    return grouped;
+  }, [products, categories]);
+
+  const renderCategoryItem = ({item}) => {
+    const PREVIEW_LIMIT = 4;
+    const showViewAll = true; // Always show View All button
+    const displayedProducts = item.data.slice(0, PREVIEW_LIMIT);
+
+    const handleViewAll = () => {
+      navigation.navigate('VendorCategoryProducts', {
+        categoryId: item._id,
+        categoryName: item.name,
+        vendorId: vendorId,
+      });
+    };
+
+    return (
+      <View style={styles.categorySection}>
+        <View style={styles.categoryHeader}>
+          <Text style={styles.categoryTitle}>{item.name}</Text>
+          {showViewAll && (
+            <Text style={styles.viewAllText} onPress={handleViewAll}>
+              View All
+            </Text>
+          )}
+        </View>
+        <View style={styles.productsGrid}>
+          {displayedProducts.map(product => (
+            <View key={product._id} style={styles.productWrapper}>
+              <ProductCard item={product} navigation={navigation} />
+            </View>
+          ))}
+        </View>
       </View>
     );
   };
@@ -112,19 +196,18 @@ const VendorDetails = () => {
     );
   }
 
+
+
+
+
   return (
     <SafeScreen style={styles.screen}>
       <CustomHeader title={'Vendor Details'} navigation={navigation} />
       <FlatList
-        data={products}
+        data={groupedProducts}
         keyExtractor={item => item._id}
         ListHeaderComponent={renderHeader}
-        numColumns={2}
-        renderItem={({item}) => (
-          <View style={styles.productCardContainer}>
-            <ProductCard item={item} navigation={navigation} />
-          </View>
-        )}
+        renderItem={renderCategoryItem}
         ListEmptyComponent={
           !productsLoading && (
             <View style={styles.centeredContainer}>
@@ -187,6 +270,7 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingHorizontal: 5,
     paddingBottom: 20,
+    paddingTop: 16,
   },
   productCardContainer: {
     flex: 1 / 2,
@@ -197,6 +281,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#95a5a6',
     marginTop: 20,
+  },
+  categorySection: {
+    marginBottom: 20,
+  },
+  categoryHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingRight: 16,
+    marginBottom: 10,
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginLeft: 10,
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: '#ff6600',
+    fontWeight: '600',
+  },
+  productsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 5,
+  },
+  productWrapper: {
+    width: '50%', // 2 columns
+    padding: 5,
   },
 });
 
