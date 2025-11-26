@@ -90,7 +90,7 @@ const CheckoutScreen = ({navigation}) => {
         };
       }
       vendorMap[item.vendor].products.push({
-        product: item._id,
+        product: item.productId, // Use the parent product ID
         quantity: item.quantity,
         price: item.price,
         discount: item.discount,
@@ -143,7 +143,7 @@ const CheckoutScreen = ({navigation}) => {
         };
       }
       vendorMap[item.vendor].products.push({
-        product: item._id,
+        product: item.productId, // Use the parent product ID
         quantity: item.quantity,
         price: item.price,
         discount: item.discount,
@@ -272,10 +272,14 @@ const CheckoutScreen = ({navigation}) => {
           )}
           <View style={summarystyles.detailsContainer}>
             <Text style={summarystyles.productName}>{item.name}</Text>
-            {/* <Text style={summarystyles.productWeight}>100 g</Text> */}
+            {item.variations[0]?.attributes?.map((attr, i) => (
+              <Text key={i} style={summarystyles.productWeight}>
+                {attr.name}: {attr.value}
+              </Text>
+            ))}
             <View style={summarystyles.priceContainer}>
               <Text style={summarystyles.discountedPrice}>
-                ₹{calculateDiscountedPrice(item.price, item.discount)}
+                ₹{calculateDiscountedPrice(item.price, item.discount).discountedPrice}
               </Text>
               <Text style={summarystyles.originalPrice}>₹{item.price}</Text>
             </View>

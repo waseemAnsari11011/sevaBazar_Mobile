@@ -151,7 +151,13 @@ const ProductDetails = ({route, navigation}) => {
         contentContainerStyle={styles.listContent}
       />
       {/* Sticky button only appears when a valid variation is selected */}
-      {/* {currentVariation && <StickyButton product={currentVariation} />} */}
+      {currentVariation && (
+        <StickyButton
+          product={productDetails}
+          variation={currentVariation}
+          navigation={navigation}
+        />
+      )}
     </View>
   );
 };

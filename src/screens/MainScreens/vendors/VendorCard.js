@@ -8,9 +8,6 @@ const FALLBACK_IMAGE_URL =
 
 /**
  * Calculates the distance between two geographical coordinates.
- * @param {object} start - The starting coordinates {latitude, longitude}.
- * @param {object} end - The ending coordinates {latitude, longitude}.
- * @returns {string|null} The distance in kilometers or null if coordinates are invalid.
  */
 const getDistance = (start, end) => {
   if (
@@ -44,7 +41,6 @@ const VendorCard = ({vendor, userLocation, onPress}) => {
       ? vendor.documents.shopPhoto[0]
       : FALLBACK_IMAGE_URL;
 
-  // --- Logic moved here ---
   const vendorCoords =
     vendor.location?.coordinates?.length === 2
       ? {
@@ -52,28 +48,33 @@ const VendorCard = ({vendor, userLocation, onPress}) => {
           latitude: vendor.location.coordinates[1],
         }
       : null;
+
   const distance = userLocation
     ? getDistance(userLocation, vendorCoords)
     : null;
 
-  // Use isOnline as the source of truth. 
-  // The 'status' field might be 'online' even if isOnline is false (user toggled off).
   const isVendorOnline = vendor.isOnline;
-  // --- End of moved logic ---
 
   return (
     <TouchableOpacity
       style={[styles.card, !isVendorOnline && {backgroundColor: '#f5f5f5'}]}
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={0.8} // Higher opacity for a solid feel
       disabled={!isVendorOnline}>
+      {/* Image Section */}
       <View style={styles.imageContainer}>
         <Image source={{uri: imageUrl}} style={styles.vendorImage} />
-        <View style={[styles.imageOverlay, !isVendorOnline && styles.offlineOverlay]} />
+        <View
+          style={[
+            styles.imageOverlay,
+            !isVendorOnline && styles.offlineOverlay,
+          ]}
+        />
+        {/* Status Badge - Top Right */}
         <View
           style={[
             styles.statusIndicator,
-            {backgroundColor: isVendorOnline ? 'green' : '#2c3e50'},
+            {backgroundColor: isVendorOnline ? '#108915' : '#555'}, // Darker green like the image
           ]}>
           <View style={isVendorOnline ? styles.statusDot : null} />
           {isVendorOnline ? (
@@ -91,25 +92,36 @@ const VendorCard = ({vendor, userLocation, onPress}) => {
           )}
         </View>
       </View>
-      <View style={[styles.cardContent, !isVendorOnline && {opacity: 0.5}]}>
-        <View style={styles.headerRow}>
-          <Text style={styles.businessName} numberOfLines={1}>
-            {vendor.vendorInfo?.businessName || vendor.name}
-          </Text>
-          {distance && (
-            <View style={styles.distanceBadge}>
-              <Icon name="map-marker" size={12} color="#ff6600" />
-              <Text style={styles.distanceText}>{distance}</Text>
-            </View>
-          )}
-        </View>
 
-        <View style={styles.infoRow}>
-          <Icon name="map-marker-outline" size={14} color="#7f8c8d" />
-          <Text style={styles.addressText} numberOfLines={1}>
-            {vendor.location?.address?.city ||
-              vendor.location?.address?.addressLine1}
-          </Text>
+      {/* Content Section */}
+      <View style={[styles.cardContent, !isVendorOnline && {opacity: 0.6}]}>
+        {/* Business Name - Uppercase & Bold */}
+        <Text style={styles.businessName} numberOfLines={1}>
+          {vendor.vendorInfo?.businessName?.toUpperCase() ||
+            vendor.name?.toUpperCase()}
+        </Text>
+
+        {/* Address info if needed, kept subtle */}
+        <Text style={styles.addressText} numberOfLines={1}>
+          {vendor.location?.address?.city ||
+            vendor.location?.address?.addressLine1}
+        </Text>
+
+        {/* Footer: Distance on Left, Details on Right */}
+        <View style={styles.footerRow}>
+          <View style={styles.distanceContainer}>
+            {distance && (
+              <>
+                <Icon name="map-marker-distance" size={16} color="#7f8c8d" />
+                <Text style={styles.distanceText}>{distance}</Text>
+              </>
+            )}
+          </View>
+
+          <View style={styles.detailsContainer}>
+            <Text style={styles.detailsText}>Details</Text>
+            <Icon name="chevron-right" size={20} color="#e67e22" />
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -126,27 +138,32 @@ VendorCard.propTypes = {
       shopPhoto: PropTypes.arrayOf(PropTypes.string),
     }),
     location: PropTypes.shape({
-      // Added location to prop types
       coordinates: PropTypes.arrayOf(PropTypes.number),
+      address: PropTypes.shape({
+        city: PropTypes.string,
+        addressLine1: PropTypes.string,
+      }),
     }),
     isOnline: PropTypes.bool,
   }).isRequired,
-  userLocation: PropTypes.object, // Changed from distance
+  userLocation: PropTypes.object,
   onPress: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
-    margin: 8,
+    marginVertical: 10,
+    // marginHorizontal: 16,
     backgroundColor: '#fff',
-    borderRadius: 16,
-    elevation: 3,
-    shadowColor: '#000',
+    borderRadius: 12, // Matches the rounded look in image
+    elevation: 4, // Shadow for Android
+    shadowColor: '#000', // Shadow for iOS
     shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   imageContainer: {
     position: 'relative',
@@ -154,30 +171,25 @@ const styles = StyleSheet.create({
   vendorImage: {
     width: '100%',
     height: 180,
+    resizeMode: 'cover',
     backgroundColor: '#ecf0f1',
   },
   imageOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.05)',
+    backgroundColor: 'rgba(0,0,0,0.02)',
   },
   offlineOverlay: {
-    backgroundColor: 'rgba(255,255,255,0.8)', // Heavy white overlay to simulate "faded/disabled" look
-    // Or use black if preferred: 'rgba(0,0,0,0.6)'
+    backgroundColor: 'rgba(255,255,255,0.7)',
   },
   statusIndicator: {
     position: 'absolute',
-    top: 12,
-    right: 12,
+    top: 16,
+    right: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
   },
   statusDot: {
     width: 6,
@@ -188,27 +200,35 @@ const styles = StyleSheet.create({
   },
   statusText: {
     color: '#fff',
-    fontSize: 12,
-    fontWeight: '700',
+    fontSize: 13,
+    fontWeight: 'bold',
     letterSpacing: 0.5,
   },
   cardContent: {
-    padding: 12,
+    padding: 16,
+    paddingBottom: 12,
   },
-  vendorName: {
-    fontSize: 17,
-    fontWeight: '700',
+  businessName: {
+    fontSize: 18,
+    fontWeight: '800', // Extra bold
     color: '#2c3e50',
-    marginBottom: 8,
-    letterSpacing: 0.2,
+    marginBottom: 4,
+    letterSpacing: 0.5,
   },
-  bottomRow: {
+  addressText: {
+    fontSize: 13,
+    color: '#95a5a6',
+    marginBottom: 12,
+  },
+  // New Footer Styles
+  footerRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between', // This pushes Distance to left, Details to right
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: '#f1f3f5',
+    paddingTop: 12,
+    marginTop: 4,
   },
   distanceContainer: {
     flexDirection: 'row',
@@ -216,19 +236,19 @@ const styles = StyleSheet.create({
   },
   distanceText: {
     marginLeft: 6,
-    fontSize: 12,
-    color: '#ff6600',
-    fontWeight: '600',
+    fontSize: 14,
+    color: '#34495e',
+    fontWeight: '500',
   },
-  viewDetailsContainer: {
+  detailsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  viewDetailsText: {
-    fontSize: 14,
-    color: '#ff6600',
-    fontWeight: '600',
-    marginRight: 4,
+  detailsText: {
+    fontSize: 15,
+    color: '#e67e22', // The Orange color from the "Details >" text
+    fontWeight: '700',
+    marginRight: 2,
   },
 });
 

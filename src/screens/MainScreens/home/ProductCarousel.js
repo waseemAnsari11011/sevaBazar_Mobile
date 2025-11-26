@@ -53,7 +53,7 @@ const ProductCarousel = ({navigation}) => {
               {calculateDiscountedPrice(
                 item.variations[0].price,
                 item.variations[0].discount,
-              )}
+              ).discountedPrice}
             </Text>
           </TouchableOpacity>
         )}

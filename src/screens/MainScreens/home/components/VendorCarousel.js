@@ -5,6 +5,8 @@ import {useSelector} from 'react-redux';
 
 const FALLBACK_IMAGE_URL = 'https://placehold.co/150x150/EEE/31343C?text=Photo';
 
+import Icon from '../../../../components/Icons/Icon';
+
 const VendorCarousel = ({navigation}) => {
   // Select state from the new vendors reducer
   const {
@@ -57,8 +59,6 @@ const VendorCarousel = ({navigation}) => {
           
           return (
             <TouchableOpacity
-              // --- FIX IS HERE ---
-              // Changed to pass `vendorId` which VendorDetails screen expects
               onPress={() =>
                 navigation.navigate('VendorDetails', {vendorId: item._id})
               }
@@ -67,32 +67,38 @@ const VendorCarousel = ({navigation}) => {
                 !isOnline && {backgroundColor: '#f5f5f5'},
               ]}
               key={item._id}
+              activeOpacity={0.9}
               disabled={!isOnline}>
-              <View style={{width: '100%', height: 150}}>
+              <View style={styles.imageWrapper}>
                 <Image source={{uri: imageUrl}} style={styles.vendorImage} />
                 {!isOnline && <View style={styles.offlineOverlay} />}
                 <View
                   style={[
                     styles.statusIndicator,
-                    {backgroundColor: isOnline ? 'green' : '#2c3e50'},
+                    {backgroundColor: isOnline ? '#108915' : '#555'},
                   ]}>
                   {!isOnline && (
-                    // Simple lock icon or text
                     <Text style={styles.statusText}>Closed</Text>
                   )}
                   {isOnline && <View style={styles.statusDot} />}
+                  {isOnline && <Text style={styles.statusText}>Open</Text>}
                 </View>
               </View>
-              <Text
-                style={[styles.vendorName, !isOnline && {opacity: 0.5}]}
-                numberOfLines={1}>
-                {item.vendorInfo.businessName}
-              </Text>
-              <Text
-                style={[styles.vendorLocation, !isOnline && {opacity: 0.5}]}
-                numberOfLines={1}>
-                {item.location.address.city}
-              </Text>
+              
+              <View style={styles.contentContainer}>
+                <Text
+                  style={[styles.vendorName, !isOnline && {opacity: 0.6}]}
+                  numberOfLines={1}>
+                  {item.vendorInfo.businessName}
+                </Text>
+                
+                <View style={[styles.locationRow, !isOnline && {opacity: 0.6}]}>
+                  <Icon.Ionicons name="location-sharp" size={12} color="#666" style={{marginRight: 2}} />
+                  <Text style={styles.vendorLocation} numberOfLines={1}>
+                    {item.location?.address?.addressLine1 || item.location?.address?.city}
+                  </Text>
+                </View>
+              </View>
             </TouchableOpacity>
           );
         }}
@@ -109,53 +115,65 @@ const styles = StyleSheet.create({
   },
   carousel: {
     width: '100%',
-    height: 240,
+    height: 230,
     alignItems: 'center',
     justifyContent: 'center',
   },
   vendorContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 10,
-    padding: 20,
-    margin: 10,
-    // Add shadow for better appearance
+    borderRadius: 12,
+    marginHorizontal: 8,
+    marginVertical: 5,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.23,
-    shadowRadius: 2.62,
-    elevation: 4,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  imageWrapper: {
+    width: '100%',
+    height: 140,
+    position: 'relative',
   },
   vendorImage: {
     width: '100%',
-    height: 150,
+    height: '100%',
     resizeMode: 'cover',
-    borderRadius: 8, // Optional: round corners
     backgroundColor: '#f0f0f0',
   },
+  contentContainer: {
+    padding: 12,
+  },
   vendorName: {
-    marginTop: 10,
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    marginBottom: 4,
+    letterSpacing: 0.3,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   vendorLocation: {
-    fontSize: 14,
-    color: 'gray',
+    fontSize: 12,
+    color: '#666',
+    flex: 1,
   },
   offlineOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.7)',
   },
   statusIndicator: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 10,
+    right: 10,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 12,
@@ -163,14 +181,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: '#fff',
+    marginRight: 4,
   },
   statusText: {
     color: '#fff',
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '700',
   },
 });

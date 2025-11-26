@@ -69,7 +69,7 @@ const DealOfDay = ({navigation}) => {
                   {calculateDiscountedPrice(
                     item?.variations[0].price,
                     item?.variations[0]?.discount,
-                  )}
+                  ).discountedPrice}
                 </Text>
                 <Text style={styles.originalPrice}>
                   ₹{item?.variations[0]?.price}

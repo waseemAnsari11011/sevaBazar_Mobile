@@ -24,7 +24,10 @@ const OrdersScreen = ({ navigation }) => {
   const { cartItems, timer } = useSelector(state => state.cart);
 
   const totalPrice = cartItems?.reduce(
-    (total, item) => total + calculateDiscountedPrice(item.price, item.discount) * item.quantity,
+    (total, item) => {
+      const { discountedPrice } = calculateDiscountedPrice(item.price, item.discount);
+      return total + parseFloat(discountedPrice) * item.quantity;
+    },
     0,
   );
 
@@ -48,12 +51,16 @@ const OrdersScreen = ({ navigation }) => {
             source={{ uri: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4sEG5g9GFcy4SUxbzWNzUTf1jMISTDZrTw&s` }} // Replace with your image url
             style={styles.productImage}
           />}
-          {item?.images?.length !== 0 && <Image source={{ uri: `${baseURL}${item?.images[0]}` }} style={styles.productImage} />}
+          {item?.images?.length !== 0 && <Image source={{ uri: item?.images[0] }} style={styles.productImage} />}
           <View style={styles.detailsContainer}>
             <Text style={styles.productName}>{item.name}</Text>
-            {/* <Text style={styles.productWeight}>100 g</Text> */}
+            {item.variations[0]?.attributes?.map((attr, i) => (
+              <Text key={i} style={styles.productWeight}>
+                {attr.name}: {attr.value}
+              </Text>
+            ))}
             <View style={styles.priceContainer}>
-              <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(item.price, item.discount)}</Text>
+              <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(item.price, item.discount).discountedPrice}</Text>
               <Text style={styles.originalPrice}>₹{item.price}</Text>
             </View>
             <Text style={styles.discountPercentage}>-{item.discount}%</Text>

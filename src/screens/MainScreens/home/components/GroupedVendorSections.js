@@ -18,9 +18,6 @@ const VENDOR_PLACEHOLDER_IMAGE = 'https://via.placeholder.com/150';
  * (Re-used from VendorsWithDiscounts, but removed discount badge for general use)
  */
 const VendorCard = ({item, navigation}) => {
-  console.log('item===>>>', item);
-
-  console.log('image===>>>', item.documents?.shopPhoto?.[0]);
   const shopPhoto = item.documents?.shopPhoto;
   const imageUrl = Array.isArray(shopPhoto)
     ? shopPhoto[0] // It's an array, get the first item
@@ -36,6 +33,7 @@ const VendorCard = ({item, navigation}) => {
         !isOnline && {backgroundColor: '#f5f5f5'},
       ]}
       disabled={!isOnline}
+      activeOpacity={0.9}
       onPress={() =>
         navigation.navigate('VendorDetails', {vendorId: item._id})
       }>
@@ -45,19 +43,22 @@ const VendorCard = ({item, navigation}) => {
         <View
           style={[
             cardStyles.statusIndicator,
-            {backgroundColor: isOnline ? 'green' : '#2c3e50'},
+            {backgroundColor: isOnline ? '#108915' : '#555'},
           ]}>
           {!isOnline && <Icon.MaterialCommunityIcons name="lock" size={10} color="#fff" />}
           {isOnline && <View style={cardStyles.statusDot} />}
         </View>
       </View>
-      <View style={[cardStyles.infoContainer, !isOnline && {opacity: 0.5}]}>
+      <View style={[cardStyles.infoContainer, !isOnline && {opacity: 0.6}]}>
         <Text style={cardStyles.vendorName} numberOfLines={1}>
           {item.vendorInfo?.businessName || item.name}
         </Text>
-        <Text style={cardStyles.vendorCity} numberOfLines={1}>
-          {item.location?.address?.city}
-        </Text>
+        <View style={cardStyles.locationRow}>
+           <Icon.Ionicons name="location-sharp" size={10} color="#7f8c8d" style={{marginRight: 2}} />
+           <Text style={cardStyles.vendorCity} numberOfLines={1}>
+             {item.location?.address?.addressLine1 || item.location?.address?.city}
+           </Text>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -140,18 +141,19 @@ const GroupedVendorSections = ({groupedVendors, loading}) => {
 // --- Styles ---
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 15,
+    marginBottom: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 12,
+    paddingHorizontal: 4,
   },
   title: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#000000',
+    color: '#1a1a1a',
   },
   viewAllButton: {
     flexDirection: 'row',
@@ -160,7 +162,7 @@ const styles = StyleSheet.create({
   viewAllText: {
     color: '#000066',
     marginRight: 5,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
   },
 });
@@ -171,38 +173,43 @@ const cardStyles = StyleSheet.create({
     flex: 1,
     maxWidth: '48%', // Ensures a gap between the two columns
     marginBottom: 15,
-    borderRadius: 8,
+    borderRadius: 12,
     backgroundColor: '#fff',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   image: {
     width: '100%',
-    height: 100,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    height: 120,
+    resizeMode: 'cover',
   },
   infoContainer: {
-    padding: 8,
+    padding: 10,
   },
   vendorName: {
     fontSize: 14,
     fontWeight: '600',
     color: '#333',
+    marginBottom: 4,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   vendorCity: {
-    fontSize: 12,
-    color: '#777',
-    marginTop: 2,
+    fontSize: 11,
+    color: '#7f8c8d',
+    flex: 1,
   },
   offlineOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.8)',
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    backgroundColor: 'rgba(255,255,255,0.7)',
   },
   statusIndicator: {
     position: 'absolute',
