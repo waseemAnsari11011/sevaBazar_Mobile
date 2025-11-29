@@ -32,6 +32,7 @@ import VendorDetails from '../screens/MainScreens/vendors/VendorDetails';
 import VendorCategoryProducts from '../screens/MainScreens/vendors/VendorCategoryProducts';
 import NewlyAddedVendorsScreen from '../screens/MainScreens/vendors/NewlyAddedVendorsScreen';
 import VendorsWithDiscount from '../screens/MainScreens/vendors/VendorsWithDiscount';
+import Chat from '../screens/MainScreens/chat/Chat';
 
 const Stack = createNativeStackNavigator();
 
@@ -158,6 +159,11 @@ const StackNavigator = () => {
         name="All Categories"
         options={{headerShown: true}}
         component={AllCategories}
+      />
+      <Stack.Screen
+        name="Chat"
+        options={{headerShown: true}}
+        component={Chat}
       />
     </Stack.Navigator>
   );

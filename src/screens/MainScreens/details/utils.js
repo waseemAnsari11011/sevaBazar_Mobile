@@ -7,11 +7,19 @@
  * @returns {Array<string>} An array of image URLs.
  */
 export const getImages = (currentVariation, product) => {
-  if (currentVariation?.images?.length > 0) {
-    return currentVariation.images;
+  if (currentVariation) {
+    const media = [
+      ...(currentVariation.images || []),
+      ...(currentVariation.videos || []),
+    ];
+    if (media.length > 0) return media;
   }
-  if (product?.variations?.[0]?.images?.length > 0) {
-    return product.variations[0].images;
+
+  if (product?.variations?.[0]) {
+    const firstVar = product.variations[0];
+    const media = [...(firstVar.images || []), ...(firstVar.videos || [])];
+    if (media.length > 0) return media;
   }
-  return []; // Return empty array if no images are found
+
+  return []; // Return empty array if no media is found
 };

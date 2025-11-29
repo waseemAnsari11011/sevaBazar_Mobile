@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createChatOrder } from '../../../config/redux/actions/chatOrderActions';
 import ButtonComponent from '../../../components/Button';
 import Loading from '../../../components/Loading';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Icon from '../../../components/Icons/Icon';
 // import { TextInput as PaperTextInput, DefaultTheme } from 'react-native-paper'; // Import DefaultTheme from react-native-paper
 
@@ -15,6 +15,8 @@ const Chat = () => {
     const { loading } = useSelector(state => state?.chatOrder);
     const customer = data?.user;
     const navigation = useNavigation();
+    const route = useRoute();
+    const { vendorId } = route.params || {};
 
     const handleSendOrder = async () => {
         try {
@@ -29,6 +31,7 @@ const Chat = () => {
                 name: customer?.name,
                 shippingAddress: data?.user?.shippingAddresses.find(address => address.isActive) || null,
                 paymentStatus: 'Unpaid',
+                vendorId: vendorId
             };
 
             await dispatch(createChatOrder(orderData));
@@ -105,7 +108,9 @@ const styles = StyleSheet.create({
         marginVertical: 8,
         borderWidth: 1,
         borderRadius: 10,
-        borderColor: "#000066"
+        borderColor: "#000066",
+        textAlignVertical: 'top', // Fix for Android text alignment
+        padding: 10, // Add padding for better look
     },
     buttonContainer: {
         marginBottom: 16, // Adjust spacing from bottom as needed

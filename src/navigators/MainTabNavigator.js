@@ -45,7 +45,7 @@ const MainTabNavigator = () => {
           tabBarBadge: cartItems.length === 0 ? null : cartItems.length,
         }}
       />
-      <Tab.Screen name="Chat" component={Chat} />
+      {/* <Tab.Screen name="Chat" component={Chat} /> */}
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );

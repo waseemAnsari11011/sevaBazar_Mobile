@@ -7,6 +7,7 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -77,9 +78,15 @@ const VendorDetails = () => {
       <View style={{ marginHorizontal: -5 }}>
         {renderImageCarousel()}
         <View style={styles.vendorInfoContainer}>
+          <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
           <Text style={styles.vendorName}>
             {vendor.vendorInfo?.businessName}
           </Text>
+          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <Icon name="phone" size={30} color="#ff6600" style={{marginRight: 15}} onPress={() => Linking.openURL(`tel:${vendor.vendorInfo?.contactNumber}`)} />
+            <Icon name="chat" size={30} color="#ff6600" onPress={() => navigation.navigate('Chat', {vendorId: vendor._id})} />
+          </View>
+          </View>
           <View style={styles.addressContainer}>
             <Icon name="map-marker" size={16} color="#7f8c8d" />
             <Text style={styles.vendorAddress}>
