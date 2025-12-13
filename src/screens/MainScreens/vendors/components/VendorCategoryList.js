@@ -27,7 +27,7 @@ const VendorCategoryList = ({categories, vendorId}) => {
 
   // Calculate numColumns to create a grid-like horizontal scroll if many items
   // Similar to the "Explore Dukaans" logic
-  const numColumns = Math.ceil(categories.length / 2);
+  const numColumns = categories.length === 2 ? 2 : Math.ceil(categories.length / 2);
 
   return (
     <View style={styles.container}>

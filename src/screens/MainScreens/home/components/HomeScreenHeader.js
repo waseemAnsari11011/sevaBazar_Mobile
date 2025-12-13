@@ -74,6 +74,8 @@ const HomeScreenHeader = ({
       <View>
         <AllVendorList navigation={navigation} />
       </View>
+
+
     </View>
   );
 };

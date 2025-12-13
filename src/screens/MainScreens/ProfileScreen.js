@@ -38,6 +38,8 @@ const ProfileScreen = ({navigation}) => {
   if (url?.startsWith('http:')) {
     // Replace "http" with "https"
     url = url.replace('http:', 'https:');
+  } else if (url && url.includes('uploads/customer')) {
+    url = `${baseURL}${url}`;
   }
 
   const handlePhoneCall = () => {

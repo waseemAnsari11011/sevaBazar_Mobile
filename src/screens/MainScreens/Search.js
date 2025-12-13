@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { searchProducts, resetSearchResults, updateSearchQuery } from '../../config/redux/actions/searchActions';
+import { searchProducts, searchVendors, resetSearchResults, updateSearchQuery } from '../../config/redux/actions/searchActions';
+import VendorCard from './vendors/VendorCard';
 import SearchBar from '../../components/SearchBar';
-import CategoryProductsCard from '../../components/CategoryProductsCard';
+import ProductCard from '../../components/ProductCard';
 import StickyButton from '../../components/stickyBottomCartBtn';
 
 const SearchScreen = ({navigation}) => {
@@ -12,13 +13,12 @@ const SearchScreen = ({navigation}) => {
     const { cartItems } = useSelector(state => state.cart);
     const {data} = useSelector(state => state?.local);
 
-    const { products, loading, error, query } = useSelector((state) => state.search);
-    const [searchInput, setSearchInput] = useState(query);
-
+    const { products, vendors, loading, error, query } = useSelector((state) => state.search);
 
     useEffect(() => {
         if (query) {
             dispatch(searchProducts(query,1,10, data?.user.availableLocalities));
+            dispatch(searchVendors(query));
         }
         return () => {
             dispatch(resetSearchResults());
@@ -29,20 +29,12 @@ const SearchScreen = ({navigation}) => {
         dispatch(updateSearchQuery(text));
     };
 
-    // const renderItem = ({ item }) => (
-    //     <View style={styles.productItem}>
-    //         <Text>{item.name}</Text>
-    //     </View>
-    // );
-
-    const renderItem = ({ item, index }) => {
+    const renderItem = ({ item }) => {
         return (
-            <View style={[index === products.length - 1 && cartItems.length > 0 ? styles.lastItem : index === products.length - 1 && { marginBottom: 15 }, index === 0 && { marginTop: 15 }]}>
-                <CategoryProductsCard
+            <View style={styles.productWrapper}>
+                <ProductCard
                     item={item}
-                    onPressNavigation={() =>
-                        navigation.navigate('Details', { product: item })
-                    }
+                    navigation={navigation}
                 />
             </View>
         );
@@ -50,28 +42,53 @@ const SearchScreen = ({navigation}) => {
 
     const renderSeparator = () => <View style={styles.separator} />;
 
-
-
     return (
         <>
         <View style={styles.container}>
             <SearchBar
                 isInput={true}
                 onChangeText={(text) => handleSearch(text)}
-            // onSubmitEditing={handleSearch}
             />
-            {loading && <View style={{  justifyContent: 'center', alignItems: 'center' }}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            {loading && <View style={{  justifyContent: 'center', alignItems: 'center', marginTop: 20 }}>
+                <ActivityIndicator size="large" color="#ff6600" />
             </View>}
-            {error && <Text>Error: {error}</Text>}
+            {error && <Text style={styles.errorText}>Error: {error}</Text>}
             {!loading && !error && (
                 <FlatList
                     data={products}
+                    numColumns={2}
+                    key={2} // Force re-render when changing numColumns, though strictly static here
+                    ListHeaderComponent={() => (
+                        <View style={styles.headerContainer}>
+                            {vendors && vendors.length > 0 && (
+                                <View style={styles.sectionContainer}>
+                                    <Text style={styles.sectionTitle}>Vendors</Text>
+                                    <FlatList
+                                        data={vendors}
+                                        horizontal
+                                        showsHorizontalScrollIndicator={false}
+                                        renderItem={({ item }) => (
+                                            <View style={styles.vendorCardWrapper}>
+                                                <VendorCard
+                                                    vendor={item}
+                                                    onPress={() => navigation.navigate('VendorDetails', { vendorId: item._id })}
+                                                />
+                                            </View>
+                                        )}
+                                        keyExtractor={(item) => item._id.toString()}
+                                    />
+                                </View>
+                            )}
+                            {products && products.length > 0 && (
+                                <Text style={styles.sectionTitle}>Products</Text>
+                            )}
+                        </View>
+                    )}
                     renderItem={renderItem}
                     keyExtractor={(item) => item._id.toString()}
-                    ItemSeparatorComponent={({ highlighted }) =>
-                        highlighted ? null : renderSeparator()
-                    }
+                    columnWrapperStyle={styles.columnWrapper}
+                    contentContainerStyle={styles.listContent}
+                    showsVerticalScrollIndicator={false}
                 />
             )}
         </View>
@@ -85,19 +102,47 @@ const SearchScreen = ({navigation}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
-        paddingTop:80
+        backgroundColor: '#f8f9fa',
+        paddingTop: 60, // Match previous top padding or adjust for header
     },
-    productItem: {
-        padding: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
+    headerContainer: {
+        paddingHorizontal: 10,
+        marginBottom: 10,
+    },
+    sectionContainer: {
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 18, 
+        fontWeight: 'bold', 
+        marginBottom: 10, 
+        color: '#333',
+        marginLeft: 5
+    },
+    vendorCardWrapper: {
+        width: 300, 
+        marginRight: 15
+    },
+    productWrapper: {
+        flex: 1,
+        padding: 5,
+        maxWidth: '50%', // Ensure 2 columns
+    },
+    columnWrapper: {
+        justifyContent: 'space-between',
+        paddingHorizontal: 5,
+    },
+    listContent: {
+        paddingBottom: 80, // Space for sticky button/bottom tab
     },
     separator: {
-        // borderBottomWidth: 1,
-        // borderBottomColor: 'lightgray',
         marginBottom: 15
     },
+    errorText: {
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 20
+    }
 });
 
 export default SearchScreen;

@@ -7,6 +7,7 @@ import OrdersScreen from '../screens/MainScreens/OrdersScreen';
 import DrawerNavigator from './DrawerNavigator';
 import { useDispatch, useSelector } from 'react-redux';
 import Chat from '../screens/MainScreens/chat/Chat';
+import OfferScreen from '../screens/MainScreens/OfferScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -27,16 +28,28 @@ const MainTabNavigator = () => {
             iconName = focused ? 'cart' : 'cart-outline';
           } else if (route.name === 'Chat') {
             iconName = focused ? 'chatbox' : 'chatbox-outline';
+          } else if (route.name === 'Chat') {
+            iconName = focused ? 'chatbox' : 'chatbox-outline';
+          } else if (route.name === 'Offer') {
+            iconName = focused ? 'pricetag' : 'pricetag-outline';
           }
 
           return <Ionicons name={iconName} size={size} color="#000066" />;
         },
-        tabBarShowLabel: false, // Hide the labels
+        tabBarShowLabel: true, // Show the labels
       })}
     >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
+      />
+      <Tab.Screen
+        name="Offer"
+        component={OfferScreen}
+        options={{
+          headerShown: true,
+          headerTitle: 'Special Offers',
+        }}
       />
       <Tab.Screen
         name="Order"

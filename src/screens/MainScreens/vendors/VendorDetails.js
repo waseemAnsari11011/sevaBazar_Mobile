@@ -8,6 +8,8 @@ import {
   FlatList,
   ActivityIndicator,
   Linking,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
@@ -19,6 +21,7 @@ import {
 } from '../../../config/redux/actions/vendorActions';
 import {fetchProductsByVendor} from '../../../config/redux/actions/productAction';
 import {fetchVendorProductCategories} from '../../../config/redux/actions/vendorProductCategoryActions';
+import {fetchUserLocation} from '../../../config/redux/actions/locationActions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ProductCard from '../../../components/ProductCard';
 import VendorDetailsCarousel from '../../../components/VendorDetailsCarousel';
@@ -38,18 +41,42 @@ const VendorDetails = () => {
     state => state.productsByVendor,
   );
   const {categories} = useSelector(state => state.vendorProductCategories);
+  const {location: userLocation} = useSelector(state => state.location);
 
   useEffect(() => {
     if (vendorId) {
       dispatch(fetchVendorDetails(vendorId));
       dispatch(fetchProductsByVendor(vendorId));
       dispatch(fetchVendorProductCategories(vendorId));
+      dispatch(fetchUserLocation());
     }
 
     return () => {
       dispatch(resetVendorDetails());
     };
   }, [dispatch, vendorId]);
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+
+    const toRad = x => (x * Math.PI) / 180;
+    const R = 6371; // Radius of the earth in km
+
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // Distance in km
+
+    return d.toFixed(1); // Return distance with 1 decimal place
+  };
 
   const renderImageCarousel = () => {
     // 1. Get both arrays, defaulting to an empty array if null/undefined
@@ -71,6 +98,23 @@ const VendorDetails = () => {
     );
   };
 
+  const handleViewAddress = () => {
+    if (!vendor?.location?.address) return;
+    
+    const { addressLine1, addressLine2, city, state, postalCode, country } = vendor.location.address;
+    
+    const fullAddress = [
+      addressLine1,
+      addressLine2,
+      city,
+      state,
+      postalCode,
+      country
+    ].filter(Boolean).join(', ');
+
+    Alert.alert('Full Address', fullAddress);
+  };
+
   const renderHeader = () => {
     if (!vendor) return null;
 
@@ -87,13 +131,29 @@ const VendorDetails = () => {
             <Icon name="chat" size={30} color="#ff6600" onPress={() => navigation.navigate('Chat', {vendorId: vendor._id})} />
           </View>
           </View>
-          <View style={styles.addressContainer}>
-            <Icon name="map-marker" size={16} color="#7f8c8d" />
-            <Text style={styles.vendorAddress}>
+          <View style={[styles.addressContainer, {alignItems: 'flex-start'}]}>
+            <Icon name="map-marker" size={16} color="#7f8c8d" style={{marginTop: 3}} />
+            <Text style={[styles.vendorAddress, {flex: 1}]}>
               {vendor.location?.address?.addressLine1 ||
                 'Address not available'}
+              {userLocation && vendor.location?.coordinates && (
+                <Text style={styles.distanceText}>
+                  {' '}
+                  •{' '}
+                  {calculateDistance(
+                    userLocation.latitude,
+                    userLocation.longitude,
+                    vendor.location.coordinates[1], // Latitude
+                    vendor.location.coordinates[0], // Longitude
+                  )}{' '}
+                  km away
+                </Text>
+              )}
             </Text>
           </View>
+          <TouchableOpacity onPress={handleViewAddress} style={styles.viewAddressBtn}>
+             <Text style={styles.viewAddressText}>View Full Address</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.separator} />
         <VendorCategoryList categories={categories} vendorId={vendorId} />
@@ -262,6 +322,27 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#7f8c8d',
     marginLeft: 8,
+  },
+  distanceText: {
+    fontSize: 14,
+    color: '#ff6600',
+    marginLeft: 8,
+    fontWeight: '600',
+  },
+  viewAddressBtn: {
+      marginTop: 10,
+      alignSelf: 'flex-start',
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      backgroundColor: '#fff0e6',
+      borderRadius: 5,
+      borderWidth: 1,
+      borderColor: '#ff6600',
+  },
+  viewAddressText: {
+      color: '#ff6600',
+      fontSize: 12,
+      fontWeight: '600',
   },
   separator: {
     height: 1,

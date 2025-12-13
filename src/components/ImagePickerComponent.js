@@ -48,8 +48,10 @@ const ImagePickerComponent = ({handleImage, url}) => {
     });
   };
 
-  console.log('image-->>', image);
-
+  console.log('DEBUG: image value:', image);
+  console.log('DEBUG: baseURL:', baseURL);
+  console.log('DEBUG: includes check:', image && image.includes('uploads/customer'));
+  
   return (
     <View style={{alignItems: 'center'}}>
       <TouchableOpacity onPress={pickImage}>
@@ -57,7 +59,9 @@ const ImagePickerComponent = ({handleImage, url}) => {
           <View>
             <Image
               source={
-                image.includes('uploads/customer') ? {uri: image} : {uri: image}
+                image && image.includes('uploads/customer')
+                  ? {uri: `${baseURL}${image}`}
+                  : {uri: image}
               }
               style={{width: 140, height: 140, borderRadius: 75}}
             />

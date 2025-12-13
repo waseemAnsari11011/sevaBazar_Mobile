@@ -2,16 +2,20 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import ShoppingCartIcon from './cartIconWithNumTop';
 import { useDispatch, useSelector } from 'react-redux';
-import { addToCart, clearCart } from '../config/redux/actions/cartActions';
+import { addToCart, clearCart, increaseQuantity, decreaseQuantity } from '../config/redux/actions/cartActions';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const StickyButton = ({ navigation, product, variation }) => {
     const dispatch = useDispatch();
     const { cartItems } = useSelector((state) => state.cart);
 
-    const isItemInCart = useMemo(() => {
-        if (!variation) return false;
-        return cartItems.some((item) => item._id === variation._id);
+    const cartItem = useMemo(() => {
+        if (!variation) return null;
+        return cartItems.find((item) => item._id === variation._id);
     }, [cartItems, variation]);
+
+    const isItemInCart = !!cartItem;
+    const currentQuantity = cartItem?.quantity || 0;
 
     const handleAddToCart = () => {
         if (!product || !variation) {
@@ -43,7 +47,7 @@ const StickyButton = ({ navigation, product, variation }) => {
             }
         }
 
-        const cartItem = {
+        const newCartItem = {
             _id: variation._id,
             productId: product._id, // Store parent product ID
             name: product.name,
@@ -57,15 +61,24 @@ const StickyButton = ({ navigation, product, variation }) => {
             isReturnAllowed: product.isReturnAllowed || false,
         };
 
-        dispatch(addToCart(cartItem));
-        // Optional: Navigate to cart or show success message
-        // navigation.navigate('Order'); 
+        dispatch(addToCart(newCartItem));
     };
 
+    const handleIncrease = () => {
+        if (cartItem) {
+            dispatch(increaseQuantity(cartItem._id));
+        }
+    };
+
+    const handleDecrease = () => {
+        if (cartItem) {
+             dispatch(decreaseQuantity(cartItem._id));
+        }
+    };
+
+
     const handlePress = () => {
-        if (isItemInCart) {
-            navigation.navigate('Order'); // Navigate to Cart Screen (assuming 'Order' is the route name for Cart)
-        } else {
+        if (!isItemInCart) {
             handleAddToCart();
         }
     };
@@ -74,14 +87,26 @@ const StickyButton = ({ navigation, product, variation }) => {
         <View style={styles.container}>
             <View style={styles.cartContainer}>
                 <ShoppingCartIcon />
-                <TouchableOpacity 
-                    style={[styles.button, isItemInCart ? styles.goToCartButton : styles.addToCartButton]} 
-                    onPress={handlePress}
-                >
-                    <Text style={styles.text}>
-                        {isItemInCart ? 'Go to Cart' : 'Add to Cart'}
-                    </Text>
-                </TouchableOpacity>
+                
+                {isItemInCart ? (
+                    <View style={[styles.button, styles.quantityContainer]}>
+                        <TouchableOpacity onPress={handleDecrease} style={styles.qtyBtn}>
+                             <Icon name="remove" size={24} color="#fff" />
+                        </TouchableOpacity>
+                        <Text style={styles.qtyText}>{currentQuantity}</Text>
+                        <TouchableOpacity onPress={handleIncrease} style={styles.qtyBtn}>
+                             <Icon name="add" size={24} color="#fff" />
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <TouchableOpacity 
+                        style={[styles.button, styles.addToCartButton]} 
+                        onPress={handlePress}
+                    >
+                        <Text style={styles.text}>Add to Cart</Text>
+                    </TouchableOpacity>
+                )}
+
             </View>
         </View>
     );
@@ -122,8 +147,18 @@ const styles = StyleSheet.create({
     addToCartButton: {
         backgroundColor: '#ff6600',
     },
-    goToCartButton: {
-        backgroundColor: '#2ecc71',
+    quantityContainer: {
+        backgroundColor: '#2ecc71', // Or match theme color
+        justifyContent: 'space-between',
+        paddingHorizontal: 15
+    },
+    qtyBtn: {
+        padding: 5,
+    },
+    qtyText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
     text: {
         color: '#fff',

@@ -27,7 +27,7 @@ const CategoryList = ({categories}) => {
 
   // Calculate the number of columns based on the categories array length.
   // This will be 0 initially and change when data arrives.
-  const numColumns = Math.ceil(categories.length / 2);
+  const numColumns = categories.length === 2 ? 2 : Math.ceil(categories.length / 2);
 
   return (
     <View style={styles.container}>
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     width: 100, // Fixed width for consistent item size
+    marginRight: 10, // Added spacing between items
   },
   imageContainer: {
     borderWidth: 1,

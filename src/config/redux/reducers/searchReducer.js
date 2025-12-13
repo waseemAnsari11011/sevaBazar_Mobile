@@ -6,12 +6,17 @@ import {
     UPDATE_SEARCH_QUERY,
     RESET_SEARCH_RESULTS,
     UPDATE_SEARCH_PRODUCTS_PAGE,
-    UPDATE_SEARCH_PRODUCTS_LIMIT
+
+    UPDATE_SEARCH_PRODUCTS_LIMIT,
+    SEARCH_VENDORS_REQUEST,
+    SEARCH_VENDORS_SUCCESS,
+    SEARCH_VENDORS_FAILURE
 } from '../actions/types';
 
 const initialState = {
     loading: false,
     products: [],
+    vendors: [],
     error: null,
     query: '',
     page: 1,
@@ -34,6 +39,26 @@ const searchReducer = (state = initialState, action) => {
                 error: null,
             };
         case SEARCH_PRODUCTS_FAILURE:
+            return {
+                ...state,
+                loading: false,
+                error: action.payload,
+            };
+
+        case SEARCH_VENDORS_REQUEST:
+            return {
+                ...state,
+                loading: true,
+                error: null,
+            };
+        case SEARCH_VENDORS_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                vendors: action.payload,
+                error: null,
+            };
+        case SEARCH_VENDORS_FAILURE:
             return {
                 ...state,
                 loading: false,

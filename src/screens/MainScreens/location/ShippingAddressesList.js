@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Button } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Button, Switch } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import api from '../../../utils/api';
@@ -74,7 +74,6 @@ const ShippingAddressesList = ({ navigation }) => {
               styles.card,
               address.isActive && styles.activeCard
             ]}
-            onTouchStart={() => handleSetActive(address._id)}
           >
             <View style={styles.cardContent}>
               <Text style={styles.cardText}>Name: {address.name}</Text>
@@ -86,18 +85,25 @@ const ShippingAddressesList = ({ navigation }) => {
               <Text style={styles.cardText}>Postal Code: {address.postalCode}</Text>
               {address.isActive && <Text style={styles.activeLabel}>Active</Text>}
             </View>
-            <View style={styles.cardActions}>
-              <TouchableOpacity onPress={() => handleEdit(address)}>
-                <Icon name="pencil" size={20} color="#000" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(address._id)}>
-                <Icon name="trash" size={20} color="red" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleSetActive(address._id)}>
-                <Icon name="star" size={20} color={address.isActive ? '#ff6600' : '#ccc'} />
-              </TouchableOpacity>
+              <View style={styles.cardActions}>
+                <TouchableOpacity onPress={() => handleEdit(address)}>
+                  <Icon name="pencil" size={20} color="#000" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleDelete(address._id)}>
+                  <Icon name="trash" size={20} color="red" />
+                </TouchableOpacity>
+                <View style={{ alignItems: 'center' }}>
+                    <Switch
+                        trackColor={{ false: "#767577", true: "#ff6600" }}
+                        thumbColor={address.isActive ? "#f4f3f4" : "#f4f3f4"}
+                        ios_backgroundColor="#3e3e3e"
+                        onValueChange={() => handleSetActive(address._id)}
+                        value={address.isActive}
+                        disabled={address.isActive} // Optional: Disable if already active, or allow toggle if backend supports deactivating (usually one address must be active so maybe keeping it enabled but only handling change if it's not active is safer, effectively making it a radio button behavior visually implemented as switches where only one is on. But standard switch behavior invokes change. If backend enforces one active, turning *off* the active one might depend on backend logic or be disallowed. Usually picking another activates that one and deactivates others. Let's assume enabling a switch activates it. Disabling an already active one might not be desired if one MUST be active. Let's leave it enabled or check behavior.)
+                    />
+                </View>
+              </View>
             </View>
-          </View>
         ))}
       </ScrollView>
     </View>

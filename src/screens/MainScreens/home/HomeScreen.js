@@ -8,7 +8,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Loading from '../../../components/Loading';
-import SearchBar from '../../../components/SearchBar';
+// import SearchBar from '../../../components/SearchBar'; // Removed
+import HomeHeader from './components/HomeHeader'; // Added
 import ProductCard from '../../../components/ProductCard';
 import {useHomeScreenData} from './hooks/useHomeScreenData';
 import {useInfiniteScroll} from './hooks/useInfiniteScroll';
@@ -59,15 +60,16 @@ const HomeScreen = ({navigation}) => {
     <View style={styles.container}>
       {categoryLoading && <Loading />}
 
-      <SearchBar scrollToTop={scrollToTop} />
+      {/* <SearchBar scrollToTop={scrollToTop} /> */}
+      <HomeHeader user={user} />
 
       <FlatList
         ref={flatListRef}
-        data={allProducts}
+        data={[]}
         keyExtractor={(item, index) => `${item._id}-${index}`}
-        renderItem={renderProductItem}
+        renderItem={null}
         numColumns={2}
-        onEndReached={fetchMoreProducts}
+        // onEndReached={fetchMoreProducts}
         onEndReachedThreshold={0.5}
         ListHeaderComponent={
           <HomeScreenHeader
@@ -80,6 +82,7 @@ const HomeScreen = ({navigation}) => {
             // 👇 PASS THE NEW PROPS
             groupedVendors={groupedVendors}
             groupedVendorsLoading={groupedVendorsLoading}
+            // user={user} // Removed user prop as it's now in HomeHeader
           />
         }
         ListFooterComponent={
@@ -97,7 +100,7 @@ const HomeScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60, // For custom header/search bar
+    // paddingTop: 60, // Removed padding for custom header
     backgroundColor: '#FFFFFF',
   },
   centerContainer: {

@@ -51,26 +51,48 @@ const CategoryProductsCard = ({ item, onPressNavigation }) => {
 
     <>
       <TouchableOpacity style={styles.container} onPress={onPressNavigation}>
-        {item?.images?.length === 0 && <Image
-          source={{ uri: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4sEG5g9GFcy4SUxbzWNzUTf1jMISTDZrTw&s` }} // Replace with your image url
-          style={styles.productImage}
-        />}
-        {item?.images?.length !== 0 && <Image source={{ uri: `${baseURL}${item?.images[0]}` }} style={styles.productImage} />}
+        {item?.images && item.images.length > 0 ? (
+          <Image source={{ uri: `${baseURL}${item.images[0]}` }} style={styles.productImage} />
+        ) : item?.variations &&
+          item.variations.length > 0 &&
+          item.variations[0].images &&
+          item.variations[0].images.length > 0 ? (
+          <Image
+            source={{ uri: `${baseURL}${item.variations[0].images[0]}` }}
+            style={styles.productImage}
+          />
+        ) : (
+          <Image
+            source={{ uri: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4sEG5g9GFcy4SUxbzWNzUTf1jMISTDZrTw&s` }}
+            style={styles.productImage}
+          />
+        )}
         <View style={styles.detailsContainer}>
           <Text style={styles.productName}>{item.name}</Text>
-          <Text style={styles.productWeight}>{item.variations[0].attributes.value}</Text>
-          <View style={styles.priceContainer}>
-            <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(item.variations[0].price, item.variations[0].discount)}</Text>
-            <Text style={styles.originalPrice}>₹{item.variations[0].price}</Text>
-          </View>
-          <Text style={styles.discountPercentage}>-{item.variations[0].discount}%</Text>
-          {/* <View style={styles.addContainer}>
-        {existingItemIndex === -1 ? (
-          <AddToCartBtn product={item} />
-        ) : (
-          <QuantityUpdater quantity={quantity} item={item} />
-        )}
-      </View> */}
+          {item?.variations && item.variations.length > 0 ? (
+            <>
+              <Text style={styles.productWeight}>
+                {Array.isArray(item.variations[0].attributes)
+                  ? item.variations[0].attributes[0]?.value
+                  : item.variations[0].attributes?.value}
+              </Text>
+              <View style={styles.priceContainer}>
+                <Text style={styles.discountedPrice}>
+                  ₹
+                  {calculateDiscountedPrice(
+                    item.variations[0].price,
+                    item.variations[0].discount
+                  )}
+                </Text>
+                <Text style={styles.originalPrice}>₹{item.variations[0].price}</Text>
+              </View>
+              <Text style={styles.discountPercentage}>
+                -{item.variations[0].discount}%
+              </Text>
+            </>
+          ) : (
+            <Text style={{ color: "red", marginTop: 5 }}>Out of Stock</Text>
+          )}
         </View>
       </TouchableOpacity>
     </>

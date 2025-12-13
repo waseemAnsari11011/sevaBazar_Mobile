@@ -37,7 +37,7 @@ const EditProfile = ({ navigation }) => {
       formData.append('image', {
         uri: image.uri,
         type: image.type,
-        name: image.fileName || 'photo.jpg',
+        name: image.name || image.fileName || 'photo.jpg',
       });
     }
 

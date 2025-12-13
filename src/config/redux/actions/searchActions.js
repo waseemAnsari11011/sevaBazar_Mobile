@@ -7,7 +7,11 @@ import {
     UPDATE_SEARCH_QUERY,
     RESET_SEARCH_RESULTS,
     UPDATE_SEARCH_PRODUCTS_PAGE,
-    UPDATE_SEARCH_PRODUCTS_LIMIT
+
+    UPDATE_SEARCH_PRODUCTS_LIMIT,
+    SEARCH_VENDORS_REQUEST,
+    SEARCH_VENDORS_SUCCESS,
+    SEARCH_VENDORS_FAILURE
 } from './types';
 
 export const searchProducts = (query, page=1 , limit=10, userLocation) => async (dispatch) => {
@@ -23,6 +27,20 @@ export const searchProducts = (query, page=1 , limit=10, userLocation) => async 
         const errorMessage = error.response?.data?.message || 'Failed to search products';
         console.error('Error searching products:', errorMessage);
         dispatch({ type: SEARCH_PRODUCTS_FAILURE, payload: errorMessage });
+    }
+};
+
+export const searchVendors = (query) => async (dispatch) => {
+    dispatch({ type: SEARCH_VENDORS_REQUEST });
+    try {
+        const response = await api.get('/vendors/customer/search', {
+            params: { q: query },
+        });
+        dispatch({ type: SEARCH_VENDORS_SUCCESS, payload: response.data });
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || 'Failed to search vendors';
+        console.error('Error searching vendors:', errorMessage);
+        dispatch({ type: SEARCH_VENDORS_FAILURE, payload: errorMessage });
     }
 };
 
