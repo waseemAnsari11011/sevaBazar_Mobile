@@ -165,6 +165,11 @@ const StackNavigator = () => {
         options={{headerShown: true}}
         component={Chat}
       />
+      <Stack.Screen
+        name="Cart"
+        options={{headerShown: true}}
+        component={OrdersScreen}
+      />
     </Stack.Navigator>
   );
 };

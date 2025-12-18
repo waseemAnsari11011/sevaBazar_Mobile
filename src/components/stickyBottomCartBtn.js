@@ -86,7 +86,9 @@ const StickyButton = ({ navigation, product, variation }) => {
     return (
         <View style={styles.container}>
             <View style={styles.cartContainer}>
-                <ShoppingCartIcon />
+            <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
+                    <ShoppingCartIcon />
+                </TouchableOpacity>
                 
                 {isItemInCart ? (
                     <View style={[styles.button, styles.quantityContainer]}>

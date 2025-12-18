@@ -1,7 +1,45 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useSelector } from 'react-redux';
 
 const StickyComponent = ({ total, onCheckout, navigation }) => {
+    const { data } = useSelector(state => state.local);
+    const userAddress = data?.user?.shippingAddresses?.[0]; // Assuming first address is default/current
+
+    const handleCheckout = () => {
+        if (userAddress) {
+            // Construct address string safely, filtering out undefined/null values
+            const addressParts = [
+                userAddress.address || userAddress.addressLine1,
+                userAddress.landmark,
+                userAddress.city,
+                userAddress.state,
+                userAddress.postalCode || userAddress.pincode
+            ].filter(part => part); // Remove empty/undefined parts
+
+            const addressString = addressParts.join(', ');
+            
+            Alert.alert(
+                "Confirm Delivery Address",
+                `Do you want to deliver to:\n\n${addressString}`,
+                [
+                    {
+                        text: "Change",
+                        onPress: () => navigation.navigate("Location List"), // Navigate to address list
+                        style: "cancel"
+                    },
+                    {
+                        text: "Confirm",
+                        onPress: () => navigation.navigate('Checkout')
+                    }
+                ]
+            );
+        } else {
+            // If no address, proceed to checkout (which likely handles missing address) or address list
+            navigation.navigate('Checkout');
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.cartContainer}>
@@ -16,7 +54,7 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
                     </Text>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Checkout')}>
+                <TouchableOpacity style={styles.button} onPress={handleCheckout}>
                     <Text style={styles.text}>Checkout</Text>
                 </TouchableOpacity>
             </View>

@@ -38,6 +38,46 @@ const CheckoutScreen = ({navigation}) => {
   );
   const [loading, setloading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [deliveryCharge, setDeliveryCharge] = useState(0); // Renamed from shippingFee to avoid confusion
+
+  const activeAddress = data?.user?.shippingAddresses?.find(address => address.isActive);
+
+  useEffect(() => {
+    fetchDeliveryCharge();
+  }, [cartItems, activeAddress]);
+
+  const fetchDeliveryCharge = async () => {
+    if (!activeAddress || cartItems.length === 0) {
+      setDeliveryCharge(0);
+      return;
+    }
+
+    try {
+      const vendorIds = [...new Set(cartItems.map(item => item.vendor))];
+      const payload = {
+        vendors: vendorIds,
+        shippingAddress: activeAddress,
+      };
+      
+      if (!activeAddress.latitude || !activeAddress.longitude) {
+           Alert.alert("Location Missing", "Please update your address with precise location.", [
+               { text: "Update", onPress: () => navigation.navigate('Location List', {isCheckOut: true}) }
+           ]);
+           setDeliveryCharge(0);
+           return;
+      }
+
+      const response = await api.post('/calculate-delivery', payload);
+      if (response.data && response.data.success) {
+        setDeliveryCharge(response.data.totalDeliveryCharge);
+      } else {
+        setDeliveryCharge(0);
+      }
+    } catch (error) {
+      console.error('Error fetching delivery charge:', error);
+      setDeliveryCharge(0);
+    }
+  };
 
   const placeOrder = async orderData => {
     try {
@@ -393,14 +433,14 @@ const CheckoutScreen = ({navigation}) => {
       0,
     );
 
-    // Define the shipping fee (assuming a constant value)
-    const shippingFee = 20.0;
+    // Define the shipping fee (Static)
+    const shippingFee = 9.0;
 
     // Define the tax (assuming no tax for simplicity)
     const tax = 0.0;
 
     // Calculate the total
-    const total = subtotal + shippingFee + tax - totalDiscount;
+    const total = subtotal + shippingFee + deliveryCharge + tax - totalDiscount;
 
     return (
       <View style={footerStyles.container}>
@@ -413,6 +453,10 @@ const CheckoutScreen = ({navigation}) => {
         <View style={footerStyles.row}>
           <Text style={footerStyles.label}>Shipping Fee</Text>
           <Text style={footerStyles.value}>₹{shippingFee.toFixed(2)}</Text>
+        </View>
+        <View style={footerStyles.row}>
+          <Text style={footerStyles.label}>Delivery Charge</Text>
+          <Text style={footerStyles.value}>₹{deliveryCharge.toFixed(2)}</Text>
         </View>
         <View style={footerStyles.row}>
           <Text style={footerStyles.label}>Discount</Text>

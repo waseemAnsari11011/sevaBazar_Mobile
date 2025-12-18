@@ -26,10 +26,18 @@ const recentlyAddedVendorsReducer = (state = initialState, action) => {
         error: null,
       };
     case FETCH_RECENTLY_ADDED_VENDORS_SUCCESS:
+      // Filter out any incoming vendors that already exist in state to prevent duplicates
+      const newVendors = action.payload.filter(
+        newVendor =>
+          !state.vendors.some(
+            existingVendor => existingVendor._id === newVendor._id,
+          ),
+      );
+
       return {
         ...state,
         loading: false,
-        vendors: [...state.vendors, ...action.payload], // Append new vendors
+        vendors: [...state.vendors, ...newVendors], // Append only unique new vendors
         error: null,
       };
     case FETCH_RECENTLY_ADDED_VENDORS_FAILURE:

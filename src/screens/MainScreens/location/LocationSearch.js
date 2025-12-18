@@ -54,6 +54,8 @@ const LocationSearch = ({navigation, route}) => {
         state: address.state,
         country: address.country,
         city: address.city,
+        latitude: address.latitude,
+        longitude: address.longitude,
         isActive: address.isActive,
       });
       setSelectedLocation(address); // if using searchLocation as well
@@ -76,6 +78,8 @@ const LocationSearch = ({navigation, route}) => {
         pincode,
         name,
         phone,
+        latitude,
+        longitude,
         isActive,
       } = location;
 
@@ -120,6 +124,8 @@ const LocationSearch = ({navigation, route}) => {
           state,
           country,
           postalCode: pincode,
+          latitude,
+          longitude,
           availableLocalities,
           isActive,
         });
@@ -133,6 +139,8 @@ const LocationSearch = ({navigation, route}) => {
           state,
           country,
           postalCode: pincode,
+          latitude,
+          longitude,
           availableLocalities,
         });
       }
@@ -149,9 +157,15 @@ const LocationSearch = ({navigation, route}) => {
   };
 
   const handleLocationSelect = (data, details) => {
-    const pincode = details.address_components.find(component =>
-      component.types.includes('postal_code'),
-    )?.long_name;
+      console.log('details', details);
+      const { geometry } = details;
+      const { location } = geometry;
+      const lat = location.lat;
+      const lng = location.lng;
+
+      const pincode = details.address_components.find(component =>
+        component.types.includes('postal_code'),
+      )?.long_name;
 
     const state = details.address_components.find(component =>
       component.types.includes('administrative_area_level_1'),
@@ -179,6 +193,8 @@ const LocationSearch = ({navigation, route}) => {
       state: state,
       country,
       city,
+      latitude: lat,
+      longitude: lng,
     });
   };
 

@@ -13,6 +13,10 @@ import {useDispatch, useSelector} from 'react-redux';
 // --- Local Imports ---
 import useProductVariations from './useProductVariations';
 import {getProductById} from '../../../config/redux/actions/productAction';
+import {
+  fetchSimilarProducts,
+  resetSimilarProducts,
+} from '../../../config/redux/actions/similiarProductsActions';
 import {getImages} from './utils';
 import HorizontalSelector from './HorizontalSelector';
 
@@ -33,6 +37,12 @@ const ProductDetails = ({route, navigation}) => {
     error: productDetailsError,
   } = useSelector(state => state.product);
 
+  // Similar Products State
+  const {
+    products: similarProducts,
+    loading: similarProductsLoading,
+  } = useSelector(state => state.similarProducts);
+
   console.log('productDetails-->>', productDetails);
 
   // --- Custom Hook for Variation Logic ---
@@ -49,6 +59,11 @@ const ProductDetails = ({route, navigation}) => {
   useEffect(() => {
     if (productId) {
       dispatch(getProductById(productId));
+
+      // Fetch Similar Products
+      // We pass 1 as page, and 6 as limit (or whatever number fits design)
+      dispatch(resetSimilarProducts());
+      dispatch(fetchSimilarProducts(productId, 1, 6));
     }
   }, [dispatch, productId]);
 
@@ -130,7 +145,9 @@ const ProductDetails = ({route, navigation}) => {
           <Text style={styles.descriptionText}>
             {productDetails.description}
           </Text>
-          {/* <Text style={styles.frequentlyBoughtTitle}>Similar Products</Text> */}
+          {similarProducts.length > 0 && (
+            <Text style={styles.frequentlyBoughtTitle}>Similar Products</Text>
+          )}
         </View>
       </View>
     );
@@ -140,9 +157,11 @@ const ProductDetails = ({route, navigation}) => {
   return (
     <View style={styles.flex}>
       <FlatList
-        data={[]} // Replace with similar products data source
+        data={similarProducts} // Replace with similar products data source
         renderItem={({item}) => (
-          <ProductCard product={item} navigation={navigation} />
+          <View style={{width: '50%', padding: 5}}>
+            <ProductCard item={item} navigation={navigation} />
+          </View>
         )}
         keyExtractor={item => item._id}
         numColumns={2}

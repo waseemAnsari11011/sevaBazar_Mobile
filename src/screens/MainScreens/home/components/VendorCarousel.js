@@ -15,8 +15,11 @@ const VendorCarousel = ({navigation}) => {
     error: vendorsError,
   } = useSelector(state => state.recentlyAddedVendors);
 
-  const autoPlay = true;
-  const loop = true;
+  // Only autoPlay if we have more than 1 vendor
+  const autoPlay = vendors.length > 1;
+  // Only loop if we have enough vendors to look good (e.g., > 3) 
+  // ensuring we don't see "duplicates" of the same few vendors
+  const loop = vendors.length > 3;
   const pagingEnabled = false;
   const snapEnabled = false;
 
