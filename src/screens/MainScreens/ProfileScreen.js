@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
+  Alert,
 } from 'react-native';
 import React, {useEffect} from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -42,9 +43,6 @@ const ProfileScreen = ({navigation}) => {
     url = `${baseURL}${url}`;
   }
 
-  const handlePhoneCall = () => {
-    Linking.openURL(`tel:${contact?.phone ? contact?.phone : phoneNumber}`);
-  };
   const openLink = () => {
     Linking.openURL('https://waizcom.com');
   };
@@ -103,7 +101,7 @@ const ProfileScreen = ({navigation}) => {
           </View>
           <LogoutButton />
         </View>
-        <View style={{padding: 20}}>
+            <View style={{padding: 20}}>
           <Text style={{fontSize: 16, color: 'black', fontWeight: '600'}}>
             Your delivery address
           </Text>
@@ -153,7 +151,7 @@ const ProfileScreen = ({navigation}) => {
           </View>
         </View>
         <TouchableOpacity
-          onPress={handlePhoneCall}
+          onPress={() => navigation.navigate('Support Ticket')}
           style={styles.needHelpContainer}>
           <View style={styles.itemSubContainer}>
             <Image

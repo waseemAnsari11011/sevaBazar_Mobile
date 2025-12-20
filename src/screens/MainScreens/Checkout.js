@@ -39,6 +39,7 @@ const CheckoutScreen = ({navigation}) => {
   const [loading, setloading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [deliveryCharge, setDeliveryCharge] = useState(0); // Renamed from shippingFee to avoid confusion
+  const [deliveryBreakdown, setDeliveryBreakdown] = useState([]);
 
   const activeAddress = data?.user?.shippingAddresses?.find(address => address.isActive);
 
@@ -49,6 +50,7 @@ const CheckoutScreen = ({navigation}) => {
   const fetchDeliveryCharge = async () => {
     if (!activeAddress || cartItems.length === 0) {
       setDeliveryCharge(0);
+      setDeliveryBreakdown([]);
       return;
     }
 
@@ -64,361 +66,26 @@ const CheckoutScreen = ({navigation}) => {
                { text: "Update", onPress: () => navigation.navigate('Location List', {isCheckOut: true}) }
            ]);
            setDeliveryCharge(0);
+           setDeliveryBreakdown([]);
            return;
       }
 
       const response = await api.post('/calculate-delivery', payload);
       if (response.data && response.data.success) {
         setDeliveryCharge(response.data.totalDeliveryCharge);
+        setDeliveryBreakdown(response.data.charges || []);
       } else {
         setDeliveryCharge(0);
+        setDeliveryBreakdown([]);
       }
     } catch (error) {
       console.error('Error fetching delivery charge:', error);
       setDeliveryCharge(0);
+      setDeliveryBreakdown([]);
     }
   };
 
-  const placeOrder = async orderData => {
-    try {
-      const response = await api.post('/order', orderData);
-      return response.data;
-    } catch (error) {
-      // console.error('Error placing order:', error.response);
-      if (error.response && error.response.data && error.response.data.error) {
-        alert(`Error: ${error.response.data.error}`);
-      } else {
-        alert('An unexpected error occurred. Please try again.');
-      }
-      throw error;
-    }
-  };
-
-  const placeOrderRazorPay = async orderData => {
-    try {
-      const response = await api.post('/razorpay', orderData);
-      return response.data;
-    } catch (error) {
-      // console.error('Error placing order::', error.response.data.error);
-      if (error.response && error.response.data && error.response.data.error) {
-        alert(`Error: ${error.response.data.error}`);
-      } else {
-        alert('An unexpected error occurred. Please try again.');
-      }
-      throw error;
-    }
-  };
-
-  const handlePlaceOrderCod = () => {
-    setloading(true);
-    const orderData = {
-      customer: data?.user?._id, // Replace with actual customer ID
-      vendors: [],
-      shippingAddress:
-        data?.user?.shippingAddresses.find(address => address.isActive) || null,
-    };
-
-    // Group products by vendor
-    const vendorMap = {};
-
-    cartItems.forEach(item => {
-      if (!vendorMap[item.vendor]) {
-        vendorMap[item.vendor] = {
-          vendor: item.vendor,
-          products: [],
-          orderStatus: 'Pending',
-        };
-      }
-      vendorMap[item.vendor].products.push({
-        product: item.productId, // Use the parent product ID
-        quantity: item.quantity,
-        price: item.price,
-        discount: item.discount,
-        variations: item.variations,
-      });
-    });
-
-    // Convert vendorMap to an array
-    orderData.vendors = Object.values(vendorMap);
-
-    placeOrder(orderData)
-      .then(savedOrder => {
-        setloading(false);
-        dispatch(clearCart());
-        Alert.alert('Success', 'Order Placed Successfully!', [
-          {
-            text: 'OK',
-            onPress: () => navigation.navigate('Home'),
-          },
-        ]);
-      })
-      .catch(error => {
-        console.log('error---->>>', error);
-        // Handle error
-        setloading(false);
-      })
-      .finally(f => {
-        setloading(false);
-      });
-  };
-
-  const handlePlaceOrderRazorpay = () => {
-    setloading(true);
-    const orderData = {
-      customer: data?.user?._id, // Replace with actual customer ID
-      vendors: [],
-      shippingAddress:
-        data?.user?.shippingAddresses.find(address => address.isActive) || null,
-    };
-
-    // Group products by vendor
-    const vendorMap = {};
-
-    cartItems.forEach(item => {
-      if (!vendorMap[item.vendor]) {
-        vendorMap[item.vendor] = {
-          vendor: item.vendor,
-          products: [],
-          orderStatus: 'Pending',
-        };
-      }
-      vendorMap[item.vendor].products.push({
-        product: item.productId, // Use the parent product ID
-        quantity: item.quantity,
-        price: item.price,
-        discount: item.discount,
-        variations: item.variations,
-      });
-    });
-
-    // Convert vendorMap to an array
-    orderData.vendors = Object.values(vendorMap);
-
-    placeOrderRazorPay(orderData)
-      .then(savedOrder => {
-        const {order, razorpayOrder} = savedOrder;
-
-        const options = {
-          description: 'Payment for Order',
-          image:
-            'https://drive.usercontent.google.com/download?id=1CKEbD5wlr531VVQwTazEuqky7ONA9MFU&authuser=0',
-          currency: razorpayOrder.currency,
-          key: 'rzp_test_nEIzO6bfk1HLkL', // Your Razorpay API key
-          amount: razorpayOrder.amount,
-          name: 'Seva Bazar',
-          order_id: razorpayOrder.id, // Razorpay order ID
-          prefill: {
-            email: 'email@example.com',
-            contact: '9191919191',
-            name: 'React Native Developer',
-          },
-          theme: {color: '#F37254'},
-        };
-
-        RazorpayCheckout.open(options)
-          .then(async paymentSuccess => {
-            const verifyBody = {
-              orderId: order._id,
-              razorpay_payment_id: paymentSuccess.razorpay_payment_id,
-              razorpay_order_id: razorpayOrder.id,
-              razorpay_signature: paymentSuccess.razorpay_signature,
-              vendors: Object.values(vendorMap),
-            };
-            console.log('verifyBody-->>', verifyBody);
-
-            const response = await api.post(
-              '/razorpay-verify-payment',
-              verifyBody,
-            );
-            // console.log("response razorpay-verify-payment", response)
-            Alert.alert(
-              'Payment Successful',
-              `Payment ID: ${paymentSuccess.razorpay_payment_id}`,
-            );
-          })
-          .catch(async paymentError => {
-            console.log('paymentError-->>', paymentError);
-            Alert.alert('Payment Failed', `Error: ${paymentError.description}`);
-            // await api.post('/razorpay-verify-payment', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json'
-            //     },
-            //     body: JSON.stringify({
-            //         orderId: order._id,
-            //         paymentId: null,
-            //         status: 'failed'
-            //     })
-            // });
-          });
-
-        setloading(false);
-        dispatch(clearCart());
-        navigation.navigate('Home');
-      })
-      .catch(error => {
-        // Handle error
-        setloading(false);
-      })
-      .finally(f => {
-        setloading(false);
-      });
-  };
-
-  const handlePlaceOrder = () => {
-    if (paymentMethod === 'online') {
-      handlePlaceOrderRazorpay();
-    } else {
-      handlePlaceOrderCod();
-    }
-  };
-
-  function adjustDuration(duration) {
-    const currentDay = new Date().getDay(); // 0 = Sunday
-
-    console.log('currentDay-->>', currentDay);
-
-    if (currentDay === 0) {
-      // Check if today is Sunday
-      if (duration === '4 Days') {
-        return '5 Days';
-      }
-    }
-
-    return duration; // Return the original duration if no adjustments are needed
-  }
-
-  const renderCartItem = ({item, index}) => {
-    return (
-      <View
-        style={[
-          summarystyles.cartItem,
-          cartItems.length - 1 === index && {marginBottom: 15},
-        ]}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          {item?.images?.length === 0 && (
-            <Image
-              source={{
-                uri: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSM4sEG5g9GFcy4SUxbzWNzUTf1jMISTDZrTw&s`,
-              }} // Replace with your image url
-              style={summarystyles.productImage}
-            />
-          )}
-          {item?.images?.length !== 0 && (
-            <Image
-              source={{uri: item?.images[0]}}
-              style={summarystyles.productImage}
-            />
-          )}
-          <View style={summarystyles.detailsContainer}>
-            <Text style={summarystyles.productName}>{item.name}</Text>
-            {item.variations[0]?.attributes?.map((attr, i) => (
-              <Text key={i} style={summarystyles.productWeight}>
-                {attr.name}: {attr.value}
-              </Text>
-            ))}
-            <View style={summarystyles.priceContainer}>
-              <Text style={summarystyles.discountedPrice}>
-                ₹{calculateDiscountedPrice(item.price, item.discount).discountedPrice}
-              </Text>
-              <Text style={summarystyles.originalPrice}>₹{item.price}</Text>
-            </View>
-            <Text style={summarystyles.discountPercentage}>
-              -{item.discount}%
-            </Text>
-            <Text
-              style={{
-                fontSize: 13,
-                color: 'black',
-                marginLeft: 8,
-                fontWeight: '600',
-                marginTop: 10,
-              }}>
-              Delivery Time : {adjustDuration(item.arrivalDuration)}
-            </Text>
-
-            {item.isReturnAllowed && (
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  marginTop: 15,
-                  borderTopWidth: 0.8,
-                  borderTopColor: 'grey',
-                  paddingTop: 10,
-                }}>
-                <Icon.FontAwesome6
-                  name="people-carry-box"
-                  size={25}
-                  color={'#ff6600'}
-                />
-                <Text
-                  style={{
-                    width: windowWidth - 220,
-                    marginLeft: 10,
-                    fontWeight: '700',
-                    color: 'black',
-                  }}>
-                  Hand-To-Hand Return Policy on this Product
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-    );
-  };
-
-  const renderHeader = () => (
-    <View style={{padding: 15}}>
-      <View style={[styles.cardcontainer]}>
-        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Text style={styles.header}>Shipping Address</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate('Location List', {isCheckOut: true})
-            }>
-            {/* <Icon.AntDesign name="edit" size={20} color={'#ff6600'} /> */}
-            <Text
-              style={{
-                color: '#ff6600',
-                fontWeight: '600',
-                padding: 10,
-                borderWidth: 1,
-                borderRadius: 5,
-                borderColor: '#ff6600',
-              }}>
-              Edit Address
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            marginTop: 15,
-            borderTopWidth: 0.8,
-            borderTopColor: 'grey',
-            paddingTop: 10,
-          }}>
-          <Icon.Ionicons name="location" size={25} color={'#ff6600'} />
-          <Text style={styles.addressContent}>
-            {
-              data?.user?.shippingAddresses.find(address => address.isActive)
-                ?.address
-            }
-          </Text>
-        </View>
-      </View>
-      <View style={{marginTop: 22, paddingBottom: 0, marginBottom: 10}}>
-        <Text style={{fontSize: 15, fontWeight: '600', color: 'black'}}>
-          Order Summary
-        </Text>
-      </View>
-    </View>
-  );
+  // ... (rest of the code)
 
   const renderFooter = () => {
     // Calculate the subtotal
@@ -454,10 +121,23 @@ const CheckoutScreen = ({navigation}) => {
           <Text style={footerStyles.label}>Shipping Fee</Text>
           <Text style={footerStyles.value}>₹{shippingFee.toFixed(2)}</Text>
         </View>
-        <View style={footerStyles.row}>
-          <Text style={footerStyles.label}>Delivery Charge</Text>
-          <Text style={footerStyles.value}>₹{deliveryCharge.toFixed(2)}</Text>
-        </View>
+
+        {deliveryBreakdown.length > 0 ? (
+          deliveryBreakdown.map((item, index) => (
+             <View key={index} style={footerStyles.row}>
+              <Text style={footerStyles.label}>
+                Delivery Charge ({item.distance.toFixed(1)} km)
+              </Text>
+              <Text style={footerStyles.value}>₹{item.charge.toFixed(2)}</Text>
+            </View>
+          ))
+        ) : (
+           <View style={footerStyles.row}>
+              <Text style={footerStyles.label}>Delivery Charge</Text>
+              <Text style={footerStyles.value}>₹{deliveryCharge.toFixed(2)}</Text>
+            </View>
+        )}
+
         <View style={footerStyles.row}>
           <Text style={footerStyles.label}>Discount</Text>
           <Text style={footerStyles.value}>₹{totalDiscount.toFixed(2)}</Text>

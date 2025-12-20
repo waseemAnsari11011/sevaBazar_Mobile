@@ -1,10 +1,10 @@
 import React from 'react';
-import { StyleSheet, Text, View, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Alert, TouchableOpacity, Image } from 'react-native';
 import { Card, Paragraph, Button } from 'react-native-paper';
 import Icon from '../../../components/Icons/Icon';
 import { fetchOrdersByCustomerId, updateOrderStatus } from '../../../config/redux/actions/orderActions';
 import { useDispatch, useSelector } from 'react-redux';
-import { getTimeRemaining, handleDownloadInvoice } from './utils';
+import { getTimeRemaining, handleDownloadInvoice, calculateDistance } from './utils';
 import ButtonComponent from '../../../components/Button';
 import OutlinedBtn from '../../../components/OutlinedBtn';
 
@@ -73,30 +73,67 @@ const OrderItem = ({ order, navigation, contact }) => {
 
                         {vendorItem.products.map((productItem) => {
                             const { timeString, isCritical } = getTimeRemaining(productItem.arrivalAt);
+                            
+                            // Extract image safely
+                           const productImage = productItem?.product?.variations?.[0]?.images?.[0] || 'https://via.placeholder.com/60';
 
                             return (
                                 <TouchableOpacity key={productItem._id} style={styles.productContainer} onPress={() =>
                                     navigation.navigate('Details', { product: productItem?.product })
                                 }>
-                                    <Paragraph style={styles.productName}><Icon.FontAwesome name="cube" size={16} /> Product: {productItem?.product?.name}</Paragraph>
-                                    {vendorItem.orderStatus !== 'Delivered'&&<Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}>
-                                        <Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}
-                                    </Paragraph>}
-                                    <Paragraph style={styles.productDetails}><Icon.FontAwesome name="sort-numeric-asc" size={16} /> Quantity: {productItem?.quantity}</Paragraph>
-                                    <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: ₹{productItem?.price}</Paragraph>
-                                    <Paragraph style={styles.productDetails}><Icon.FontAwesome name="percent" size={16} /> Discount: {productItem?.discount}%</Paragraph>
-                                    <Paragraph style={styles.productDetails}><Icon.FontAwesome name="calculator" size={16} /> Total Amount: ₹{productItem?.totalAmount.toFixed(2)}</Paragraph>
-                                    {productItem.variations.map((variation, index) => (
-                                        <Paragraph key={index} style={styles.productDetails}>
-                                            <Icon.FontAwesome name="tag" size={16} /> {variation.attributes.selected}: {variation.attributes.value}
-                                        </Paragraph>
-                                    ))}
+                                    <View style={styles.productDetailsContainer}>
+                                        <Image 
+                                            source={{ uri: productImage }} 
+                                            style={styles.productImage} 
+                                            resizeMode="cover"
+                                        />
+                                        <View style={styles.productInfo}>
+                                            <Paragraph style={styles.productName}><Icon.FontAwesome name="cube" size={16} /> Product: {productItem?.product?.name}</Paragraph>
+                                            
+                                            {vendorItem.orderStatus !== 'Delivered' && (
+                                                <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}>
+                                                    <Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {
+                                                        ['Pending', 'Processing'].includes(vendorItem.orderStatus)
+                                                            ? "10-15 min"
+                                                            : timeString
+                                                    }
+                                                </Paragraph>
+                                            )}
+
+                                            <Paragraph style={styles.productDetails}><Icon.FontAwesome name="sort-numeric-asc" size={16} /> Quantity: {productItem?.quantity}</Paragraph>
+                                            <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: ₹{productItem?.price}</Paragraph>
+                                            <Paragraph style={styles.productDetails}><Icon.FontAwesome name="percent" size={16} /> Discount: {productItem?.discount}%</Paragraph>
+                                            <Paragraph style={styles.productDetails}><Icon.FontAwesome name="calculator" size={16} /> Total Amount: ₹{productItem?.totalAmount.toFixed(2)}</Paragraph>
+                                            {productItem.variations.map((variation, index) => (
+                                                <Paragraph key={index} style={styles.productDetails}>
+                                                    <Icon.FontAwesome name="tag" size={16} /> {variation.attributes.selected}: {variation.attributes.value}
+                                                </Paragraph>
+                                            ))}
+                                        </View>
+                                    </View>
                                 </TouchableOpacity>
                             );
                         })}
 
 
-                        <Paragraph style={styles.productDetails}><Icon.FontAwesome name="truck" size={16} /> Delivery: ₹{20}</Paragraph>
+
+                        <Paragraph style={styles.productDetails}>
+                            <Icon.FontAwesome name="truck" size={16} /> Delivery: ₹{vendorItem.deliveryCharge || 0}
+                            {(() => {
+                                let distance = vendorItem.distance;
+                                if (!distance && vendorItem.vendor?.location?.coordinates && order.shippingAddress?.latitude && order.shippingAddress?.longitude) {
+                                     const vendorLat = vendorItem.vendor.location.coordinates[1];
+                                     const vendorLon = vendorItem.vendor.location.coordinates[0];
+                                     distance = calculateDistance(vendorLat, vendorLon, order.shippingAddress.latitude, order.shippingAddress.longitude);
+                                }
+                                if (distance) {
+                                    const charge = vendorItem.deliveryCharge || 0;
+                                    const perKm = distance > 0 ? (charge / distance).toFixed(2) : 0;
+                                    return ` (${distance.toFixed(1)} km | ₹${perKm}/km)`;
+                                }
+                                return '';
+                            })()}
+                        </Paragraph>
                     </View>
                 ))}
                 <View style={styles.shippingContainer}>
@@ -154,17 +191,38 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     productContainer: {
-        marginLeft: 16,
-        marginBottom: 8,
+        marginLeft: 8,
+        marginBottom: 12,
+        padding: 8,
+        backgroundColor: '#f9f9f9',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#eee',
+    },
+    productDetailsContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+    },
+    productImage: {
+        width: 70,
+        height: 70,
+        borderRadius: 8,
+        marginRight: 12,
+        backgroundColor: '#ddd',
+    },
+    productInfo: {
+        flex: 1,
     },
     productName: {
         fontSize: 14,
         fontWeight: 'bold',
         color: '#333',
+        marginBottom: 4,
     },
     productDetails: {
-        fontSize: 14,
+        fontSize: 13,
         color: '#666',
+        marginBottom: 2,
     },
     shippingContainer: {
         marginTop: 16,

@@ -33,6 +33,7 @@ import VendorCategoryProducts from '../screens/MainScreens/vendors/VendorCategor
 import NewlyAddedVendorsScreen from '../screens/MainScreens/vendors/NewlyAddedVendorsScreen';
 import VendorsWithDiscount from '../screens/MainScreens/vendors/VendorsWithDiscount';
 import Chat from '../screens/MainScreens/chat/Chat';
+import SupportTicketScreen from '../screens/MainScreens/SupportTicketScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -170,6 +171,7 @@ const StackNavigator = () => {
         options={{headerShown: true}}
         component={OrdersScreen}
       />
+      <Stack.Screen name="Support Ticket" component={SupportTicketScreen} />
     </Stack.Navigator>
   );
 };

@@ -51,16 +51,78 @@ const getBase64Image = async (imagePath) => {
 export const handleDownloadInvoice = async (order, contact) => {
     console.log("order.vendors", order.vendors);
 
-    const totalAmount = order.vendors.reduce((total, vendor) => {
+    // Calculate Item Cost (Subtotal of products)
+    const itemCost = order.vendors.reduce((total, vendor) => {
         return total + vendor.products.reduce((vendorTotal, product) => {
             return vendorTotal + product.totalAmount;
         }, 0);
     }, 0).toFixed(2);
 
-    const finalTotal = (parseFloat(totalAmount) + 20).toFixed(2);
-    const rupeeSymbol = 'rs';
+    // Calculate Total Delivery Charge and prepare breakdown
+    let totalDeliveryCharge = 0;
+    const deliveryBreakdown = [];
+    const vendorDetails = [];
 
-    console.log("logo-->>>", logo);
+    order.vendors.forEach(vendor => {
+        const charge = vendor.deliveryCharge || 0;
+        totalDeliveryCharge += charge;
+        
+        let distanceStr = '';
+        if (vendor.distance) {
+            distanceStr = `${vendor.distance.toFixed(1)} km`;
+        } else {
+             // Fallback calc if needed, similar to OrderItem but maybe overkill for PDF if not stored. 
+             // We'll rely on stored or 0 for now to keep it clean, or use 'Unknown distance'
+             // If we really want fallback, we need calculateDistance here too.
+             // Let's check if we can access calculateDistance here. It is exported.
+             if (vendor.vendor?.location?.coordinates && order.shippingAddress?.latitude && order.shippingAddress?.longitude) {
+                 const d = calculateDistance(
+                     vendor.vendor.location.coordinates[1], 
+                     vendor.vendor.location.coordinates[0], 
+                     order.shippingAddress.latitude, 
+                     order.shippingAddress.longitude
+                 );
+                 distanceStr = `${d.toFixed(1)} km`;
+             }
+        }
+        
+        deliveryBreakdown.push({
+            vendorName: vendor.vendor?.businessName || 'Vendor',
+            distance: distanceStr,
+            charge: charge.toFixed(2)
+        });
+
+        vendorDetails.push({
+            name: vendor.vendor?.businessName,
+            address: vendor.vendor?.address,
+            city: vendor.vendor?.city
+        });
+    });
+
+    const shippingFee = 9.00; // Static as per Checkout.js
+    
+    // Recalculate Final Total to ensure it matches components
+    // Note: order.totalAmount from DB should be the source of truth, but if we build it up:
+    // Total = ItemCost + ShippingFee + TotalDeliveryCharge
+    // We should double check if tax or discount needs handling. 
+    // Checkout.js: total = subtotal + shippingFee + deliveryCharge + tax - totalDiscount;
+    // Here 'itemCost' seems to be 'product.totalAmount' which might already include discount? 
+    // In Checkout logic: product.totalAmount isn't explicitly used for subtotal, subtotal is price*qty.
+    // Let's trust itemCost + fees for now or just use order.totalAmount if available.
+    // Let's use the calculated sum for display consistency in breakdown.
+    
+    const finalTotal = (parseFloat(itemCost) + parseFloat(totalDeliveryCharge) + shippingFee).toFixed(2);
+
+    // Prepare Vendor Details String for Header
+    // If single vendor, show nice. If multiple, list them.
+    const vendorSectionHtml = vendorDetails.map(v => `
+        <div style="margin-bottom: 10px;">
+            <strong>${v.name || 'Shop Name'}</strong><br>
+            ${v.address || ''}<br>
+            ${v.city || ''}
+        </div>
+    `).join('');
+
 
     // Download the logo to a temporary location and get the Base64 encoded string
     const tempLogoPath = await downloadImageToTmp(logoSource.uri);
@@ -82,7 +144,7 @@ export const handleDownloadInvoice = async (order, contact) => {
             .header {
                 display: flex;
                 justify-content: space-between;
-                align-items: center;
+                align-items: flex-start;
                 background-color: #ffffff;
                 padding: 10px;
                 border-bottom: 2px solid #3366ff;
@@ -147,13 +209,34 @@ export const handleDownloadInvoice = async (order, contact) => {
                 padding: 10px;
                 background-color: #f2f2f2;
             }
+            .summary-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 5px;
+            }
+            .summary-total {
+                display: flex;
+                justify-content: space-between;
+                font-weight: bold;
+                border-top: 1px solid #333;
+                padding-top: 5px;
+                margin-top: 5px;
+            }
         </style>
     </head>
     <body>
         <div class="header">
-        <div class="title">Order Invoice</div>
-        <!-- <img src="${logoBase64}" class="logo" /> -->
-        <strong>Seva Bazar</strong>
+            <div>
+                <div class="title">Order Invoice</div>
+                <div style="margin-top: 10px;">
+                    <strong>Sold By:</strong><br>
+                    ${vendorSectionHtml}
+                </div>
+            </div>
+            <!-- <img src="${logoBase64}" class="logo" /> -->
+            <div style="text-align: right;">
+                 <strong>Seva Bazar</strong>
+            </div>
         
         </div>
         <div class="content">
@@ -161,14 +244,13 @@ export const handleDownloadInvoice = async (order, contact) => {
                 <div>
                     <strong>Invoice:</strong> #${order.orderId}<br>
                     <strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}<br>
-                    <strong>Shop Name:</strong> ${order.shopName || 'undefined'}
                 </div>
             </div>
             <div class="section">
                 <div>
                     <strong>Billed to:</strong><br>
                     ${order?.customer?.name}<br>
-                    ${order?.customer?.contactNumber}<br>
+                    <!-- ${order?.customer?.contactNumber}<br> --> 
                     ${order.shippingAddress.address}<br>
                     ${order.shippingAddress.city}, ${order.shippingAddress.state} - ${order.shippingAddress.postalCode}<br>
                     ${order.shippingAddress.country}
@@ -202,14 +284,36 @@ export const handleDownloadInvoice = async (order, contact) => {
                     `)).join('')}
                 </table>
             </div>
-            <div class="content bold">
-                <div>Subtotal: ₹ ${totalAmount}</div>
-                <div>Delivery charge: ₹ 20</div>
-                <div>Total amount: ₹ ${finalTotal}</div>
+            
+            <div style="margin-top: 20px; width: 50%; margin-left: auto;">
+                <div class="summary-row">
+                    <span>Item Cost:</span>
+                    <span>₹ ${itemCost}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping Fee:</span>
+                    <span>₹ ${shippingFee.toFixed(2)}</span>
+                </div>
+                
+                 ${deliveryBreakdown.map(d => `
+                    <div class="summary-row" style="font-size: 12px; color: #555;">
+                        <span>Delivery (${d.distance}):</span>
+                        <span>₹ ${d.charge}</span>
+                    </div>
+                `).join('')}
+                
+                <div class="summary-row">
+                    <span>Total Delivery Charge:</span>
+                    <span>₹ ${totalDeliveryCharge.toFixed(2)}</span>
+                </div>
+                
+                <div class="summary-total">
+                    <span>Total Amount:</span>
+                    <span>₹ ${finalTotal}</span>
+                </div>
             </div>
         </div>
         <div class="footer">
-            <strong>Phone :</strong> ${contact?.phone}<br>
             <strong>Email :</strong> sevabazar.com@gmail.com<br>
             All Copyright Reserved © 2024 Seva Bazar
         </div>
@@ -431,6 +535,7 @@ export const requestStoragePermission = async () => {
     }
 };
 
+
 export function getTimeRemaining(arrivalAt) {
     const currentTime = new Date();
     const arrivalTime = new Date(arrivalAt);
@@ -462,6 +567,19 @@ export function getTimeRemaining(arrivalAt) {
 
     return { timeString, isCritical };
 }
+
+export const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const toRad = (value) => (value * Math.PI) / 180;
+    const R = 6371; // Radius of the Earth in km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in km
+};
 
 
 
