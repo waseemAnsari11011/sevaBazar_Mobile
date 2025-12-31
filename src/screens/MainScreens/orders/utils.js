@@ -565,7 +565,7 @@ export function getTimeRemaining(arrivalAt) {
         }
     }
 
-    return { timeString, isCritical };
+    return { timeString, isCritical, totalMinutes };
 }
 
 export const calculateDistance = (lat1, lon1, lat2, lon2) => {

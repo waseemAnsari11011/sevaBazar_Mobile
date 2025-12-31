@@ -49,14 +49,18 @@ const ChatOrderItem = ({ order, contact }) => {
     };
 
 
-    const { timeString, isCritical } = getTimeRemaining(order.arrivalAt);
+    const { timeString, isCritical, totalMinutes } = getTimeRemaining(order.arrivalAt);
 
     return (
         <Card style={styles.orderContainer}>
             <Card.Content>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order.orderId}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
-                {order.orderStatus!=='Delivered'&&<Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}</Paragraph>}
+                {order.orderStatus!=='Delivered'&&<Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {
+                    ['In Review', 'Pending', 'Processing'].includes(order.orderStatus)
+                        ? "10-15 min"
+                        : timeString
+                }</Paragraph>}
 
                 <Paragraph style={[styles.orderStatus, { color: getStatusColor(order.orderStatus), fontWeight: 'bold' }]}>
                     <Icon.FontAwesome name="info-circle" size={16} /> Order Status:
@@ -77,7 +81,63 @@ const ChatOrderItem = ({ order, contact }) => {
                     // </Button>
                 )}
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="comment" size={16} /> Order Message: {order.orderMessage}</Paragraph>
-                <Paragraph style={styles.orderId}><Icon.FontAwesome name="money" size={16} /> Total Amount: ₹{order.totalAmount ? order.totalAmount : "In Review"}</Paragraph>
+                {/* Breakdown Section */}
+                <View style={styles.breakdownContainer}>
+                    <Paragraph style={styles.breakdownTitle}>Payment Details</Paragraph>
+                    
+                    {(() => {
+                        let grossTotal = 0;
+                        let discountTotal = 0;
+                        const hasProducts = order.products && order.products.length > 0;
+
+                        if (hasProducts) {
+                            order.products.forEach(p => {
+                                grossTotal += (p.price * p.quantity);
+                                const itemTotal = p.price * p.quantity * (1 - (p.discount || 0) / 100);
+                                discountTotal += (p.price * p.quantity) - itemTotal;
+                            });
+                        }
+                        
+                        // If no products (manual amount) or calc issue, fallback: Gross = Total, Disc = 0. 
+                        // But if totalAmount matches our calc, we show breakdown. 
+                        // For manual amounts that don't match products, we rely on totalAmount.
+                        // Ideally, trust totalAmount for the bottom line, but use products for breakdown if available.
+                        
+                        return (
+                            <>
+                                <View style={styles.breakdownRow}>
+                                    <Paragraph style={styles.breakdownLabel}>MRP Total</Paragraph>
+                                    <Paragraph style={styles.breakdownValue}>
+                                        {hasProducts ? `₹${grossTotal.toFixed(2)}` : (order.totalAmount ? `₹${order.totalAmount}` : "In Review")}
+                                    </Paragraph>
+                                </View>
+                                {discountTotal > 0 && (
+                                    <View style={styles.breakdownRow}>
+                                        <Paragraph style={styles.breakdownLabel}>Discount</Paragraph>
+                                        <Paragraph style={[styles.breakdownValue, { color: 'green' }]}>-₹{discountTotal.toFixed(2)}</Paragraph>
+                                    </View>
+                                )}
+                            </>
+                        );
+                    })()}
+
+                    <View style={styles.breakdownRow}>
+                        <Paragraph style={styles.breakdownLabel}>Delivery Fee {order.distance ? `(${order.distance.toFixed(1)} km)` : ''}</Paragraph>
+                        <Paragraph style={styles.breakdownValue}>₹{order.deliveryCharge || 0}</Paragraph>
+                    </View>
+                    <View style={styles.breakdownRow}>
+                        <Paragraph style={styles.breakdownLabel}>Shipping Fee</Paragraph>
+                        <Paragraph style={styles.breakdownValue}>₹{order.shippingFee || 0}</Paragraph>
+                    </View>
+                    <View style={[styles.breakdownRow, styles.totalRow]}>
+                        <Paragraph style={styles.totalLabel}>Grand Total</Paragraph>
+                        <Paragraph style={styles.totalValue}>
+                            {order.totalAmount 
+                                ? `₹${(order.totalAmount + (order.deliveryCharge || 0) + (order.shippingFee || 0)).toFixed(2)}` 
+                                : "Calculated after review"}
+                        </Paragraph>
+                    </View>
+                </View>
 
                 <View style={styles.shippingContainer}>
                     <Paragraph style={styles.shippingTitle}><Icon.FontAwesome name="truck" size={16} /> Shipping Address:</Paragraph>
@@ -144,5 +204,47 @@ const styles = StyleSheet.create({
     shippingDetails: {
         fontSize: 14,
         color: '#666',
+    },
+    breakdownContainer: {
+        marginTop: 10,
+        paddingTop: 10,
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+    },
+    breakdownTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: '#333',
+    },
+    breakdownRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 4,
+    },
+    breakdownLabel: {
+        fontSize: 14,
+        color: '#666',
+    },
+    breakdownValue: {
+        fontSize: 14,
+        color: '#333',
+        fontWeight: '500',
+    },
+    totalRow: {
+        marginTop: 8,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+    },
+    totalLabel: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    totalValue: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#ff6600',
     },
 });

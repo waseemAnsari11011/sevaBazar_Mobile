@@ -104,10 +104,14 @@ const OrderItem = ({ order, navigation, contact }) => {
                                             <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: ₹{productItem?.price}</Paragraph>
                                             <Paragraph style={styles.productDetails}><Icon.FontAwesome name="percent" size={16} /> Discount: {productItem?.discount}%</Paragraph>
                                             <Paragraph style={styles.productDetails}><Icon.FontAwesome name="calculator" size={16} /> Total Amount: ₹{productItem?.totalAmount.toFixed(2)}</Paragraph>
-                                            {productItem.variations.map((variation, index) => (
-                                                <Paragraph key={index} style={styles.productDetails}>
-                                                    <Icon.FontAwesome name="tag" size={16} /> {variation.attributes.selected}: {variation.attributes.value}
-                                                </Paragraph>
+                                            {productItem.variations?.map((variation, index) => (
+                                                <View key={index}>
+                                                  {variation.attributes?.map((attr, attrIndex) => (
+                                                    <Paragraph key={attrIndex} style={styles.productDetails}>
+                                                        <Icon.FontAwesome name="tag" size={16} /> {attr.name}: {attr.value}
+                                                    </Paragraph>
+                                                  ))}
+                                                </View>
                                             ))}
                                         </View>
                                     </View>
@@ -136,6 +140,63 @@ const OrderItem = ({ order, navigation, contact }) => {
                         </Paragraph>
                     </View>
                 ))}
+
+                {/* Calculate Totals for Breakdown */}
+                {(() => {
+                    let grossTotal = 0;
+                    let discountTotal = 0;
+                    let itemTotal = 0; // This essentially matches (Gross - Discount)
+                    let deliveryTotal = 0;
+
+                    order?.vendors?.forEach(vendor => {
+                        vendor.products?.forEach(product => {
+                           const pTotal = product.totalAmount || 0;
+                           const pQty = product.quantity || 0;
+                           const pPrice = product.price || 0;
+                           
+                           itemTotal += pTotal;
+                           grossTotal += (pPrice * pQty);
+                        });
+                        deliveryTotal += vendor.deliveryCharge || 0;
+                    });
+                    
+                    discountTotal = grossTotal - itemTotal;
+                    
+                    // Sanity check: ensure discount isn't negative due to float issues
+                    if (discountTotal < 0) discountTotal = 0;
+
+                    const shippingFee = order.shippingFee || 0;
+                    const grandTotal = itemTotal + deliveryTotal + shippingFee;
+
+                    return (
+                        <View style={styles.breakdownContainer}>
+                             <Paragraph style={styles.breakdownTitle}>Payment Details</Paragraph>
+                            <View style={styles.breakdownRow}>
+                                <Paragraph style={styles.breakdownLabel}>MRP Total</Paragraph>
+                                <Paragraph style={styles.breakdownValue}>₹{grossTotal.toFixed(2)}</Paragraph>
+                            </View>
+                            {discountTotal > 0 && (
+                                <View style={styles.breakdownRow}>
+                                    <Paragraph style={styles.breakdownLabel}>Discount</Paragraph>
+                                    <Paragraph style={[styles.breakdownValue, { color: 'green' }]}>-₹{discountTotal.toFixed(2)}</Paragraph>
+                                </View>
+                            )}
+                            <View style={styles.breakdownRow}>
+                                <Paragraph style={styles.breakdownLabel}>Delivery Fee</Paragraph>
+                                <Paragraph style={styles.breakdownValue}>₹{deliveryTotal.toFixed(2)}</Paragraph>
+                            </View>
+                            <View style={styles.breakdownRow}>
+                                <Paragraph style={styles.breakdownLabel}>Shipping Fee</Paragraph>
+                                <Paragraph style={styles.breakdownValue}>₹{shippingFee.toFixed(2)}</Paragraph>
+                            </View>
+                            <View style={[styles.breakdownRow, styles.totalRow]}>
+                                <Paragraph style={styles.totalLabel}>Grand Total</Paragraph>
+                                <Paragraph style={styles.totalValue}>₹{grandTotal.toFixed(2)}</Paragraph>
+                            </View>
+                        </View>
+                    );
+                })()}
+
                 <View style={styles.shippingContainer}>
                     <Paragraph style={styles.shippingTitle}><Icon.FontAwesome name="truck" size={16} /> Shipping Address:</Paragraph>
                     <Paragraph style={styles.shippingDetails}><Icon.FontAwesome name="map-marker" size={16} /> {order.shippingAddress.address}</Paragraph>
@@ -246,5 +307,47 @@ const styles = StyleSheet.create({
     cancelButton: {
         marginVertical: 5,
         alignSelf: 'flex-start',
+    },
+    breakdownContainer: {
+        marginTop: 10,
+        paddingTop: 10,
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+    },
+    breakdownTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 8,
+        color: '#333',
+    },
+    breakdownRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 4,
+    },
+    breakdownLabel: {
+        fontSize: 14,
+        color: '#666',
+    },
+    breakdownValue: {
+        fontSize: 14,
+        color: '#333',
+        fontWeight: '500',
+    },
+    totalRow: {
+        marginTop: 8,
+        paddingTop: 8,
+        borderTopWidth: 1,
+        borderTopColor: '#eee',
+    },
+    totalLabel: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    totalValue: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#ff6600',
     },
 });

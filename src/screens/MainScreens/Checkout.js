@@ -87,6 +87,141 @@ const CheckoutScreen = ({navigation}) => {
 
   // ... (rest of the code)
 
+  const handlePlaceOrder = async () => {
+    if (!activeAddress) {
+      Alert.alert('Missing Address', 'Please select a delivery address to proceed.');
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      Alert.alert('Empty Cart', 'Your cart is empty.');
+      return;
+    }
+
+    setloading(true);
+
+    try {
+      // Group items by vendor
+      const vendorsMap = new Map();
+
+      cartItems.forEach(item => {
+        const vendorId = item.vendor;
+        if (!vendorsMap.has(vendorId)) {
+          vendorsMap.set(vendorId, {
+            vendor: vendorId,
+            products: [],
+          });
+        }
+
+        const vendorGroup = vendorsMap.get(vendorId);
+        
+        // Construct product object for backend
+        const productPayload = {
+          product: item.productId || item.product?._id || item._id, // Handle potential inconsistent id naming
+          quantity: item.quantity,
+          price: item.price, // Using current price (often discounted)
+          variations: item.variations ? item.variations.map(v => ({ 
+            _id: v._id, 
+            quantity: item.quantity,
+            attributes: v.attributes,
+            images: v.images
+          })) : [] 
+        };
+        
+        vendorGroup.products.push(productPayload);
+      });
+
+      const vendors = Array.from(vendorsMap.values());
+
+      const payload = {
+        customer: data?.user?._id, // Assuming user ID is here
+        vendors: vendors,
+        shippingAddress: activeAddress,
+      };
+
+      console.log('Order Payload:', JSON.stringify(payload, null, 2));
+
+        console.log('Final Order Payload:', JSON.stringify(payload, null, 2));
+
+        const response = await api.post('/order', payload);
+
+      if (response.status === 201 || response.status === 200) {
+        Alert.alert('Success', 'Order placed successfully!', [
+          {
+            text: 'OK',
+            onPress: () => {
+              dispatch(clearCart());
+              navigation.navigate('My order');
+            },
+          },
+        ]);
+      } else {
+         Alert.alert('Order Failed', response.data.error || 'Something went wrong.');
+      }
+
+    } catch (error) {
+      console.error('Place Order Error:', error);
+      if (error.response) {
+        console.log('Error Response Data:', JSON.stringify(error.response.data, null, 2));
+      }
+      
+      let errorMessage = error.response?.data?.error || error.message || 'Something went wrong';
+      if (typeof errorMessage === 'object') {
+          errorMessage = JSON.stringify(errorMessage);
+      }
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setloading(false);
+    }
+  };
+
+
+  const renderHeader = () => (
+    <View style={{padding: 15, paddingBottom: 0}}>
+      <Text style={summarystyles.title}>Order Summary</Text>
+    </View>
+  );
+
+  const renderCartItem = ({item}) => {
+    return (
+      <View style={summarystyles.cartItem}>
+        {item?.images && item.images.length > 0 ? (
+          <Image source={{ uri: item.images[0] }} style={summarystyles.productImage} />
+        ) : (
+          <View style={[summarystyles.productImage, { backgroundColor: '#ccc' }]} />
+        )}
+        <View style={summarystyles.detailsContainer}>
+          <Text style={summarystyles.productName}>{item?.name}</Text>
+          {(item?.variations?.[0] || item?.variant) && (
+            <View>
+              {(item.variations?.[0]?.attributes || item.variant?.attributes)?.map((attr, i) => (
+                <Text key={i} style={summarystyles.productWeight}>
+                  {attr.name}: {attr.value}
+                </Text>
+              ))}
+            </View>
+          )}
+          <View style={summarystyles.priceContainer}>
+            <Text style={summarystyles.discountedPrice}>
+              ₹
+              {calculateDiscountedPrice(
+                item?.price,
+                item?.discount,
+              ).discountedPrice.split('.')[0]}
+            </Text>
+            <Text style={summarystyles.originalPrice}>₹{item?.price}</Text>
+            <Text style={summarystyles.discountPercentage}>
+              {item?.discount}% Off
+            </Text>
+          </View>
+        </View>
+        <View style={summarystyles.quantity}>
+          <QuantityUpdater item={item} quantity={item?.quantity} />
+        </View>
+      </View>
+    );
+  };
+
   const renderFooter = () => {
     // Calculate the subtotal
     const subtotal = cartItems.reduce(

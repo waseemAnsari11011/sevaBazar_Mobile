@@ -25,23 +25,46 @@ const Chat = () => {
                 return;
             }
 
-            const orderData = {
-                orderMessage,
-                customer: customer?._id,
-                name: customer?.name,
-                shippingAddress: data?.user?.shippingAddresses.find(address => address.isActive) || null,
-                paymentStatus: 'Unpaid',
-                vendorId: vendorId
-            };
+            const activeAddress = data?.user?.shippingAddresses.find(address => address.isActive);
+            const addressText = activeAddress ? activeAddress.address : 'No active address selected';
 
-            await dispatch(createChatOrder(orderData));
-            setOrderMessage('');
-            Alert.alert('Success', 'Order Placed Successfully!', [
-                {
-                    text: 'OK',
-                    onPress: () => navigation.navigate('My order', { screen: 'Chat Orders' }),
-                },
-            ]);
+            Alert.alert(
+                'Confirm Location',
+                `Are you sure you want to place this order for this location?\n\n${addressText}`,
+                [
+                    {
+                        text: 'Cancel',
+                        style: 'cancel',
+                    },
+                    {
+                        text: 'Confirm',
+                        onPress: async () => {
+                            try {
+                                const orderData = {
+                                    orderMessage,
+                                    customer: customer?._id,
+                                    name: customer?.name,
+                                    shippingAddress: activeAddress || null,
+                                    paymentStatus: 'Unpaid',
+                                    vendorId: vendorId
+                                };
+                    
+                                await dispatch(createChatOrder(orderData));
+                                setOrderMessage('');
+                                Alert.alert('Success', 'Order Placed Successfully!', [
+                                    {
+                                        text: 'OK',
+                                        onPress: () => navigation.navigate('My order', { screen: 'Chat Orders' }),
+                                    },
+                                ]);
+                            } catch (error) {
+                                console.log(error)
+                                Alert.alert('Error', 'Error occurred while placing order');
+                            }
+                        }
+                    }
+                ]
+            );
 
         } catch (error) {
             Alert.alert('Error', 'Error occurred while placing order');
@@ -104,7 +127,7 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     input: {
-        height: 150,
+        height: 250,
         marginVertical: 8,
         borderWidth: 1,
         borderRadius: 10,
