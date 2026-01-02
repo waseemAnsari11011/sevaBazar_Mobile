@@ -42,33 +42,24 @@ const CategoryList = ({categories}) => {
           <Icon.AntDesign name="right" color="#000066" size={13} />
         </TouchableOpacity>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewContent}
-        style={styles.scrollView}>
-        <FlatList
-          // 👇 FIX: Add a key that changes with numColumns.
-          // This forces a re-render and avoids the invariant violation error.
-          key={numColumns}
-          contentContainerStyle={{alignSelf: 'flex-start'}}
-          numColumns={numColumns}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          data={categories}
-          scrollEnabled={false} // The parent ScrollView handles scrolling
-          renderItem={({item}) => (
-            <TouchableOpacity onPress={() => handleNavigateToVendors(item)}>
-              <View style={styles.categoryItem}>
-                <View style={styles.imageContainer}>
-                  <Image source={{uri: item?.images[0]}} style={styles.image} />
-                </View>
-                <Text style={styles.categoryName}>{item.name}</Text>
+      <FlatList
+        key={4} // Fixed key for 4 columns
+        data={categories}
+        numColumns={4}
+        scrollEnabled={false} // Disable scrolling as it's nested
+        renderItem={({item}) => (
+          <TouchableOpacity onPress={() => handleNavigateToVendors(item)} style={styles.itemContainer}>
+            <View style={styles.categoryItem}>
+              <View style={styles.imageContainer}>
+                <Image source={{uri: item?.images[0]}} style={styles.image} />
               </View>
-            </TouchableOpacity>
-          )}
-        />
-      </ScrollView>
+              <Text style={styles.categoryName} numberOfLines={2}>{item.name}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item) => item._id}
+        columnWrapperStyle={styles.columnWrapper}
+      />
     </View>
   );
 };
@@ -98,35 +89,39 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
-  scrollView: {
-    marginHorizontal: -15, // Negative margin to extend to screen edges
+  columnWrapper: {
+    justifyContent: 'flex-start', // Align to start
+    marginBottom: 10,
   },
-  scrollViewContent: {
-    paddingHorizontal: 15, // Add padding back inside the ScrollView
+  itemContainer: {
+    width: '25%', // Strictly 25% width
+    paddingHorizontal: 5, // Gutter
+    alignItems: 'center',
   },
   categoryItem: {
     alignItems: 'center',
-    padding: 10,
-    width: 100, // Fixed width for consistent item size
-    marginRight: 10, // Added spacing between items
+    width: '100%',
   },
   imageContainer: {
     borderWidth: 1,
-    padding: 10,
-    borderRadius: 5,
-    borderColor: '#00006680',
+    padding: 8,
+    borderRadius: 8,
+    borderColor: '#e0e0e0', // Lighter border
+    backgroundColor: '#fff',
   },
   image: {
-    width: 75,
-    height: 75,
-    borderRadius: 10,
+    width: 60, // Slightly smaller to fit 4 columns better
+    height: 60,
+    borderRadius: 5,
+    resizeMode: 'contain',
   },
   categoryName: {
-    marginTop: 10,
-    fontSize: 13,
-    fontWeight: '400',
+    marginTop: 5,
+    fontSize: 12,
+    fontWeight: '500',
     color: '#000000',
     textAlign: 'center',
+    lineHeight: 16,
   },
 });
 

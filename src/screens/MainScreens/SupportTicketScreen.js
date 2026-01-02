@@ -6,15 +6,10 @@ import Icon from '../../components/Icons/Icon';
 
 const SupportTicketScreen = ({ navigation }) => {
     const { data } = useSelector(state => state.local);
-    const [reason, setReason] = useState('');
+    // const [reason, setReason] = useState(''); // Removed for one-tap logic
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async () => {
-        if (!reason.trim()) {
-            Alert.alert("Required", "Please describe your issue.");
-            return;
-        }
-
         setLoading(true);
         try {
             const response = await fetch(`${baseURL}tickets/create`, {
@@ -24,7 +19,7 @@ const SupportTicketScreen = ({ navigation }) => {
                 },
                 body: JSON.stringify({
                     customerId: data.user._id,
-                    reason: reason
+                    reason: "One Tap Support Request" // Default reason
                 }),
             });
             const result = await response.json();
@@ -54,15 +49,13 @@ const SupportTicketScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.content}>
-                <Text style={styles.label}>How can we help you?</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Describe your issue here..."
-                    value={reason}
-                    onChangeText={setReason}
-                    multiline
-                    textAlignVertical="top"
-                />
+                <View style={styles.infoContainer}>
+                    <Icon.AntDesign name="customerservice" size={60} color="#000066" />
+                    <Text style={styles.infoTitle}>Need Help?</Text>
+                    <Text style={styles.infoText}>
+                        Tap the button below to generate a support ticket. Our team will contact you shortly.
+                    </Text>
+                </View>
 
                 <TouchableOpacity 
                     style={styles.submitButton} 
@@ -72,7 +65,7 @@ const SupportTicketScreen = ({ navigation }) => {
                     {loading ? (
                         <ActivityIndicator color="white" />
                     ) : (
-                        <Text style={styles.submitButtonText}>Submit Ticket</Text>
+                        <Text style={styles.submitButtonText}>Generate Ticket</Text>
                     )}
                 </TouchableOpacity>
             </View>
@@ -129,6 +122,24 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    infoContainer: {
+        alignItems: 'center',
+        marginVertical: 30,
+    },
+    infoTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#000066',
+        marginTop: 15,
+        marginBottom: 10,
+    },
+    infoText: {
+        fontSize: 15,
+        color: '#666',
+        textAlign: 'center',
+        lineHeight: 22,
+        paddingHorizontal: 20,
     },
 });
 

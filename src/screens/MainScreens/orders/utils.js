@@ -93,13 +93,15 @@ export const handleDownloadInvoice = async (order, contact) => {
         });
 
         vendorDetails.push({
-            name: vendor.vendor?.businessName,
-            address: vendor.vendor?.address,
-            city: vendor.vendor?.city
+            shopName: vendor.vendor?.vendorInfo?.businessName || vendor.vendor?.name, // Shop Name
+            ownerName: vendor.vendor?.name, // Owner Name
+            phone: vendor.vendor?.vendorInfo?.contactNumber,
+            address: vendor.vendor?.location?.address?.addressLine1 || vendor.vendor?.address, // vendor?.address might be legacy, location.address is schema
+            city: vendor.vendor?.location?.address?.city || vendor.vendor?.city
         });
     });
 
-    const shippingFee = 9.00; // Static as per Checkout.js
+    const shippingFee = order.shippingFee || 9.00; // Use from order or fallback to 9
     
     // Recalculate Final Total to ensure it matches components
     // Note: order.totalAmount from DB should be the source of truth, but if we build it up:
@@ -117,7 +119,9 @@ export const handleDownloadInvoice = async (order, contact) => {
     // If single vendor, show nice. If multiple, list them.
     const vendorSectionHtml = vendorDetails.map(v => `
         <div style="margin-bottom: 10px;">
-            <strong>${v.name || 'Shop Name'}</strong><br>
+            <strong>${v.shopName || 'Shop Name'}</strong><br>
+            Owner: ${v.ownerName || ''}<br>
+            Phone: ${v.phone || ''}<br>
             ${v.address || ''}<br>
             ${v.city || ''}
         </div>
@@ -340,7 +344,8 @@ export const handleDownloadInvoice = async (order, contact) => {
 export const handleChatDownloadInvoice = async (order, contact) => {
 
     const totalAmount = (order.totalAmount || 0).toFixed(2); // Use the totalAmount from the order object
-    const finalTotal = (parseFloat(totalAmount) + 20).toFixed(2); // Assuming there is a delivery charge of 20
+    // Correctly calculate final total using deliveryCharge and shippingFee from order
+    const finalTotal = (parseFloat(totalAmount) + (order.deliveryCharge || 0) + (order.shippingFee || 0)).toFixed(2);
     const rupeeSymbol = '\u20B9';
 
     // Download the logo to a temporary location and get the Base64 encoded string
@@ -441,7 +446,8 @@ export const handleChatDownloadInvoice = async (order, contact) => {
                     <div>
                         <strong>Invoice:</strong> #${order.orderId}<br>
                         <strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString()}<br>
-                        <strong>Shop Name:</strong> ${order.shopName || 'undefined'}
+                        <strong>Shop Name:</strong> ${order.vendor?.vendorInfo?.businessName || order.shopName || 'Seva Bazar'}<br>
+                        <strong>Owner Name:</strong> ${order.vendor?.name || 'N/A'}
                     </div>
                 </div>
                 <div class="section">
@@ -484,12 +490,13 @@ export const handleChatDownloadInvoice = async (order, contact) => {
             </div>
                 <div class="content bold">
                     <div>Subtotal: ₹ ${totalAmount}</div>
-                    <div>Delivery charge: ₹ 20</div>
+                    <div>Delivery charge: ₹ ${(order.deliveryCharge || 0).toFixed(2)}</div>
+                    <div>Shipping Fee: ₹ ${(order.shippingFee || 0).toFixed(2)}</div>
                     <div>Total amount: ₹ ${finalTotal}</div>
                 </div>
             </div>
             <div class="footer">
-                <strong>Phone :</strong> ${contact?.phone}<br>
+                <strong>Phone :</strong> ${contact?.phone || order.vendor?.vendorInfo?.contactNumber || 'N/A'}<br>
                 <strong>Email :</strong> sevabazar.com@gmail.com<br>
                 All Copyright Reserved © 2024 Seva Bazar
             </div>

@@ -34,36 +34,28 @@ const VendorCategoryList = ({categories, vendorId}) => {
       <View style={styles.header}>
         <Text style={styles.title}>Explore Categories</Text>
       </View>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollViewContent}
-        style={styles.scrollView}>
-        <FlatList
-          contentContainerStyle={{alignSelf: 'flex-start'}}
-          numColumns={numColumns}
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          data={categories}
-          scrollEnabled={false} // Parent ScrollView handles scrolling
-          key={numColumns} // Force re-render if columns change
-          keyExtractor={(item) => item._id}
-          renderItem={({item}) => (
-            <TouchableOpacity onPress={() => handleNavigateToCategory(item)}>
-              <View style={styles.categoryItem}>
-                <View style={styles.imageContainer}>
-                  <Image 
-                    source={{uri: item?.images?.[0] || 'https://placehold.co/100x100'}} 
-                    style={styles.image} 
-                    resizeMode="cover"
-                  />
-                </View>
-                <Text style={styles.categoryName} numberOfLines={2}>{item.name}</Text>
+      <FlatList
+        key={4} // Fixed key for 4 columns
+        data={categories}
+        numColumns={4}
+        scrollEnabled={false} // Disable scrolling as it's nested
+        renderItem={({item}) => (
+          <TouchableOpacity onPress={() => handleNavigateToCategory(item)} style={styles.itemContainer}>
+            <View style={styles.categoryItem}>
+              <View style={styles.imageContainer}>
+                <Image 
+                  source={{uri: item?.images?.[0] || 'https://placehold.co/100x100'}} 
+                  style={styles.image} 
+                  resizeMode="cover"
+                />
               </View>
-            </TouchableOpacity>
-          )}
-        />
-      </ScrollView>
+              <Text style={styles.categoryName} numberOfLines={2}>{item.name}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item) => item._id}
+        columnWrapperStyle={styles.columnWrapper}
+      />
     </View>
   );
 };
@@ -81,16 +73,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2c3e50',
   },
-  scrollView: {
-    marginHorizontal: -16,
+  columnWrapper: {
+    justifyContent: 'flex-start', // Align logic
+    marginBottom: 10,
   },
-  scrollViewContent: {
-    paddingHorizontal: 16,
+  itemContainer: {
+    width: '25%',
+    paddingHorizontal: 4,
+    alignItems: 'center',
+    marginBottom: 10,
   },
   categoryItem: {
     alignItems: 'center',
-    marginRight: 16, // Increased spacing between items
-    maxWidth: 80, // Constrain width for text wrapping
+    width: '100%',
   },
   imageContainer: {
     borderWidth: 1,
@@ -105,16 +100,17 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   image: {
-    width: 70,
-    height: 70,
+    width: 60, // Consistent with Home screen
+    height: 60,
     borderRadius: 8,
   },
   categoryName: {
     marginTop: 5,
-    fontSize: 12,
+    fontSize: 11, // Slightly smaller text
     fontWeight: '500',
     color: '#34495e',
     textAlign: 'center',
+    lineHeight: 14,
   },
 });
 
