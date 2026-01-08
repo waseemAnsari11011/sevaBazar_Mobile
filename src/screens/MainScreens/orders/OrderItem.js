@@ -71,6 +71,15 @@ const OrderItem = ({ order, navigation, contact }) => {
                             </View>
                         )}
 
+                        {vendorItem.orderStatus === 'Shipped' && (() => {
+                            const { timeString, isCritical } = getTimeRemaining(vendorItem.products?.[0]?.arrivalAt);
+                            return (
+                                <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}>
+                                    <Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}
+                                </Paragraph>
+                            );
+                        })()}
+
                         {vendorItem.products.map((productItem) => {
                             const { timeString, isCritical } = getTimeRemaining(productItem.arrivalAt);
                             
@@ -90,15 +99,7 @@ const OrderItem = ({ order, navigation, contact }) => {
                                         <View style={styles.productInfo}>
                                             <Paragraph style={styles.productName}><Icon.FontAwesome name="cube" size={16} /> Product: {productItem?.product?.name}</Paragraph>
                                             
-                                            {vendorItem.orderStatus !== 'Delivered' && (
-                                                <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}>
-                                                    <Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {
-                                                        ['Pending', 'Processing'].includes(vendorItem.orderStatus)
-                                                            ? "10-15 min"
-                                                            : timeString
-                                                    }
-                                                </Paragraph>
-                                            )}
+
 
                                             <Paragraph style={styles.productDetails}><Icon.FontAwesome name="sort-numeric-asc" size={16} /> Quantity: {productItem?.quantity}</Paragraph>
                                             <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: ₹{productItem?.price}</Paragraph>

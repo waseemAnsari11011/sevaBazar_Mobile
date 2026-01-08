@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 
 import {baseURL} from '../../../../utils/api';
 
@@ -49,7 +50,11 @@ const HomeHeader = ({user}) => {
   };
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#000066', '#ffffff']}
+      start={{x: 0, y: 0}}
+      end={{x: 1, y: 0}}
+      style={styles.container}>
       {/* Top Row: Brand, Time, Location, Profile */}
       <View style={styles.topRow}>
         <View style={styles.leftColumn}>
@@ -67,18 +72,10 @@ const HomeHeader = ({user}) => {
         </View>
 
         <View style={styles.rightColumn}>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <View style={styles.profileIconContainer}>
-              {profileUrl ? (
-                <Image
-                  source={{uri: profileUrl}}
-                  style={{width: 36, height: 36, borderRadius: 18}}
-                />
-              ) : (
-                <Ionicons name="person" size={20} color="#000" />
-              )}
-            </View>
-          </TouchableOpacity>
+          <Image
+            source={require('../../../../assets/images/brandMain.png')}
+            style={{ width: 60, height: 60, resizeMode: 'contain' }}
+          />
         </View>
       </View>
 
@@ -139,13 +136,13 @@ const HomeHeader = ({user}) => {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#2C2C2E', // Dark background like Blinkit
+    // backgroundColor: '#2C2C2E', // Dark background like Blinkit
     paddingTop: 10, // Adjust based on status bar
     paddingBottom: 15,
     paddingHorizontal: 15,

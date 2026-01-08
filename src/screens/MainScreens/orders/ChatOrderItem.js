@@ -56,11 +56,7 @@ const ChatOrderItem = ({ order, contact }) => {
             <Card.Content>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order.orderId}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
-                {order.orderStatus!=='Delivered'&&<Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {
-                    ['In Review', 'Pending', 'Processing'].includes(order.orderStatus)
-                        ? "10-15 min"
-                        : timeString
-                }</Paragraph>}
+{order.orderStatus === 'Shipped' && <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}</Paragraph>}
 
                 <Paragraph style={[styles.orderStatus, { color: getStatusColor(order.orderStatus), fontWeight: 'bold' }]}>
                     <Icon.FontAwesome name="info-circle" size={16} /> Order Status:

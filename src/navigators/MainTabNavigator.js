@@ -1,9 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/MainScreens/home/HomeScreen';
-import ProfileScreen from '../screens/MainScreens/ProfileScreen';
+import HomeNavigator from './HomeNavigator';
+import ProfileNavigator from './ProfileNavigator';
+import OrderNavigator from './OrderNavigator';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import OrdersScreen from '../screens/MainScreens/OrdersScreen';
+
 import DrawerNavigator from './DrawerNavigator';
 import { useDispatch, useSelector } from 'react-redux';
 import Chat from '../screens/MainScreens/chat/Chat';
@@ -18,6 +19,13 @@ const MainTabNavigator = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: route.name === 'Order' ? true : false, // Show header only for 'Order' screen
+        tabBarActiveTintColor: '#000066',
+        tabBarInactiveTintColor: 'gray',
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: 'bold',
+          marginBottom: 5,
+        },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
           if (route.name === 'Home') {
@@ -34,14 +42,15 @@ const MainTabNavigator = () => {
             iconName = focused ? 'pricetag' : 'pricetag-outline';
           }
 
-          return <Ionicons name={iconName} size={size} color="#000066" />;
+          return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarShowLabel: true, // Show the labels
       })}
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
+        component={HomeNavigator}
+        options={{headerShown: false}}
       />
       <Tab.Screen
         name="Offer"
@@ -53,13 +62,18 @@ const MainTabNavigator = () => {
       />
       <Tab.Screen
         name="Order"
-        component={OrdersScreen}
+        component={OrderNavigator}
         options={{
           tabBarBadge: cartItems.length === 0 ? null : cartItems.length,
+          headerShown: false,
         }}
       />
       {/* <Tab.Screen name="Chat" component={Chat} /> */}
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen 
+        name="Profile" 
+        component={ProfileNavigator} 
+        options={{headerShown: false}}
+      />
     </Tab.Navigator>
   );
 };

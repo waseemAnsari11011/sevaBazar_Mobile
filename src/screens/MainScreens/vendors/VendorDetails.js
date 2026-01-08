@@ -122,24 +122,19 @@ const VendorDetails = () => {
       <View style={{ marginHorizontal: -5 }}>
         {renderImageCarousel()}
         <View style={styles.vendorInfoContainer}>
-          <View style={{flexDirection:'row', justifyContent:'space-between', alignItems:'center'}}>
           <Text style={styles.vendorName}>
             {vendor.vendorInfo?.businessName}
           </Text>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Icon name="phone" size={30} color="#ff6600" style={{marginRight: 15}} onPress={() => Linking.openURL(`tel:${vendor.vendorInfo?.contactNumber}`)} />
-            <Icon name="chat" size={30} color="#ff6600" onPress={() => navigation.navigate('Chat', {vendorId: vendor._id})} />
-          </View>
-          </View>
-          <View style={[styles.addressContainer, {alignItems: 'flex-start'}]}>
-            <Icon name="map-marker" size={16} color="#7f8c8d" style={{marginTop: 3}} />
-            <Text style={[styles.vendorAddress, {flex: 1}]}>
-              {vendor.location?.address?.addressLine1 ||
-                'Address not available'}
-              {userLocation && vendor.location?.coordinates && (
+
+          <View style={styles.actionsRow}>
+            {/* Left Side: Address Button + Distance */}
+            <View style={styles.leftActions}>
+                <TouchableOpacity onPress={handleViewAddress} style={styles.viewAddressBtn}>
+                    <Text style={styles.viewAddressText}>View Full Address</Text>
+                </TouchableOpacity>
+                
+                {userLocation && vendor.location?.coordinates && (
                 <Text style={styles.distanceText}>
-                  {' '}
-                  •{' '}
                   {calculateDistance(
                     userLocation.latitude,
                     userLocation.longitude,
@@ -149,11 +144,25 @@ const VendorDetails = () => {
                   km away
                 </Text>
               )}
-            </Text>
+            </View>
+
+            {/* Right Side: Contact Icons */}
+            <View style={styles.rightActions}>
+                <TouchableOpacity 
+                    style={styles.iconButton} 
+                    onPress={() => Linking.openURL(`tel:${vendor.vendorInfo?.contactNumber}`)}
+                >
+                    <Icon name="phone" size={24} color="#ff6600" />
+                </TouchableOpacity>
+
+                <TouchableOpacity 
+                    style={[styles.iconButton, { marginLeft: 10 }]} 
+                    onPress={() => navigation.navigate('Chat', {vendorId: vendor._id})}
+                >
+                    <Icon name="chat" size={24} color="#ff6600" />
+                </TouchableOpacity>
+            </View>
           </View>
-          <TouchableOpacity onPress={handleViewAddress} style={styles.viewAddressBtn}>
-             <Text style={styles.viewAddressText}>View Full Address</Text>
-          </TouchableOpacity>
         </View>
         <View style={styles.separator} />
         <VendorCategoryList categories={categories} vendorId={vendorId} />
@@ -326,23 +335,48 @@ const styles = StyleSheet.create({
   distanceText: {
     fontSize: 14,
     color: '#ff6600',
-    marginLeft: 8,
+    marginLeft: 10,
     fontWeight: '600',
   },
   viewAddressBtn: {
-      marginTop: 10,
-      alignSelf: 'flex-start',
-      paddingVertical: 5,
-      paddingHorizontal: 10,
+      paddingVertical: 6,
+      paddingHorizontal: 12,
       backgroundColor: '#fff0e6',
-      borderRadius: 5,
+      borderRadius: 6,
       borderWidth: 1,
       borderColor: '#ff6600',
+      alignItems: 'center',
+      justifyContent: 'center',
   },
   viewAddressText: {
       color: '#ff6600',
       fontSize: 12,
       fontWeight: '600',
+  },
+  actionsRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 12,
+  },
+  leftActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1, 
+      marginRight: 10,
+  },
+  rightActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+  },
+  iconButton: {
+      padding: 8,
+      backgroundColor: '#fff0e6',
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: '#ff6600',
+      alignItems: 'center',
+      justifyContent: 'center',
   },
   separator: {
     height: 1,

@@ -101,7 +101,7 @@ const ProfileScreen = ({navigation}) => {
           </View>
           <LogoutButton />
         </View>
-            <View style={{padding: 20}}>
+        <View style={{padding: 20}}>
           <Text style={{fontSize: 16, color: 'black', fontWeight: '600'}}>
             Your delivery address
           </Text>
@@ -245,7 +245,7 @@ const ProfileScreen = ({navigation}) => {
           <AntDesign name="right" style={{color: '#000066'}} size={20} />
         </TouchableOpacity>
         <View style={styles.borderBottom}></View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => navigation.navigate('Contact us')}
           style={styles.itemContainer}>
           <View style={styles.itemSubContainer}>
@@ -258,8 +258,8 @@ const ProfileScreen = ({navigation}) => {
             <Text style={styles.itemTitle}>Contact Us</Text>
           </View>
           <AntDesign name="right" style={{color: '#000066'}} size={20} />
-        </TouchableOpacity>
-        <View style={styles.borderBottom}></View>
+        </TouchableOpacity> */}
+        {/* <View style={styles.borderBottom}></View> */}
       </View>
       {/* <View style={styles.footer}>
         <Text style={styles.footerText}>Seva Bazar</Text>

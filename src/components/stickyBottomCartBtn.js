@@ -91,13 +91,22 @@ const StickyButton = ({ navigation, product, variation }) => {
                 </TouchableOpacity>
                 
                 {isItemInCart ? (
-                    <View style={[styles.button, styles.quantityContainer]}>
-                        <TouchableOpacity onPress={handleDecrease} style={styles.qtyBtn}>
-                             <Icon name="remove" size={24} color="#fff" />
-                        </TouchableOpacity>
-                        <Text style={styles.qtyText}>{currentQuantity}</Text>
-                        <TouchableOpacity onPress={handleIncrease} style={styles.qtyBtn}>
-                             <Icon name="add" size={24} color="#fff" />
+                    <View style={styles.cartActions}>
+                         <View style={[styles.smallButton, styles.quantityContainer]}>
+                            <TouchableOpacity onPress={handleDecrease} style={styles.qtyBtn}>
+                                 <Icon name="remove" size={24} color="#fff" />
+                            </TouchableOpacity>
+                            <Text style={styles.qtyText}>{currentQuantity}</Text>
+                            <TouchableOpacity onPress={handleIncrease} style={styles.qtyBtn}>
+                                 <Icon name="add" size={24} color="#fff" />
+                            </TouchableOpacity>
+                        </View>
+                        
+                        <TouchableOpacity
+                            style={[styles.smallButton, styles.goToCartButton]}
+                            onPress={() => navigation.navigate('Cart')}
+                        >
+                            <Text style={styles.smallButtonText}>Go to Cart</Text>
                         </TouchableOpacity>
                     </View>
                 ) : (
@@ -146,13 +155,30 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginLeft: 20
     },
+    cartActions: {
+        flex: 2,
+        flexDirection: 'row',
+        marginLeft: 15,
+    },
+    smallButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        borderRadius: 10,
+        marginLeft: 10,
+    },
     addToCartButton: {
         backgroundColor: '#ff6600',
     },
     quantityContainer: {
-        backgroundColor: '#2ecc71', // Or match theme color
-        justifyContent: 'space-between',
-        paddingHorizontal: 15
+        backgroundColor: '#ff6600', // Brand color
+        paddingHorizontal: 10
+    },
+    goToCartButton: {
+        backgroundColor: '#ff6600',
+        justifyContent: 'center'
     },
     qtyBtn: {
         padding: 5,
@@ -166,6 +192,11 @@ const styles = StyleSheet.create({
         color: '#fff',
         marginLeft: 10,
         fontSize: 16,
+        fontWeight: "700"
+    },
+    smallButtonText: {
+        color: '#fff',
+        fontSize: 14,
         fontWeight: "700"
     },
 });

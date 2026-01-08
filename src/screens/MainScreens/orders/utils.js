@@ -496,7 +496,7 @@ export const handleChatDownloadInvoice = async (order, contact) => {
                 </div>
             </div>
             <div class="footer">
-                <strong>Phone :</strong> ${contact?.phone || order.vendor?.vendorInfo?.contactNumber || 'N/A'}<br>
+                <!-- <strong>Phone :</strong> ${contact?.phone || order.vendor?.vendorInfo?.contactNumber || 'N/A'}<br> -->
                 <strong>Email :</strong> sevabazar.com@gmail.com<br>
                 All Copyright Reserved © 2024 Seva Bazar
             </div>
@@ -544,19 +544,38 @@ export const requestStoragePermission = async () => {
 
 
 export function getTimeRemaining(arrivalAt) {
+    if (!arrivalAt) {
+        return { timeString: 'Arriving soon', isCritical: false };
+    }
     const currentTime = new Date();
     const arrivalTime = new Date(arrivalAt);
-    const timeDifference = arrivalTime - currentTime;
+
+    if (isNaN(arrivalTime.getTime())) {
+         return { timeString: 'Arriving soon', isCritical: false };
+    }
+
+    let timeDifference = arrivalTime - currentTime;
+    const gracePeriodMs = 5 * 60 * 1000; // 5 minutes
 
     if (timeDifference < 0) {
-        return { timeString: 'Order delayed, Sorry for inconvenience', isCritical: true };
+        // Check if within grace period
+        if (timeDifference > -gracePeriodMs) {
+             // Calculate remaining grace time
+             timeDifference = timeDifference + gracePeriodMs;
+        } else {
+             // Grace period expired
+             return { timeString: 'Order delayed, Sorry for inconvenience', isCritical: true };
+        }
     }
 
     const totalMinutes = Math.floor(timeDifference / (1000 * 60));
-    const isCritical = timeDifference <= 5 * 60 * 1000; // 5 minutes in milliseconds
+    // Critical if less than 5 minutes (covers end of normal timer and entire grace period)
+    const isCritical = timeDifference <= 5 * 60 * 1000; 
 
     let timeString;
-    if (totalMinutes <= 90) {
+    if (totalMinutes < 1) {
+         timeString = `Less than a minute`;
+    } else if (totalMinutes <= 90) {
         timeString = `${totalMinutes} Minutes`;
     } else {
         const days = Math.floor(totalMinutes / (24 * 60));

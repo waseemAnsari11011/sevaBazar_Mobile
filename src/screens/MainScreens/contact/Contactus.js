@@ -1,30 +1,36 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import React, {useEffect} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import Icon from '../../../components/Icons/Icon';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchContact } from '../../../config/redux/actions/contactActions';
+import {useSelector, useDispatch} from 'react-redux';
+import {fetchContact} from '../../../config/redux/actions/contactActions';
 import Loading from '../../../components/Loading';
 
 const Contactus = () => {
-    const dispatch = useDispatch();
-    const { contact, loading, error } = useSelector(state => state.contact);
-  
-    useEffect(() => {
-      dispatch(fetchContact());
-    }, [dispatch]);
+  const dispatch = useDispatch();
+  const {contact, loading, error} = useSelector(state => state.contact);
 
-if(loading){
-    return <Loading />
-}
-  
+  useEffect(() => {
+    dispatch(fetchContact());
+  }, [dispatch]);
+
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>You can get in touch with us through below platforms. Our Team will reach out to you as soon as it would be possible</Text>
+      <Text style={styles.title}>
+        You can get in touch with us through below platforms. Our Team will
+        reach out to you as soon as it would be possible
+      </Text>
       <View style={styles.contactContainer}>
-        <View style={styles.contactItem}>
-          <Icon.FontAwesome name="phone" size={24} color="black" />
-          <Text style={styles.contactText}>{contact.phone}</Text>
-        </View>
         <View style={styles.contactItem}>
           <Icon.FontAwesome name="envelope" size={24} color="black" />
           <Text style={styles.contactText}>{contact.email}</Text>
@@ -50,7 +56,7 @@ if(loading){
       </View>
     </View>
   );
-}
+};
 
 export default Contactus;
 
