@@ -26,6 +26,8 @@ const LocationSearch = ({navigation, route}) => {
   const [manualLocation, setManualLocation] = useState({
     name: '',
     phone: '',
+    phone: '',
+    addressDescription: '',
     description: '',
     landmark: '',
     pincode: '',
@@ -48,6 +50,7 @@ const LocationSearch = ({navigation, route}) => {
       setManualLocation({
         name: address.name,
         phone: address.phone,
+        addressDescription: address.addressDescription,
         description: address.address,
         landmark: address.landmark,
         pincode: address.postalCode,
@@ -70,6 +73,7 @@ const LocationSearch = ({navigation, route}) => {
       }
 
       const {
+        addressDescription,
         description,
         landmark,
         city,
@@ -86,6 +90,7 @@ const LocationSearch = ({navigation, route}) => {
       console.log('isActive-->', isActive);
 
       if (
+        !addressDescription ||
         !description ||
         !landmark ||
         !city ||
@@ -94,6 +99,7 @@ const LocationSearch = ({navigation, route}) => {
         !pincode
       ) {
         let missingFields = [];
+        if (!addressDescription) missingFields.push('Address Description');
         if (!description) missingFields.push('description');
         if (!landmark) missingFields.push('landmark');
         if (!city) missingFields.push('city');
@@ -118,6 +124,7 @@ const LocationSearch = ({navigation, route}) => {
         response = await api.put(`/address/${userId}/${addressId}`, {
           name,
           phone,
+          addressDescription,
           addressLine1: description,
           landmark,
           city,
@@ -133,6 +140,7 @@ const LocationSearch = ({navigation, route}) => {
         response = await api.post(`/address/${userId}/`, {
           name,
           phone,
+          addressDescription,
           addressLine1: description,
           landmark,
           city,

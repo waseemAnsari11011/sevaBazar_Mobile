@@ -124,10 +124,10 @@ const ManualLocationSearch = ({manualLocation, handleManualLocationChange}) => {
 
           <TextInput
             style={styles.textInput}
-            placeholder="Address"
-            value={manualLocation?.description}
+            placeholder="Address Description e.g. Home, Office"
+            value={manualLocation?.addressDescription}
             onChangeText={text =>
-              handleManualLocationChange('description', text)
+              handleManualLocationChange('addressDescription', text)
             }
           />
           <TextInput
@@ -159,6 +159,14 @@ const ManualLocationSearch = ({manualLocation, handleManualLocationChange}) => {
             placeholder="Pincode"
             value={manualLocation?.pincode}
             onChangeText={text => handleManualLocationChange('pincode', text)}
+          />
+          <TextInput
+            style={styles.textInput}
+            placeholder="Address"
+            value={manualLocation?.description}
+            onChangeText={text =>
+              handleManualLocationChange('description', text)
+            }
           />
         </>
       )}

@@ -112,7 +112,9 @@ const VendorDetails = () => {
       country
     ].filter(Boolean).join(', ');
 
-    Alert.alert('Full Address', fullAddress);
+    const ownerInfo = vendor.name ? `Owner Name: ${vendor.name}\n\n` : '';
+
+    Alert.alert('Full Address', `${ownerInfo}${fullAddress}`);
   };
 
   const renderHeader = () => {
