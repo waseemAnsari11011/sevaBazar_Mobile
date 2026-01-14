@@ -5,12 +5,11 @@ import {StyleSheet, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
 import SafeScreen from '../../../components/SafeScreen';
-import CustomHeader from '../../../components/CustomHeader';
+import SearchableVendorList from './SearchableVendorList';
 import {
   fetchVendorsWithDiscounts,
   resetVendorsWithDiscounts,
 } from '../../../config/redux/actions/vendorsWithDiscountsActions';
-import SearchableVendorList from './SearchableVendorList';
 
 /**
  * A screen to display a list of recently added vendors.
@@ -26,26 +25,17 @@ const NewlyAddedVendorsScreen = () => {
     vendors,
     loading,
     error,
-    // Add pagination state if you plan to implement infinite scroll
-    // page,
-    // hasMore,
   } = useSelector(state => state.vendorsWithDiscounts);
 
   const {location: userLocation} = useSelector(state => state.location);
 
-  // Fetch data on component mount and reset on unmount
+  // Fetch data on component mount
   useEffect(() => {
     dispatch(resetVendorsWithDiscounts());
-
-    // Fetch the first page of vendors
     dispatch(fetchVendorsWithDiscounts(1, 10));
-
-    // return () => {
-    //   dispatch(resetVendorsWithDiscounts());
-    // };
   }, [dispatch]);
 
-  // Handlers to pass down to the list component
+  // Handlers
   const handleRetry = () => {
     dispatch(fetchVendorsWithDiscounts(1, 10));
   };
@@ -56,7 +46,7 @@ const NewlyAddedVendorsScreen = () => {
 
   return (
     <SafeScreen style={styles.screen}>
-      <CustomHeader title={'Top Deals from Dukaans'} navigation={navigation} />
+      {/* SearchableVendorList now handles the header */}
       <View style={{flex: 1}}>
         <SearchableVendorList
           initialVendors={vendors}
@@ -65,6 +55,7 @@ const NewlyAddedVendorsScreen = () => {
           userLocation={userLocation}
           onRetry={handleRetry}
           onVendorPress={handleVendorPress}
+          navigation={navigation} // Pass navigation for the back button
         />
       </View>
     </SafeScreen>
@@ -73,7 +64,7 @@ const NewlyAddedVendorsScreen = () => {
 
 const styles = StyleSheet.create({
   screen: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff',
     flex: 1,
   },
 });

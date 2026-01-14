@@ -24,6 +24,7 @@ const SearchableVendorList = ({
   onRetry,
   onVendorPress,
   userLocation,
+  navigation, // Added navigation prop
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredVendors, setFilteredVendors] = useState(initialVendors);
@@ -35,7 +36,6 @@ const SearchableVendorList = ({
     } else {
       const lowercasedQuery = searchQuery.toLowerCase();
       const newFilteredVendors = initialVendors.filter(vendor => {
-        // You can make the search more comprehensive here if needed
         const businessName =
           vendor.vendorInfo?.businessName?.toLowerCase() || '';
         return businessName.includes(lowercasedQuery);
@@ -46,12 +46,18 @@ const SearchableVendorList = ({
 
   return (
     <View style={styles.container}>
-      {/* Search Bar UI */}
-      <View style={styles.searchContainer}>
+      {/* Header with Back Button and Search Bar */}
+      <View style={styles.headerContainer}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
+          <Icon name="arrow-left" size={24} color="#333" />
+        </TouchableOpacity>
+
         <View style={styles.searchInputWrapper}>
           <Icon
             name="magnify"
-            size={22}
+            size={20}
             color="#ff6600"
             style={styles.searchIcon}
           />
@@ -60,35 +66,35 @@ const SearchableVendorList = ({
             placeholder="Search for dukaan..."
             placeholderTextColor="#95a5a6"
             value={searchQuery}
-            onChangeText={setSearchQuery} // Directly update the search query state
+            onChangeText={setSearchQuery}
             returnKeyType="search"
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity
               onPress={() => setSearchQuery('')}
               style={styles.clearButton}>
-              <Icon name="close-circle" size={20} color="#95a5a6" />
+              <Icon name="close-circle" size={18} color="#95a5a6" />
             </TouchableOpacity>
           )}
         </View>
-
-        {/* The result count now depends on the filtered list */}
-        {!loading && initialVendors.length > 0 && (
-          <Text style={styles.resultsCount}>
-            {filteredVendors.length}{' '}
-            {filteredVendors.length === 1 ? 'vendor' : 'vendors'} found
-          </Text>
-        )}
       </View>
 
-      {/* The presentational list component receives the filtered data */}
+      <View style={styles.resultsContainer}>
+        {!loading && initialVendors.length > 0 && (
+            <Text style={styles.resultsCount}>
+              {filteredVendors.length}{' '}
+              {filteredVendors.length === 1 ? 'vendor' : 'vendors'} found
+            </Text>
+          )}
+      </View>
+
       <VendorsList
         vendors={filteredVendors}
         loading={loading}
         error={error}
         userLocation={userLocation}
         onRetry={onRetry}
-        onVendorPress={onVendorPress} // Pass down the handler from the parent
+        onVendorPress={onVendorPress}
       />
     </View>
   );
@@ -101,50 +107,61 @@ SearchableVendorList.propTypes = {
   onRetry: PropTypes.func.isRequired,
   onVendorPress: PropTypes.func.isRequired,
   userLocation: PropTypes.object,
+  navigation: PropTypes.object.isRequired,
 };
 
-// Styles remain the same as before
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-  searchContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
     backgroundColor: '#fff',
-    elevation: 2,
-    shadowColor: '#000',
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    elevation: 2, // Android shadow
+    shadowColor: '#000', // iOS shadow
     shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  backButton: {
+    marginRight: 12,
   },
   searchInputWrapper: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    height: 50,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    height: 40,
     borderWidth: 1,
     borderColor: '#ecf0f1',
   },
   searchIcon: {
-    marginRight: 10,
+    marginRight: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     color: '#2c3e50',
     padding: 0,
   },
   clearButton: {
     padding: 4,
   },
+  resultsContainer: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+  },
   resultsCount: {
     fontSize: 13,
     color: '#7f8c8d',
-    marginTop: 8,
     fontWeight: '500',
   },
 });

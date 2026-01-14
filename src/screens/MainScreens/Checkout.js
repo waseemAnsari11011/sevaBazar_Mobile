@@ -151,7 +151,7 @@ const CheckoutScreen = ({navigation}) => {
             text: 'OK',
             onPress: () => {
               dispatch(clearCart());
-              navigation.navigate('My order');
+              navigation.navigate('Profile', { screen: 'My order' });
             },
           },
         ]);

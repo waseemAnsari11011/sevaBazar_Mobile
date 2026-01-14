@@ -125,22 +125,7 @@ const ProfileScreen = ({navigation}) => {
                   .map(i => i.address)}
               </Text>
             </View>
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('Location List', {goBack: true})
-              }>
-              <Text
-                style={{
-                  color: '#ff6600',
-                  fontWeight: '600',
-                  padding: 10,
-                  borderWidth: 1,
-                  borderRadius: 5,
-                  borderColor: '#ff6600',
-                }}>
-                Edit Address
-              </Text>
-            </TouchableOpacity>
+
 
             {/* <AntDesign
             onPress={() => navigation.navigate('Location List', { goBack: true })}

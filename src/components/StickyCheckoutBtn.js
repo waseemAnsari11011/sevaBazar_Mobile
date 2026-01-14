@@ -1,8 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchUserLocation } from '../config/redux/actions/locationActions';
 
 const StickyComponent = ({ total, onCheckout, navigation }) => {
+    const dispatch = useDispatch();
     const { data } = useSelector(state => state.local);
     const userAddress = data?.user?.shippingAddresses?.[0]; // Assuming first address is default/current
 
@@ -24,8 +26,8 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
                 `Do you want to deliver to:\n\n${addressString}`,
                 [
                     {
-                        text: "Change",
-                        onPress: () => navigation.navigate("Location List"), // Navigate to address list
+                        text: "Use Current Location",
+                        onPress: () => dispatch(fetchUserLocation()),
                         style: "cancel"
                     },
                     {

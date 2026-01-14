@@ -56,7 +56,7 @@ const NewlyAddedVendorsScreen = () => {
 
   return (
     <SafeScreen style={styles.screen}>
-      <CustomHeader title={'Newly Added Dukaans'} navigation={navigation} />
+      
       <View style={{flex: 1}}>
         <SearchableVendorList
           initialVendors={vendors}
@@ -65,6 +65,7 @@ const NewlyAddedVendorsScreen = () => {
           userLocation={userLocation}
           onRetry={handleRetry}
           onVendorPress={handleVendorPress}
+          navigation={navigation}
         />
       </View>
     </SafeScreen>

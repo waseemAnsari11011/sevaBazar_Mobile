@@ -41,7 +41,7 @@ const VendorsByCategory = () => {
 
   return (
     <SafeScreen style={styles.screen}>
-      <CustomHeader title={categoryTitle} navigation={navigation} />
+      
       <View style={{flex: 1}}>
         <SearchableVendorList
           initialVendors={vendors}
@@ -50,6 +50,7 @@ const VendorsByCategory = () => {
           userLocation={userLocation}
           onRetry={handleRetry}
           onVendorPress={handleVendorPress}
+          navigation={navigation}
         />
       </View>
     </SafeScreen>

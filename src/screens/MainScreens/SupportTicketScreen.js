@@ -1,16 +1,52 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { baseURL } from '../../utils/api';
 import Icon from '../../components/Icons/Icon';
 
 const SupportTicketScreen = ({ navigation }) => {
     const { data } = useSelector(state => state.local);
-    // const [reason, setReason] = useState(''); // Removed for one-tap logic
     const [loading, setLoading] = useState(false);
+    const [ticketSuccess, setTicketSuccess] = useState(false);
+    const [isCooldown, setIsCooldown] = useState(false);
+    
+    // 5 minutes in milliseconds
+    const COOLDOWN_DURATION = 5 * 60 * 1000;
+
+    useEffect(() => {
+        checkCooldown();
+    }, []);
+
+    const checkCooldown = async () => {
+        try {
+            const lastTime = await AsyncStorage.getItem('last_ticket_time');
+            if (lastTime) {
+                const now = Date.now();
+                const diff = now - parseInt(lastTime, 10);
+                if (diff < COOLDOWN_DURATION) {
+                    const remainingTime = COOLDOWN_DURATION - diff;
+                    startCooldown(remainingTime);
+                }
+            }
+        } catch (error) {
+            console.error("Error reading cooldown:", error);
+        }
+    };
+
+    const startCooldown = (duration) => {
+        setIsCooldown(true);
+        setTicketSuccess(true);
+        
+        setTimeout(() => {
+            setIsCooldown(false);
+            setTicketSuccess(false);
+        }, duration);
+    };
 
     const handleSubmit = async () => {
         setLoading(true);
+        setTicketSuccess(false); 
         try {
             const response = await fetch(`${baseURL}tickets/create`, {
                 method: 'POST',
@@ -24,9 +60,11 @@ const SupportTicketScreen = ({ navigation }) => {
             });
             const result = await response.json();
             if (result.success) {
-                Alert.alert("Success", "Ticket generated successfully. We will contact you shortly.", [
-                    { text: "OK", onPress: () => navigation.goBack() }
-                ]);
+                // Save current time
+                await AsyncStorage.setItem('last_ticket_time', Date.now().toString());
+                
+                // Start cooldown
+                startCooldown(COOLDOWN_DURATION);
             } else {
                 Alert.alert("Error", "Failed to generate ticket. Please try again.");
             }
@@ -53,21 +91,34 @@ const SupportTicketScreen = ({ navigation }) => {
                     <Icon.AntDesign name="customerservice" size={60} color="#000066" />
                     <Text style={styles.infoTitle}>Need Help?</Text>
                     <Text style={styles.infoText}>
-                        Tap the button below to generate a support ticket. Our team will contact you shortly.
+                        Tap the button below to generate a support ticket. Our team will contact you shortly. Please wait 5 minutes for a call, then you can generate a ticket again.
                     </Text>
                 </View>
 
                 <TouchableOpacity 
-                    style={styles.submitButton} 
+                    style={[styles.submitButton, isCooldown && styles.disabledButton]} 
                     onPress={handleSubmit}
-                    disabled={loading}
+                    disabled={loading || isCooldown}
                 >
                     {loading ? (
                         <ActivityIndicator color="white" />
                     ) : (
-                        <Text style={styles.submitButtonText}>Generate Ticket</Text>
+                        <Text style={styles.submitButtonText}>
+                            {isCooldown ? "Please Wait..." : "Generate Ticket"}
+                        </Text>
                     )}
                 </TouchableOpacity>
+
+                {ticketSuccess && (
+                    <View style={styles.successContainer}>
+                         <Text style={styles.successText}>
+                            Ticket generated successfully. Please wait 5 minutes for a call.
+                        </Text>
+                         <Text style={styles.subText}>
+                            Our team will call you back shortly.
+                        </Text>
+                    </View>
+                )}
             </View>
         </View>
     );
@@ -82,7 +133,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
-        paddingTop: 50, // Handle notch
+        paddingTop: 10, // Handle notch
         justifyContent: 'space-between',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
@@ -125,7 +176,7 @@ const styles = StyleSheet.create({
     },
     infoContainer: {
         alignItems: 'center',
-        marginVertical: 30,
+        marginVertical: 10,
     },
     infoTitle: {
         fontSize: 20,
@@ -140,6 +191,30 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: 22,
         paddingHorizontal: 20,
+    },
+    successContainer: {
+        marginTop: 20,
+        padding: 15,
+        backgroundColor: '#e8f5e9',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#c8e6c9',
+        alignItems: 'center',
+    },
+    successText: {
+        color: '#2e7d32',
+        fontSize: 14,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+    subText: {
+        color: '#2e7d32',
+        fontSize: 12,
+        marginTop: 4,
+        textAlign: 'center',
+    },
+    disabledButton: {
+        backgroundColor: '#999', // Greyed out color
     },
 });
 

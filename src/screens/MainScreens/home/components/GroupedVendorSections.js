@@ -92,7 +92,7 @@ const VendorCategorySection = ({group}) => {
           }
           style={styles.viewAllButton}>
           <Text style={styles.viewAllText}>View all</Text>
-          <Icon.AntDesign name="right" color="#000066" size={13} />
+          <Icon.AntDesign name="right" color="#ffffff" size={13} />
         </TouchableOpacity>
       </View>
 
@@ -158,11 +158,17 @@ const styles = StyleSheet.create({
   viewAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#000066',
+    borderWidth: 1,
+    borderColor: '#000066',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 15,
   },
   viewAllText: {
-    color: '#000066',
-    marginRight: 5,
-    fontSize: 14,
+    color: '#ffffff',
+    marginRight: 2,
+    fontSize: 12,
     fontWeight: '600',
   },
 });

@@ -15,13 +15,23 @@ import LinearGradient from 'react-native-linear-gradient';
 
 import {baseURL} from '../../../../utils/api';
 
+import {useDispatch} from 'react-redux';
+import {fetchUserLocation} from '../../../../config/redux/actions/locationActions';
+
 const HomeHeader = ({user}) => {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
 
+  // Retrieve active address
   const activeAddress = user?.shippingAddresses?.find(addr => addr.isActive);
+
+  // Format the location text for display
+  // Use activeAddress.address (backend field) everywhere instead of addressLine1
   const locationText = activeAddress
-    ? `${activeAddress.city}, ${activeAddress.postalCode}`
+    ? activeAddress.address === 'Current Location'
+      ? 'Current Location (Detected)'
+      : `${activeAddress.city}, ${activeAddress.postalCode}`
     : 'Select Location';
 
   let profileUrl = user?.image;
@@ -35,14 +45,9 @@ const HomeHeader = ({user}) => {
     setIsBottomSheetVisible(!isBottomSheetVisible);
   };
 
-  const handleUpdateLocation = () => {
+  const handleUseCurrentLocation = () => {
     setIsBottomSheetVisible(false);
-    navigation.navigate('Location List');
-  };
-
-  const handleAddLocation = () => {
-    setIsBottomSheetVisible(false);
-    navigation.navigate('Add Location', {isSignin: false});
+    dispatch(fetchUserLocation());
   };
 
   const handleSearchPress = () => {
@@ -65,7 +70,7 @@ const HomeHeader = ({user}) => {
             onPress={toggleBottomSheet}
             activeOpacity={0.7}>
             <Text style={styles.locationText} numberOfLines={1}>
-              HOME - {locationText}
+              {locationText}
             </Text>
             <Ionicons name="caret-down" size={12} color="#fff" />
           </TouchableOpacity>
@@ -85,11 +90,9 @@ const HomeHeader = ({user}) => {
           style={styles.searchBar}
           onPress={handleSearchPress}
           activeOpacity={1}>
-          <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
+          <Ionicons name="search" size={20} color="#ff6600" style={styles.searchIcon} />
           <Text style={styles.searchPlaceholder}>Search "stationery"</Text>
-          <View style={styles.micIconContainer}>
-             <Ionicons name="mic" size={18} color="#666" />
-          </View>
+
         </TouchableOpacity>
       </View>
 
@@ -105,32 +108,39 @@ const HomeHeader = ({user}) => {
               <View style={styles.bottomSheetContent}>
                 <View style={styles.bottomSheetHeader}>
                   <Text style={styles.bottomSheetTitle}>
-                    Select Location Option
+                    Your Location
                   </Text>
                   <TouchableOpacity onPress={toggleBottomSheet}>
                     <Ionicons name="close" size={24} color="#333" />
                   </TouchableOpacity>
                 </View>
 
-                <TouchableOpacity
-                  style={styles.bottomSheetOption}
-                  onPress={handleUpdateLocation}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons name="map" size={22} color="#000066" />
-                  </View>
-                  <Text style={styles.optionText}>Update Location</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#ccc" />
-                </TouchableOpacity>
+                {/* Show Current Location Details */}
+                <View style={{ marginBottom: 20 }}>
+                   <Text style={{ color: '#666', fontSize: 14 }}>Currently delivering to:</Text>
+                   <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginTop: 5 }}>
+                     {activeAddress ? (
+                        activeAddress.address === 'Current Location'
+                        ? 'Current GPS Location'
+                        : `${activeAddress.address}, ${activeAddress.city}, ${activeAddress.postalCode}`
+                     ) : 'No location selected'}
+                   </Text>
+                   {activeAddress && activeAddress.address === 'Current Location' && (
+                       <Text style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+                         {activeAddress.latitude?.toFixed(4)}, {activeAddress.longitude?.toFixed(4)}
+                       </Text>
+                   )}
+                </View>
 
                 <TouchableOpacity
-                  style={styles.bottomSheetOption}
-                  onPress={handleAddLocation}>
+                  style={styles.useCurrentLocationButton}
+                  onPress={handleUseCurrentLocation}>
                   <View style={styles.iconContainer}>
-                    <Ionicons name="add-circle" size={22} color="#000066" />
+                    <Ionicons name="locate" size={22} color="#fff" />
                   </View>
-                  <Text style={styles.optionText}>Add New Location</Text>
-                  <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                  <Text style={styles.useCurrentLocationText}>Use Current Location</Text>
                 </TouchableOpacity>
+
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -214,11 +224,7 @@ const styles = StyleSheet.create({
     color: '#666',
     fontSize: 15,
   },
-  micIconContainer: {
-      borderLeftWidth: 1,
-      borderLeftColor: '#eee',
-      paddingLeft: 10,
-  },
+
   // Modal Styles
   modalOverlay: {
     flex: 1,
@@ -243,22 +249,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  bottomSheetOption: {
+  useCurrentLocationButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    justifyContent: 'center',
+    backgroundColor: '#27ae60', // Green color similar to blinkit location permissions
+    paddingVertical: 14,
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  useCurrentLocationText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    marginLeft: 8,
   },
   iconContainer: {
-    width: 40,
-    alignItems: 'center',
-  },
-  optionText: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 10,
+    // width: 40,
+    // alignItems: 'center',
   },
 });
 

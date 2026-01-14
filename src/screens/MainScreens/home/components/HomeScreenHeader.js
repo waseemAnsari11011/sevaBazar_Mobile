@@ -41,7 +41,7 @@ const HomeScreenHeader = ({
           onPress={() => navigation.navigate('New Dukaans')}
           style={styles.viewAllButton}>
           <Text style={styles.viewAllText}>View all</Text>
-          <Icon.AntDesign name="right" color="#000066" size={13} />
+          <Icon.AntDesign name="right" color="#ffffff" size={13} />
         </TouchableOpacity>
       </View>
       <View style={{marginHorizontal: -20, marginBottom: 15}}>
@@ -68,7 +68,7 @@ const HomeScreenHeader = ({
           onPress={() => navigation.navigate('New Dukaans')}
           style={styles.viewAllButton}>
           <Text style={styles.viewAllText}>View all</Text>
-          <Icon.AntDesign name="right" color="#000066" size={13} />
+          <Icon.AntDesign name="right" color="#ffffff" size={13} />
         </TouchableOpacity>
       </View>
       <View>
@@ -95,11 +95,17 @@ const styles = StyleSheet.create({
   viewAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#000066',
+    borderWidth: 1,
+    borderColor: '#000066',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 15,
   },
   viewAllText: {
-    color: '#000066',
-    marginRight: 5,
-    fontSize: 15,
+    color: '#ffffff',
+    marginRight: 2,
+    fontSize: 12,
     fontWeight: '600',
   },
 });
