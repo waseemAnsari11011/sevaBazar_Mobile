@@ -15,7 +15,7 @@ import SearchBar from '../../components/SearchBar';
 
 const CategoryProducts = ({ navigation, route }) => {
   const { cartItems } = useSelector(state => state.cart);
-  const {data} = useSelector(state => state?.local);
+  const { data } = useSelector(state => state?.local);
 
   const dispatch = useDispatch();
 
@@ -32,11 +32,11 @@ const CategoryProducts = ({ navigation, route }) => {
   useEffect(() => {
     return () => {
       dispatch(resetProductsByCategory());
-      dispatch(fetchProductsByCategory(route.params?.categoryId,1, 4, data?.user.availableLocalities));
+      dispatch(fetchProductsByCategory(route.params?.categoryId, 1, 4, data?.user.availableLocalities));
 
     };
   }, [dispatch]);
-  
+
 
   const fetchMoreProducts = () => {
     if (!loading && !reachedEnd) {
@@ -56,7 +56,7 @@ const CategoryProducts = ({ navigation, route }) => {
 
   const renderItem = ({ item, index }) => {
     return (
-      <View style={[index===0&&{paddingTop:100}]}>
+      <View style={[index === 0 && { paddingTop: 100 }]}>
         <CategoryProductsCard
           item={item}
           onPressNavigation={() =>
@@ -72,7 +72,7 @@ const CategoryProducts = ({ navigation, route }) => {
   return (
     <>
       <View style={{ flex: 1, backgroundColor: '#F0F8FF50', }}>
-      <SearchBar />
+        <SearchBar />
 
         <View
           style={{
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
   separator: {
     // borderBottomWidth: 1,
     // borderBottomColor: 'lightgray',
-    marginBottom:15
+    marginBottom: 15
   },
   lastItem: {
     marginBottom: 100,

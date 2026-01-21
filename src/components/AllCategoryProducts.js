@@ -11,7 +11,7 @@ const AllCategoryProducts = ({ allCategoryProducts }) => {
     const dispatch = useDispatch()
     const navigation = useNavigation(); // Use the hook to get navigation
 
-    
+
 
     const renderProductItem = ({ item }) => {
         return (
@@ -37,10 +37,10 @@ const AllCategoryProducts = ({ allCategoryProducts }) => {
         const handleCategoryNavigate = async () => {
             await dispatch(resetProductsByCategory());
             navigation.navigate('CategoryProducts', {
-              categoryId,
-              categoryTitle: categoryName,
+                categoryId,
+                categoryTitle: categoryName,
             })
-          }
+        }
 
         return (
             <View key={categoryId}>

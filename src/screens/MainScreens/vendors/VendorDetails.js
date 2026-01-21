@@ -1,6 +1,6 @@
 // src/screens/MainScreens/vendors/VendorDetails.js
 
-import React, {useEffect, useMemo} from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -11,17 +11,17 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import SafeScreen from '../../../components/SafeScreen';
 import CustomHeader from '../../../components/CustomHeader';
 import {
   fetchVendorDetails,
   resetVendorDetails,
 } from '../../../config/redux/actions/vendorActions';
-import {fetchProductsByVendor} from '../../../config/redux/actions/productAction';
-import {fetchVendorProductCategories} from '../../../config/redux/actions/vendorProductCategoryActions';
-import {fetchUserLocation} from '../../../config/redux/actions/locationActions';
+import { fetchProductsByVendor } from '../../../config/redux/actions/productAction';
+import { fetchVendorProductCategories } from '../../../config/redux/actions/vendorProductCategoryActions';
+import { fetchUserLocation } from '../../../config/redux/actions/locationActions';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ProductCard from '../../../components/ProductCard';
 import VendorDetailsCarousel from '../../../components/VendorDetailsCarousel';
@@ -34,21 +34,22 @@ const VendorDetails = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const dispatch = useDispatch();
-  const {vendorId} = route.params;
+  const { vendorId } = route.params;
 
-  const {vendor, loading, error} = useSelector(state => state.vendors.details);
-  const {products, loading: productsLoading} = useSelector(
+  const { vendor, loading, error } = useSelector(state => state.vendors.details);
+  const { products, loading: productsLoading } = useSelector(
     state => state.productsByVendor,
   );
-  const {categories} = useSelector(state => state.vendorProductCategories);
-  const {location: userLocation} = useSelector(state => state.location);
+  const { categories } = useSelector(state => state.vendorProductCategories);
+  const { location: userLocation } = useSelector(state => state.location);
 
   useEffect(() => {
     if (vendorId) {
       dispatch(fetchVendorDetails(vendorId));
       dispatch(fetchProductsByVendor(vendorId));
       dispatch(fetchVendorProductCategories(vendorId));
-      dispatch(fetchUserLocation());
+      dispatch(fetchVendorProductCategories(vendorId));
+      // dispatch(fetchUserLocation()); // Removed to prevent resetting user location
     }
 
     return () => {
@@ -68,9 +69,9 @@ const VendorDetails = () => {
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c; // Distance in km
@@ -100,9 +101,9 @@ const VendorDetails = () => {
 
   const handleViewAddress = () => {
     if (!vendor?.location?.address) return;
-    
+
     const { addressLine1, addressLine2, city, state, postalCode, country } = vendor.location.address;
-    
+
     const fullAddress = [
       addressLine1,
       addressLine2,
@@ -131,11 +132,11 @@ const VendorDetails = () => {
           <View style={styles.actionsRow}>
             {/* Left Side: Address Button + Distance */}
             <View style={styles.leftActions}>
-                <TouchableOpacity onPress={handleViewAddress} style={styles.viewAddressBtn}>
-                    <Text style={styles.viewAddressText}>View Full Address</Text>
-                </TouchableOpacity>
-                
-                {userLocation && vendor.location?.coordinates && (
+              <TouchableOpacity onPress={handleViewAddress} style={styles.viewAddressBtn}>
+                <Text style={styles.viewAddressText}>View Full Address</Text>
+              </TouchableOpacity>
+
+              {userLocation && vendor.location?.coordinates && (
                 <Text style={styles.distanceText}>
                   {calculateDistance(
                     userLocation.latitude,
@@ -150,19 +151,19 @@ const VendorDetails = () => {
 
             {/* Right Side: Contact Icons */}
             <View style={styles.rightActions}>
-                <TouchableOpacity 
-                    style={styles.iconButton} 
-                    onPress={() => Linking.openURL(`tel:${vendor.vendorInfo?.contactNumber}`)}
-                >
-                    <Icon name="phone" size={24} color="#ff6600" />
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={() => Linking.openURL(`tel:${vendor.vendorInfo?.contactNumber}`)}
+              >
+                <Icon name="phone" size={24} color="#ff6600" />
+              </TouchableOpacity>
 
-                <TouchableOpacity 
-                    style={[styles.iconButton, { marginLeft: 10 }]} 
-                    onPress={() => navigation.navigate('Chat', {vendorId: vendor._id})}
-                >
-                    <Icon name="chat" size={24} color="#ff6600" />
-                </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.iconButton, { marginLeft: 10 }]}
+                onPress={() => navigation.navigate('Chat', { vendorId: vendor._id })}
+              >
+                <Icon name="chat" size={24} color="#ff6600" />
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -178,7 +179,7 @@ const VendorDetails = () => {
     if (!products) return [];
 
     const grouped = [];
-    
+
     // 1. Group by existing categories
     if (categories && categories.length > 0) {
       categories.forEach(cat => {
@@ -208,17 +209,24 @@ const VendorDetails = () => {
 
     // 3. Add "All Products" section containing all products
     if (products.length > 0) {
+      // Fisher-Yates Shuffle
+      const shuffledProducts = [...products];
+      for (let i = shuffledProducts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledProducts[i], shuffledProducts[j]] = [shuffledProducts[j], shuffledProducts[i]];
+      }
+
       grouped.push({
         _id: 'all_products',
         name: 'All Products',
-        data: products,
+        data: shuffledProducts,
       });
     }
 
     return grouped;
   }, [products, categories]);
 
-  const renderCategoryItem = ({item}) => {
+  const renderCategoryItem = ({ item }) => {
     const PREVIEW_LIMIT = 4;
     const showViewAll = true; // Always show View All button
     const displayedProducts = item.data.slice(0, PREVIEW_LIMIT);
@@ -341,44 +349,44 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   viewAddressBtn: {
-      paddingVertical: 6,
-      paddingHorizontal: 12,
-      backgroundColor: '#fff0e6',
-      borderRadius: 6,
-      borderWidth: 1,
-      borderColor: '#ff6600',
-      alignItems: 'center',
-      justifyContent: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#fff0e6',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#ff6600',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   viewAddressText: {
-      color: '#ff6600',
-      fontSize: 12,
-      fontWeight: '600',
+    color: '#ff6600',
+    fontSize: 12,
+    fontWeight: '600',
   },
   actionsRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginTop: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
   },
   leftActions: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      flex: 1, 
-      marginRight: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 10,
   },
   rightActions: {
-      flexDirection: 'row',
-      alignItems: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   iconButton: {
-      padding: 8,
-      backgroundColor: '#fff0e6',
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: '#ff6600',
-      alignItems: 'center',
-      justifyContent: 'center',
+    padding: 8,
+    backgroundColor: '#fff0e6',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ff6600',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   separator: {
     height: 1,

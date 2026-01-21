@@ -12,33 +12,32 @@ import ProductCard from '../../../components/ProductCard';
 
 const VendorCategoryProducts = ({ navigation, route }) => {
   const { categoryId, categoryName } = route.params;
-  
+
   // Get products from the existing store since they were already fetched in VendorDetails
   // This avoids an extra API call and ensures consistency
   const { products } = useSelector(state => state.productsByVendor);
 
   const categoryProducts = useMemo(() => {
-    if (!products) return [];
-
-    if (categoryId === 'all_products') {
-      return products;
+    let filteredProducts = [];
+    if (!products) {
+      filteredProducts = [];
+    } else if (categoryId === 'all_products') {
+      filteredProducts = products;
+    } else if (categoryId === 'uncategorized') {
+      filteredProducts = products.filter(p => !p.vendorProductCategory);
+    } else {
+      filteredProducts = products.filter(p => p.vendorProductCategory === categoryId);
     }
 
-    if (categoryId === 'uncategorized') {
-      // This logic should ideally match what's in VendorDetails.js
-      // Since we don't have the full category list here easily without passing it or selecting it,
-      // we'll assume uncategorized means no vendorProductCategory is set.
-      // However, VendorDetails logic was: products not in any of the fetched categories.
-      // For robustness, if we really want to be exact, we should pass the product IDs or filter similarly.
-      // But usually 'uncategorized' implies vendorProductCategory is null/undefined.
-      // Let's stick to checking if vendorProductCategory is falsy for now, 
-      // or if we want to be consistent with VendorDetails, we might need to pass the data.
-      // Given the navigation params, we can't easily pass the whole array.
-      // Let's assume uncategorized means !vendorProductCategory.
-      return products.filter(p => !p.vendorProductCategory);
+    // Shuffle the filtered products
+    // We create a copy to avoid mutating the original array
+    let shuffled = [...filteredProducts];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
 
-    return products.filter(p => p.vendorProductCategory === categoryId);
+    return shuffled;
   }, [products, categoryId]);
 
   const renderItem = ({ item }) => (
@@ -75,7 +74,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   productWrapper: {
-    flex: 1/2, // 50% width for 2 columns
+    flex: 1 / 2, // 50% width for 2 columns
     padding: 5,
   },
   centeredContainer: {

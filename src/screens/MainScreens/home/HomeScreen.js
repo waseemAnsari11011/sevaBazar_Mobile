@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, { useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -11,11 +11,11 @@ import Loading from '../../../components/Loading';
 // import SearchBar from '../../../components/SearchBar'; // Removed
 import HomeHeader from './components/HomeHeader'; // Added
 import ProductCard from '../../../components/ProductCard';
-import {useHomeScreenData} from './hooks/useHomeScreenData';
-import {useInfiniteScroll} from './hooks/useInfiniteScroll';
+import { useHomeScreenData } from './hooks/useHomeScreenData';
+import { useInfiniteScroll } from './hooks/useInfiniteScroll';
 import HomeScreenHeader from './components/HomeScreenHeader';
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = ({ navigation }) => {
   const flatListRef = useRef(null);
 
   // Use custom hooks to abstract away logic
@@ -33,16 +33,16 @@ const HomeScreen = ({navigation}) => {
     groupedVendorsLoading,
   } = useHomeScreenData();
 
-  const {allProducts, allProductsLoading, fetchMoreProducts} =
+  const { allProducts, allProductsLoading, fetchMoreProducts } =
     useInfiniteScroll(user);
 
   const scrollToTop = () => {
-    flatListRef.current?.scrollToOffset({animated: true, offset: 0});
+    flatListRef.current?.scrollToOffset({ animated: true, offset: 0 });
   };
 
-  const renderProductItem = ({item}) => (
+  const renderProductItem = ({ item }) => (
     <TouchableOpacity
-      onPress={() => navigation.navigate('Details', {product: item})}>
+      onPress={() => navigation.navigate('Details', { product: item })}>
       <ProductCard item={item} />
     </TouchableOpacity>
   );
@@ -82,7 +82,7 @@ const HomeScreen = ({navigation}) => {
             // 👇 PASS THE NEW PROPS
             groupedVendors={groupedVendors}
             groupedVendorsLoading={groupedVendorsLoading}
-            // user={user} // Removed user prop as it's now in HomeHeader
+          // user={user} // Removed user prop as it's now in HomeHeader
           />
         }
         ListFooterComponent={

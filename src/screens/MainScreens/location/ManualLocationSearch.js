@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   TextInput,
@@ -11,12 +11,12 @@ import {
   Platform,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import {request, PERMISSIONS} from 'react-native-permissions';
-import {GOOGLE_API_KEY} from '@env';
+import { request, PERMISSIONS } from 'react-native-permissions';
+import { GOOGLE_API_KEY } from '@env';
 
 // const GOOGLE_API_KEY = 'AIzaSyBtcD7utCMCNfVxGvn9CWoKSH-BJ068uw0'
 
-const ManualLocationSearch = ({manualLocation, handleManualLocationChange}) => {
+const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) => {
   console.log('manualLocation-->>', manualLocation);
   const [loading, setLoading] = useState(false);
   const [name, setname] = useState('');
@@ -43,7 +43,7 @@ const ManualLocationSearch = ({manualLocation, handleManualLocationChange}) => {
     setLoading(true);
     Geolocation.getCurrentPosition(
       async position => {
-        const {latitude, longitude} = position.coords;
+        const { latitude, longitude } = position.coords;
         console.log('latitude, longitude-->>', latitude, longitude);
         const location = await getPhysicalAddress(latitude, longitude);
 
@@ -62,7 +62,7 @@ const ManualLocationSearch = ({manualLocation, handleManualLocationChange}) => {
         Alert.alert('Error', 'Unable to fetch current location');
         console.error(error);
       },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
     );
   };
 
@@ -118,7 +118,7 @@ const ManualLocationSearch = ({manualLocation, handleManualLocationChange}) => {
             value={manualLocation?.phone}
             onChangeText={text => handleManualLocationChange('phone', text)}
           />
-          <View style={{marginVertical: 10}}>
+          <View style={{ marginVertical: 10 }}>
             <Button title="Get Address" onPress={getCurrentLocation} />
           </View>
 

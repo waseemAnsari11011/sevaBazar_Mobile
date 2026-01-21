@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import AuthNavigator from './AuthNavigator';
 import StackNavigator from './StackNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {loadData} from '../config/redux/actions/storageActions';
+import { loadData } from '../config/redux/actions/storageActions';
 import SplashScreen from '../components/SplashScreen';
-import {fetchUserLocation} from '../config/redux/actions/locationActions'; // 👈 Import action
+import { fetchUserLocation } from '../config/redux/actions/locationActions'; // 👈 Import action
 
 const RootNavigator = () => {
   const [isLoading, setIsLoading] = React.useState(true);
@@ -17,12 +17,18 @@ const RootNavigator = () => {
   }, []);
 
   const dispatch = useDispatch();
-  const {data} = useSelector(state => state?.local);
+  const { data } = useSelector(state => state?.local);
   const isAuthenticated = !!data?.user; // 👈 Check if user is authenticated
   // 👇 This new useEffect will run when the user is authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch(fetchUserLocation());
+      // Check if user already has an active address
+      const hasActiveAddress = data?.user?.shippingAddresses?.some(addr => addr.isActive);
+
+      // Only fetch GPS location if no active address is found
+      if (!hasActiveAddress) {
+        dispatch(fetchUserLocation());
+      }
     }
   }, [isAuthenticated, dispatch]);
 
