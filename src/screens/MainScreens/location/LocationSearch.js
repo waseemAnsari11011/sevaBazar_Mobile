@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -7,20 +7,20 @@ import {
   TouchableOpacity,
   Alert,
 } from 'react-native';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ManualLocationSearch from './ManualLocationSearch';
 import ButtonComponent from '../../../components/Button';
 import api from '../../../utils/api';
-import {loadData, saveData} from '../../../config/redux/actions/storageActions';
-import {GOOGLE_API_KEY} from '@env';
+import { loadData, saveData } from '../../../config/redux/actions/storageActions';
+import { GOOGLE_API_KEY } from '@env';
 
 const GOOGLE_PLACES_API_KEY = GOOGLE_API_KEY;
 
-const LocationSearch = ({navigation, route}) => {
+const LocationSearch = ({ navigation, route }) => {
   const dispatch = useDispatch();
-  const {data} = useSelector(state => state.local);
+  const { data } = useSelector(state => state.local);
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [searchLocation, setSearchLocation] = useState(false);
   const [manualLocation, setManualLocation] = useState({
@@ -45,7 +45,7 @@ const LocationSearch = ({navigation, route}) => {
     loadLocalData();
 
     if (route.params?.isEdit) {
-      const {address} = route.params;
+      const { address } = route.params;
 
       setManualLocation({
         name: address.name,
@@ -92,7 +92,6 @@ const LocationSearch = ({navigation, route}) => {
       if (
         !addressDescription ||
         !description ||
-        !landmark ||
         !city ||
         !state ||
         !country ||
@@ -101,7 +100,6 @@ const LocationSearch = ({navigation, route}) => {
         let missingFields = [];
         if (!addressDescription) missingFields.push('Address Description');
         if (!description) missingFields.push('description');
-        if (!landmark) missingFields.push('landmark');
         if (!city) missingFields.push('city');
         if (!state) missingFields.push('state');
         if (!country) missingFields.push('country');
@@ -165,15 +163,15 @@ const LocationSearch = ({navigation, route}) => {
   };
 
   const handleLocationSelect = (data, details) => {
-      console.log('details', details);
-      const { geometry } = details;
-      const { location } = geometry;
-      const lat = location.lat;
-      const lng = location.lng;
+    console.log('details', details);
+    const { geometry } = details;
+    const { location } = geometry;
+    const lat = location.lat;
+    const lng = location.lng;
 
-      const pincode = details.address_components.find(component =>
-        component.types.includes('postal_code'),
-      )?.long_name;
+    const pincode = details.address_components.find(component =>
+      component.types.includes('postal_code'),
+    )?.long_name;
 
     const state = details.address_components.find(component =>
       component.types.includes('administrative_area_level_1'),

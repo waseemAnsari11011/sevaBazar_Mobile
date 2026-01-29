@@ -54,6 +54,37 @@ const OrderItem = ({ order, navigation, contact }) => {
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order.orderId}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
 
+                {/* Delivery OTP Card - Appears when Out for Delivery */}
+                {order.deliveryOtp && order.vendors.some(v => v.orderStatus === 'Shipped') && (
+                    <View style={styles.otpHighlightCard}>
+                        <View style={styles.otpHeader}>
+                            <Icon.MaterialCommunityIcons name="shield-check" size={20} color="#FF6600" />
+                            <Text style={styles.otpTitle}>DELIVERY OTP</Text>
+                        </View>
+                        <Text style={styles.otpValue}>{order.deliveryOtp}</Text>
+                        <Text style={styles.otpSubtext}>Share this code with the driver to receive your order.</Text>
+                    </View>
+                )}
+
+                {/* Driver Details Card - Appears below OTP when driver is assigned */}
+                {order.driverId && order.vendors.some(v => v.orderStatus === 'Shipped') && (
+                    <View style={styles.driverCard}>
+                        <Text style={styles.driverCardTitle}>Driver Information</Text>
+                        <View style={styles.driverInfoRow}>
+                            <Icon.FontAwesome name="user" size={14} color="#666" />
+                            <Text style={styles.driverInfoText}>
+                                {order.driverId.personalDetails?.name || 'N/A'}
+                            </Text>
+                        </View>
+                        <View style={styles.driverInfoRow}>
+                            <Icon.FontAwesome name="phone" size={14} color="#666" />
+                            <Text style={styles.driverInfoText}>
+                                {order.driverId.personalDetails?.phone || 'N/A'}
+                            </Text>
+                        </View>
+                    </View>
+                )}
+
                 {order?.vendors.length > 0 && order?.vendors?.map((vendorItem) => (
                     <View key={vendorItem?.vendor?._id} style={styles.vendorContainer}>
                         <Paragraph style={[styles.orderStatus, { color: getStatusColor(vendorItem.orderStatus), fontWeight: 'bold' }]}>
@@ -74,31 +105,33 @@ const OrderItem = ({ order, navigation, contact }) => {
                         {vendorItem.orderStatus === 'Shipped' && (() => {
                             const { timeString, isCritical } = getTimeRemaining(vendorItem.products?.[0]?.arrivalAt);
                             return (
-                                <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}>
-                                    <Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}
+                                <Paragraph style={styles.orderId}>
+                                    <Icon.AntDesign name="clockcircleo" size={16} />
+                                    <Text style={{ color: 'green' }}>Delivery Time: </Text>
+                                    <Text style={{ color: 'red' }}>{timeString}</Text>
                                 </Paragraph>
                             );
                         })()}
 
                         {vendorItem.products.map((productItem) => {
                             const { timeString, isCritical } = getTimeRemaining(productItem.arrivalAt);
-                            
+
                             // Extract image safely
-                           const productImage = productItem?.product?.variations?.[0]?.images?.[0] || 'https://via.placeholder.com/60';
+                            const productImage = productItem?.product?.variations?.[0]?.images?.[0] || 'https://via.placeholder.com/60';
 
                             return (
                                 <TouchableOpacity key={productItem._id} style={styles.productContainer} onPress={() =>
                                     navigation.navigate('Details', { product: productItem?.product })
                                 }>
                                     <View style={styles.productDetailsContainer}>
-                                        <Image 
-                                            source={{ uri: productImage }} 
-                                            style={styles.productImage} 
+                                        <Image
+                                            source={{ uri: productImage }}
+                                            style={styles.productImage}
                                             resizeMode="cover"
                                         />
                                         <View style={styles.productInfo}>
                                             <Paragraph style={styles.productName}><Icon.FontAwesome name="cube" size={16} /> Product: {productItem?.product?.name}</Paragraph>
-                                            
+
 
 
                                             <Paragraph style={styles.productDetails}><Icon.FontAwesome name="sort-numeric-asc" size={16} /> Quantity: {productItem?.quantity}</Paragraph>
@@ -107,11 +140,11 @@ const OrderItem = ({ order, navigation, contact }) => {
                                             <Paragraph style={styles.productDetails}><Icon.FontAwesome name="calculator" size={16} /> Total Amount: ₹{productItem?.totalAmount.toFixed(2)}</Paragraph>
                                             {productItem.variations?.map((variation, index) => (
                                                 <View key={index}>
-                                                  {variation.attributes?.map((attr, attrIndex) => (
-                                                    <Paragraph key={attrIndex} style={styles.productDetails}>
-                                                        <Icon.FontAwesome name="tag" size={16} /> {attr.name}: {attr.value}
-                                                    </Paragraph>
-                                                  ))}
+                                                    {variation.attributes?.map((attr, attrIndex) => (
+                                                        <Paragraph key={attrIndex} style={styles.productDetails}>
+                                                            <Icon.FontAwesome name="tag" size={16} /> {attr.name}: {attr.value}
+                                                        </Paragraph>
+                                                    ))}
                                                 </View>
                                             ))}
                                         </View>
@@ -122,23 +155,7 @@ const OrderItem = ({ order, navigation, contact }) => {
 
 
 
-                        <Paragraph style={styles.productDetails}>
-                            <Icon.FontAwesome name="truck" size={16} /> Delivery: ₹{vendorItem.deliveryCharge || 0}
-                            {(() => {
-                                let distance = vendorItem.distance;
-                                if (!distance && vendorItem.vendor?.location?.coordinates && order.shippingAddress?.latitude && order.shippingAddress?.longitude) {
-                                     const vendorLat = vendorItem.vendor.location.coordinates[1];
-                                     const vendorLon = vendorItem.vendor.location.coordinates[0];
-                                     distance = calculateDistance(vendorLat, vendorLon, order.shippingAddress.latitude, order.shippingAddress.longitude);
-                                }
-                                if (distance) {
-                                    const charge = vendorItem.deliveryCharge || 0;
-                                    const perKm = distance > 0 ? (charge / distance).toFixed(2) : 0;
-                                    return ` (${distance.toFixed(1)} km | ₹${perKm}/km)`;
-                                }
-                                return '';
-                            })()}
-                        </Paragraph>
+
                     </View>
                 ))}
 
@@ -151,18 +168,18 @@ const OrderItem = ({ order, navigation, contact }) => {
 
                     order?.vendors?.forEach(vendor => {
                         vendor.products?.forEach(product => {
-                           const pTotal = product.totalAmount || 0;
-                           const pQty = product.quantity || 0;
-                           const pPrice = product.price || 0;
-                           
-                           itemTotal += pTotal;
-                           grossTotal += (pPrice * pQty);
+                            const pTotal = product.totalAmount || 0;
+                            const pQty = product.quantity || 0;
+                            const pPrice = product.price || 0;
+
+                            itemTotal += pTotal;
+                            grossTotal += (pPrice * pQty);
                         });
                         deliveryTotal += vendor.deliveryCharge || 0;
                     });
-                    
+
                     discountTotal = grossTotal - itemTotal;
-                    
+
                     // Sanity check: ensure discount isn't negative due to float issues
                     if (discountTotal < 0) discountTotal = 0;
 
@@ -171,7 +188,7 @@ const OrderItem = ({ order, navigation, contact }) => {
 
                     return (
                         <View style={styles.breakdownContainer}>
-                             <Paragraph style={styles.breakdownTitle}>Payment Details</Paragraph>
+                            <Paragraph style={styles.breakdownTitle}>Payment Details</Paragraph>
                             <View style={styles.breakdownRow}>
                                 <Paragraph style={styles.breakdownLabel}>MRP Total</Paragraph>
                                 <Paragraph style={styles.breakdownValue}>₹{grossTotal.toFixed(2)}</Paragraph>
@@ -182,10 +199,45 @@ const OrderItem = ({ order, navigation, contact }) => {
                                     <Paragraph style={[styles.breakdownValue, { color: 'green' }]}>-₹{discountTotal.toFixed(2)}</Paragraph>
                                 </View>
                             )}
+
+                            {/* Delivery Fee Breakdown */}
                             <View style={styles.breakdownRow}>
                                 <Paragraph style={styles.breakdownLabel}>Delivery Fee</Paragraph>
                                 <Paragraph style={styles.breakdownValue}>₹{deliveryTotal.toFixed(2)}</Paragraph>
                             </View>
+                            {order?.vendors?.map((vendor, index) => {
+                                const charge = vendor.deliveryCharge || 0;
+                                let distance = vendor.distance;
+
+                                // Calculate distance if not stored
+                                if (!distance && vendor.vendor?.location?.coordinates && order.shippingAddress?.latitude && order.shippingAddress?.longitude) {
+                                    const vendorLat = vendor.vendor.location.coordinates[1];
+                                    const vendorLon = vendor.vendor.location.coordinates[0];
+                                    distance = calculateDistance(vendorLat, vendorLon, order.shippingAddress.latitude, order.shippingAddress.longitude);
+                                }
+
+                                // Default values (ideally these should come from backend settings)
+                                const basePay = 30;
+                                const baseDistance = 5;
+                                const perKmRate = 10;
+
+                                const dist = distance || 0;
+                                const extraDistance = Math.max(0, dist - baseDistance);
+                                const extraCharge = extraDistance * perKmRate;
+                                const isFixedOnly = dist <= baseDistance;
+
+                                return (
+                                    <View key={vendor.vendor?._id || index} style={styles.deliveryBreakdownItem}>
+                                        <View style={styles.deliveryExplainRow}>
+                                            <Icon.MaterialCommunityIcons name="information-outline" size={14} color="#666" />
+                                            <Paragraph style={styles.deliveryBreakdownText}>
+                                                {vendor.deliveryChargeDescription || "Calculated based on distance"}
+                                            </Paragraph>
+                                        </View>
+                                    </View>
+                                );
+                            })}
+
                             <View style={styles.breakdownRow}>
                                 <Paragraph style={styles.breakdownLabel}>Shipping Fee</Paragraph>
                                 <Paragraph style={styles.breakdownValue}>₹{shippingFee.toFixed(2)}</Paragraph>
@@ -335,6 +387,34 @@ const styles = StyleSheet.create({
         color: '#333',
         fontWeight: '500',
     },
+    deliveryBreakdownItem: {
+        marginLeft: 15,
+        marginBottom: 8,
+        paddingLeft: 10,
+        borderLeftWidth: 1,
+        borderLeftColor: '#eee',
+    },
+    deliveryExplainRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    deliveryBreakdownText: {
+        fontSize: 11,
+        color: '#777',
+        marginLeft: 6,
+        fontStyle: 'italic',
+    },
+    deliveryBreakdownValue: {
+        fontSize: 12,
+        color: '#333',
+        fontWeight: '500',
+        marginBottom: 2,
+    },
+    deliveryBreakdownRate: {
+        fontSize: 11,
+        color: '#888',
+        fontStyle: 'italic',
+    },
     totalRow: {
         marginTop: 8,
         paddingTop: 8,
@@ -350,5 +430,68 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: '#ff6600',
+    },
+    otpHighlightCard: {
+        backgroundColor: '#FFF5EE',
+        borderWidth: 1,
+        borderColor: '#FFDAB9',
+        borderRadius: 10,
+        padding: 12,
+        marginVertical: 10,
+        alignItems: 'center',
+        elevation: 1,
+    },
+    otpHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    otpTitle: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#FF6600',
+        marginLeft: 6,
+        letterSpacing: 1,
+    },
+    otpValue: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#333',
+        letterSpacing: 4,
+        marginVertical: 2,
+    },
+    otpSubtext: {
+        fontSize: 10,
+        color: '#666',
+        textAlign: 'center',
+        marginTop: 2,
+    },
+    driverCard: {
+        backgroundColor: '#F0F8FF',
+        borderWidth: 1,
+        borderColor: '#B0D4F1',
+        borderRadius: 10,
+        padding: 12,
+        marginVertical: 10,
+        elevation: 1,
+    },
+    driverCardTitle: {
+        fontSize: 13,
+        fontWeight: 'bold',
+        color: '#1E90FF',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    driverInfoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 6,
+        paddingLeft: 8,
+    },
+    driverInfoText: {
+        fontSize: 13,
+        color: '#333',
+        marginLeft: 8,
+        fontWeight: '500',
     },
 });

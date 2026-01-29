@@ -1,12 +1,27 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserLocation } from '../config/redux/actions/locationActions';
 
 const StickyComponent = ({ total, onCheckout, navigation }) => {
     const dispatch = useDispatch();
+    const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
     const { data } = useSelector(state => state.local);
     const userAddress = data?.user?.shippingAddresses?.[0]; // Assuming first address is default/current
+
+    const handleUpdateLocation = async () => {
+        setIsUpdatingLocation(true);
+        try {
+            await dispatch(fetchUserLocation());
+            // Navigate directly to checkout after updating the location
+            navigation.navigate('Checkout');
+        } catch (error) {
+            Alert.alert("Error", "Could not update location. Please try again.");
+        } finally {
+            setIsUpdatingLocation(false);
+        }
+    };
+
 
     const handleCheckout = () => {
         if (userAddress) {
@@ -20,14 +35,14 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
             ].filter(part => part); // Remove empty/undefined parts
 
             const addressString = addressParts.join(', ');
-            
+
             Alert.alert(
                 "Confirm Delivery Address",
                 `Do you want to deliver to:\n\n${addressString}`,
                 [
                     {
                         text: "Use Current Location",
-                        onPress: () => dispatch(fetchUserLocation()),
+                        onPress: handleUpdateLocation,
                         style: "cancel"
                     },
                     {
@@ -42,6 +57,7 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
         }
     };
 
+
     return (
         <View style={styles.container}>
             <View style={styles.cartContainer}>
@@ -52,13 +68,22 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
                         <Text style={styles.taxInfo}> (inc. VAT/TAX)</Text>
                     </Text>
                     <Text style={styles.Price}>
-                    ₹{total}
+                        ₹{total}
                     </Text>
                 </View>
 
-                <TouchableOpacity style={styles.button} onPress={handleCheckout}>
-                    <Text style={styles.text}>Checkout</Text>
+                <TouchableOpacity
+                    style={[styles.button, isUpdatingLocation && { opacity: 0.7 }]}
+                    onPress={handleCheckout}
+                    disabled={isUpdatingLocation}
+                >
+                    {isUpdatingLocation ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.text}>Checkout</Text>
+                    )}
                 </TouchableOpacity>
+
             </View>
 
         </View>

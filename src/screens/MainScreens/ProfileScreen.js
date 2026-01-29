@@ -8,24 +8,24 @@ import {
   Linking,
   Alert,
 } from 'react-native';
-import React, {useEffect} from 'react';
+import React, { useEffect } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import LogoutButton from '../../utils/logout';
 import DeviceInfo from 'react-native-device-info';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Icon from '../../components/Icons/Icon';
-import {baseURL} from '../../utils/api';
-import {fetchContact} from '../../config/redux/actions/contactActions';
+import { baseURL } from '../../utils/api';
+import { fetchContact } from '../../config/redux/actions/contactActions';
 
 // Check if device has a notch
 const hasNotch = DeviceInfo.hasNotch();
 const phoneNumber = '8116341826'; // The phone number you want to call
 
-const ProfileScreen = ({navigation}) => {
+const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const {data} = useSelector(state => state.local);
-  const {contact, loading, error} = useSelector(state => state.contact);
+  const { data } = useSelector(state => state.local);
+  const { contact, loading, error } = useSelector(state => state.contact);
 
   useEffect(() => {
     dispatch(fetchContact());
@@ -64,7 +64,7 @@ const ProfileScreen = ({navigation}) => {
             alignItems: 'center',
             paddingTop: hasNotch ? 80 : 20,
           }}>
-          <View style={{flexDirection: 'row'}}>
+          <View style={{ flexDirection: 'row' }}>
             {url && (
               <Image
                 style={{
@@ -74,7 +74,7 @@ const ProfileScreen = ({navigation}) => {
                   borderRadius: 25,
                   marginRight: 15,
                 }}
-                source={{uri: url}}
+                source={{ uri: url }}
               />
             )}
             {!url && (
@@ -90,7 +90,7 @@ const ProfileScreen = ({navigation}) => {
               />
             )}
             <View>
-              <Text style={{color: 'black', fontSize: 20, fontWeight: '600'}}>
+              <Text style={{ color: 'black', fontSize: 20, fontWeight: '600' }}>
                 {data.user.name}
               </Text>
               {/* <View style={{flexDirection: 'row', marginTop: 5}}>
@@ -101,8 +101,8 @@ const ProfileScreen = ({navigation}) => {
           </View>
           <LogoutButton />
         </View>
-        <View style={{padding: 20}}>
-          <Text style={{fontSize: 16, color: 'black', fontWeight: '600'}}>
+        <View style={{ padding: 20 }}>
+          <Text style={{ fontSize: 16, color: 'black', fontWeight: '600' }}>
             Your delivery address
           </Text>
           <View
@@ -127,12 +127,12 @@ const ProfileScreen = ({navigation}) => {
             </View>
 
 
-            {/* <AntDesign
-            onPress={() => navigation.navigate('Location List', { goBack: true })}
-            name="edit"
-            style={{ color: `#000066` }}
-            size={20}
-          /> */}
+            <AntDesign
+              onPress={() => navigation.navigate('Location List', { goBack: true })}
+              name="edit"
+              style={{ color: `#000066` }}
+              size={20}
+            />
           </View>
         </View>
         <TouchableOpacity
@@ -140,20 +140,20 @@ const ProfileScreen = ({navigation}) => {
           style={styles.needHelpContainer}>
           <View style={styles.itemSubContainer}>
             <Image
-              style={[styles.itemImage, {height: 30, width: 30}]}
+              style={[styles.itemImage, { height: 30, width: 30 }]}
               source={require('../../assets/images/headphone.png')}
             />
             <View style={{}}>
               <Text
-                style={[styles.itemTitle, {fontWeight: '600', fontSize: 15}]}>
+                style={[styles.itemTitle, { fontWeight: '600', fontSize: 15 }]}>
                 Need Help?
               </Text>
-              <Text style={{fontWeight: '300', fontSize: 13}}>
+              <Text style={{ fontWeight: '300', fontSize: 13 }}>
                 We're here for you
               </Text>
             </View>
           </View>
-          <AntDesign name="right" style={{color: 'black'}} size={20} />
+          <AntDesign name="right" style={{ color: 'black' }} size={20} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => navigation.navigate('Edit Profile')}
@@ -167,7 +167,22 @@ const ProfileScreen = ({navigation}) => {
             />
             <Text style={styles.itemTitle}>Edit Profile</Text>
           </View>
-          <AntDesign name="right" style={{color: '#000066'}} size={20} />
+          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
+        </TouchableOpacity>
+        <View style={styles.borderBottom}></View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Location List', { goBack: true })}
+          style={styles.itemContainer}>
+          <View style={styles.itemSubContainer}>
+            <Icon.Ionicons
+              name="location-sharp"
+              style={styles.itemIcon}
+              size={24}
+              color="#000066"
+            />
+            <Text style={styles.itemTitle}>Shipping Addresses</Text>
+          </View>
+          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
         </TouchableOpacity>
         <View style={styles.borderBottom}></View>
         <TouchableOpacity
@@ -182,7 +197,7 @@ const ProfileScreen = ({navigation}) => {
             />
             <Text style={styles.itemTitle}>My orders</Text>
           </View>
-          <AntDesign name="right" style={{color: '#000066'}} size={20} />
+          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
         </TouchableOpacity>
         <View style={styles.borderBottom}></View>
         <TouchableOpacity
@@ -197,7 +212,7 @@ const ProfileScreen = ({navigation}) => {
             />
             <Text style={styles.itemTitle}>Order History</Text>
           </View>
-          <AntDesign name="right" style={{color: '#000066'}} size={20} />
+          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
         </TouchableOpacity>
         <View style={styles.borderBottom}></View>
         <TouchableOpacity
@@ -212,7 +227,7 @@ const ProfileScreen = ({navigation}) => {
             />
             <Text style={styles.itemTitle}>Inquiries</Text>
           </View>
-          <AntDesign name="right" style={{color: '#000066'}} size={20} />
+          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
         </TouchableOpacity>
         <View style={styles.borderBottom}></View>
         <TouchableOpacity
@@ -227,7 +242,7 @@ const ProfileScreen = ({navigation}) => {
             />
             <Text style={styles.itemTitle}>Faqs</Text>
           </View>
-          <AntDesign name="right" style={{color: '#000066'}} size={20} />
+          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
         </TouchableOpacity>
         <View style={styles.borderBottom}></View>
         {/* <TouchableOpacity
@@ -280,8 +295,8 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     padding: 10,
   },
-  itemTitle: {color: 'black', fontSize: 16, fontWeight: '400', marginLeft: 10},
-  itemSubContainer: {flexDirection: 'row', alignItems: 'center'},
+  itemTitle: { color: 'black', fontSize: 16, fontWeight: '400', marginLeft: 10 },
+  itemSubContainer: { flexDirection: 'row', alignItems: 'center' },
   needHelpContainer: {
     padding: 15,
     backgroundColor: '#CF9FFF55',

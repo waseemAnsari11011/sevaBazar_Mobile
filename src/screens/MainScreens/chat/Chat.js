@@ -48,13 +48,13 @@ const Chat = () => {
                                     paymentStatus: 'Unpaid',
                                     vendorId: vendorId
                                 };
-                    
+
                                 await dispatch(createChatOrder(orderData));
                                 setOrderMessage('');
                                 Alert.alert('Success', 'Order Placed Successfully!', [
                                     {
                                         text: 'OK',
-                                        onPress: () => navigation.navigate('My order', { screen: 'Chat Orders' }),
+                                        onPress: () => navigation.navigate('Profile', { screen: 'My order', params: { screen: 'Chat Orders' } }),
                                     },
                                 ]);
                             } catch (error) {
@@ -90,6 +90,14 @@ const Chat = () => {
                         <Text style={styles.addressContent}>{data?.user?.shippingAddresses.find(address => address.isActive)?.address}</Text>
                     </View>
                 </View>
+                {/*
+    - [x] Implementing Chat Orders in Vendor App
+    - [x] Create `ChatOrdersScreen.jsx` in `vendorApp`
+    - [x] Create `ChatOrderDetailsScreen.jsx` in `vendorApp`
+    - [x] Update `AppNavigator.jsx` to include new screens
+    - [x] Update `HomeScreen.jsx` to provide access to Chat Orders
+    - [x] Verify functionality
+*/}
                 <TextInput
                     placeholder="Type your order here..."
                     mode="outlined"
@@ -100,7 +108,7 @@ const Chat = () => {
                 // theme={{ colors: { primary: '#000066' } }} // Set text color to dark blue (#000066)
                 />
 
-               
+
             </View>
             <View style={styles.buttonContainer}>
                 <ButtonComponent title="Send Order" color='#ff6600' onPress={handleSendOrder} />
@@ -139,7 +147,7 @@ const styles = StyleSheet.create({
         marginBottom: 16, // Adjust spacing from bottom as needed
     },
     cardcontainer: {
-        marginVertical:20,
+        marginVertical: 20,
 
         padding: 20,
         margin: 5,

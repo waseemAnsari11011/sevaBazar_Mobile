@@ -17,20 +17,20 @@ const RootNavigator = () => {
   }, []);
 
   const dispatch = useDispatch();
+  const { user: authUser } = useSelector(state => state?.auth); // 👈 Use auth user for immediate updates
   const { data } = useSelector(state => state?.local);
-  const isAuthenticated = !!data?.user; // 👈 Check if user is authenticated
+  const location = useSelector(state => state?.location);
+
+  const user = authUser || data?.user;
+  const isAuthenticated = !!user;
+  const hasNoAddress = user?.shippingAddresses?.length === 0;
+
   // 👇 This new useEffect will run when the user is authenticated
   useEffect(() => {
-    if (isAuthenticated) {
-      // Check if user already has an active address
-      const hasActiveAddress = data?.user?.shippingAddresses?.some(addr => addr.isActive);
-
-      // Only fetch GPS location if no active address is found
-      if (!hasActiveAddress) {
-        dispatch(fetchUserLocation());
-      }
+    if (isAuthenticated && hasNoAddress) {
+      dispatch(fetchUserLocation());
     }
-  }, [isAuthenticated, dispatch]);
+  }, [isAuthenticated, hasNoAddress, dispatch]);
 
   useEffect(() => {
     const loadLocalData = async () => {
@@ -39,9 +39,18 @@ const RootNavigator = () => {
     loadLocalData();
   }, []);
 
+  // Proactively stay on splash if user just authenticated but lacks an address,
+  // until we at least start/finish the fetch attempt.
+  const isWaitingForLocation =
+    isAuthenticated &&
+    hasNoAddress &&
+    !location.location &&
+    !location.error &&
+    !location.permissionDenied;
+
   return (
     <NavigationContainer>
-      {isLoading ? (
+      {isLoading || isWaitingForLocation ? (
         <SplashScreen />
       ) : data?.user ? (
         <StackNavigator />

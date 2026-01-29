@@ -1,35 +1,24 @@
 import React from 'react';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainTabNavigator from './MainTabNavigator';
 import DrawerNavigator from './DrawerNavigator';
 import LocationSearch from '../screens/MainScreens/location/LocationSearch';
 import PhoneSignIn from '../screens/PhoneSignIn';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import ShippingAddressesList from '../screens/MainScreens/location/ShippingAddressesList';
 import CheckoutScreen from '../screens/MainScreens/Checkout';
 
 const Stack = createNativeStackNavigator();
 
 const StackNavigator = () => {
-  const {data} = useSelector(state => state?.local);
-
-  console.log('data?.user?.shippingAddresses', data?.user?.shippingAddresses);
-
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
       }}>
-      {data?.user?.shippingAddresses?.length === 0 && (
-        <Stack.Screen
-          name="Search Location"
-          options={{headerShown: true}}
-          component={LocationSearch}
-        />
-      )}
       <Stack.Screen name="Main" component={MainTabNavigator} />
 
-      
+
       {/* 
           Screens below should only be here if they need to cover the tab bar 
           (e.g., Modals, Full screen flows). 
@@ -38,14 +27,14 @@ const StackNavigator = () => {
       */}
 
 
-      
+
 
       <Stack.Screen
-        options={{headerShown: true}}
+        options={{ headerShown: true }}
         name="otp"
         component={PhoneSignIn}
       />
-      
+
       {/* Location List and Add Location might be accessed from Cart/Checkout flow too? 
           If so, keeping them here might be necessary OR accessible via deep link.
           For now, 'Location List' is in Profile. If accessed from Checkout, we might need it here?
@@ -67,7 +56,7 @@ const StackNavigator = () => {
           I will remove the moved screens.
       */}
 
-       {/* Removed moved screens: 
+      {/* Removed moved screens: 
           Details, Edit Profile, CategoryProducts, Vendors..., Edit Address, Notifications,
           Discounted Products, New Arrivals, Search, Submit Inquiry, Faqs, Contactus,
           All Categories, Chat, Support Ticket

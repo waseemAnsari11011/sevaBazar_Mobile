@@ -50,7 +50,7 @@ const MainTabNavigator = () => {
       <Tab.Screen
         name="Home"
         component={HomeNavigator}
-        options={{headerShown: false}}
+        options={{ headerShown: false }}
       />
       <Tab.Screen
         name="Offer"
@@ -69,10 +69,10 @@ const MainTabNavigator = () => {
         }}
       />
       {/* <Tab.Screen name="Chat" component={Chat} /> */}
-      <Tab.Screen 
-        name="Profile" 
-        component={ProfileNavigator} 
-        options={{headerShown: false}}
+      <Tab.Screen
+        name="Profile"
+        component={ProfileNavigator}
+        options={{ headerShown: false }}
       />
     </Tab.Navigator>
   );

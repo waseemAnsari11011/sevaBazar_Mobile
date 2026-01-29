@@ -54,6 +54,8 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
           handleManualLocationChange('state', location.state);
           handleManualLocationChange('country', location.country);
           handleManualLocationChange('pincode', location.pincode);
+          handleManualLocationChange('latitude', latitude);
+          handleManualLocationChange('longitude', longitude);
         }
         setLoading(false);
       },

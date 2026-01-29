@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,26 +8,32 @@ import {
   TextInput,
   Modal,
   TouchableWithoutFeedback,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 
-import {baseURL} from '../../../../utils/api';
+import { baseURL } from '../../../../utils/api';
 
-import {useDispatch} from 'react-redux';
-import {fetchUserLocation} from '../../../../config/redux/actions/locationActions';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  detectLocation,
+  saveLocationToBackend,
+} from '../../../../config/redux/actions/locationActions';
 
-const HomeHeader = ({user}) => {
+const HomeHeader = ({ user }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const [isBottomSheetVisible, setIsBottomSheetVisible] = useState(false);
+  const [detectedAddress, setDetectedAddress] = useState(null);
+  const [isDetecting, setIsDetecting] = useState(false);
 
   // Retrieve active address
   const activeAddress = user?.shippingAddresses?.find(addr => addr.isActive);
 
   // Format the location text for display
-  // Use activeAddress.address (backend field) everywhere instead of addressLine1
   const locationText = activeAddress
     ? activeAddress.address === 'Current Location'
       ? 'Current Location (Detected)'
@@ -43,11 +49,38 @@ const HomeHeader = ({user}) => {
 
   const toggleBottomSheet = () => {
     setIsBottomSheetVisible(!isBottomSheetVisible);
+    if (!isBottomSheetVisible) {
+      setDetectedAddress(null); // Reset when opening
+    }
   };
 
-  const handleUseCurrentLocation = () => {
-    setIsBottomSheetVisible(false);
-    dispatch(fetchUserLocation());
+  const handleUseCurrentLocation = async () => {
+    if (!detectedAddress) {
+      setIsDetecting(true);
+      try {
+        const result = await dispatch(detectLocation());
+        setDetectedAddress(result);
+      } catch (error) {
+        console.error('Detection failed:', error);
+        const errorMessage = error.message || 'Unknown error';
+        Alert.alert(
+          'Location Error',
+          `Failed to fetch your location: ${errorMessage}. Please check if GPS is on and try again.`
+        );
+      } finally {
+        setIsDetecting(false);
+      }
+    } else {
+      // Confirm and save
+      try {
+        await dispatch(saveLocationToBackend(detectedAddress));
+        setIsBottomSheetVisible(false);
+        setDetectedAddress(null);
+      } catch (error) {
+        console.error('Save failed:', error);
+        Alert.alert('Error', 'Failed to save location. Please try again.');
+      }
+    }
   };
 
   const handleSearchPress = () => {
@@ -57,8 +90,8 @@ const HomeHeader = ({user}) => {
   return (
     <LinearGradient
       colors={['#000066', '#ffffff']}
-      start={{x: 0, y: 0}}
-      end={{x: 1, y: 0}}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
       style={styles.container}>
       {/* Top Row: Brand, Time, Location, Profile */}
       <View style={styles.topRow}>
@@ -117,28 +150,51 @@ const HomeHeader = ({user}) => {
 
                 {/* Show Current Location Details */}
                 <View style={{ marginBottom: 20 }}>
-                   <Text style={{ color: '#666', fontSize: 14 }}>Currently delivering to:</Text>
-                   <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginTop: 5 }}>
-                     {activeAddress ? (
-                        activeAddress.address === 'Current Location'
-                        ? 'Current GPS Location'
-                        : `${activeAddress.address}, ${activeAddress.city}, ${activeAddress.postalCode}`
-                     ) : 'No location selected'}
-                   </Text>
-                   {activeAddress && activeAddress.address === 'Current Location' && (
-                       <Text style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
-                         {activeAddress.latitude?.toFixed(4)}, {activeAddress.longitude?.toFixed(4)}
-                       </Text>
-                   )}
+                  {isDetecting && (
+                    <Text style={{ color: '#666', fontSize: 14 }}>
+                      Detecting your location...
+                    </Text>
+                  )}
+                  {isDetecting ? (
+                    <ActivityIndicator size="small" color="#27ae60" style={{ marginTop: 10, alignSelf: 'flex-start' }} />
+                  ) : (
+                    <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginTop: 5 }}>
+                      {detectedAddress
+                        ? (detectedAddress.city || 'Detected Location')
+                        : activeAddress ? (
+                          activeAddress.address === 'Current Location'
+                            ? 'Current GPS Location'
+                            : `${activeAddress.address}, ${activeAddress.city}, ${activeAddress.postalCode}`
+                        ) : 'No location selected'}
+                    </Text>
+                  )}
+
+                  {detectedAddress && !isDetecting && (
+                    <Text style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+                      {detectedAddress.addressLine1}
+                    </Text>
+                  )}
+
+                  {activeAddress && activeAddress.address === 'Current Location' && !detectedAddress && !isDetecting && (
+                    <Text style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+                      {activeAddress.latitude?.toFixed(4)}, {activeAddress.longitude?.toFixed(4)}
+                    </Text>
+                  )}
                 </View>
 
                 <TouchableOpacity
-                  style={styles.useCurrentLocationButton}
-                  onPress={handleUseCurrentLocation}>
+                  style={[
+                    styles.useCurrentLocationButton,
+                    detectedAddress && { backgroundColor: '#000066' } // Change color to primary for confirm
+                  ]}
+                  onPress={handleUseCurrentLocation}
+                  disabled={isDetecting}>
                   <View style={styles.iconContainer}>
-                    <Ionicons name="locate" size={22} color="#fff" />
+                    <Ionicons name={detectedAddress ? "checkmark-circle" : "locate"} size={22} color="#fff" />
                   </View>
-                  <Text style={styles.useCurrentLocationText}>Use Current Location</Text>
+                  <Text style={styles.useCurrentLocationText}>
+                    {isDetecting ? 'Fetching...' : detectedAddress ? 'Confirm Location' : 'Use Current Location'}
+                  </Text>
                 </TouchableOpacity>
 
               </View>

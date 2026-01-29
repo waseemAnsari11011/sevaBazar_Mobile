@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,22 +16,22 @@ import AddressTypeSelector from '../../components/SelectAddress';
 import Icon from '../../components/Icons/Icon';
 import StickyButton from '../../components/stickyBottomCartBtn';
 import StickyProceedButton from '../../components/StickyProceed';
-import {useDispatch, useSelector} from 'react-redux';
-import api, {baseURL} from '../../utils/api';
+import { useDispatch, useSelector } from 'react-redux';
+import api, { baseURL } from '../../utils/api';
 import calculateDiscountedPrice from '../../utils/calculateDiscountedPrice';
 import QuantityUpdater from '../../components/QuantityUpdater';
-import {clearCart} from '../../config/redux/actions/cartActions';
+import { clearCart } from '../../config/redux/actions/cartActions';
 import Loading from '../../components/Loading';
 import RazorpayCheckout from 'react-native-razorpay';
-import {RadioButton} from 'react-native-paper';
-import {getProductById} from '../../config/redux/actions/productAction';
+import { RadioButton } from 'react-native-paper';
+import { getProductById } from '../../config/redux/actions/productAction';
 
 const windowWidth = Dimensions.get('window').width;
 
-const CheckoutScreen = ({navigation}) => {
+const CheckoutScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const {data} = useSelector(state => state?.local);
-  const {cartItems} = useSelector(state => state.cart);
+  const { data } = useSelector(state => state?.local);
+  const { cartItems } = useSelector(state => state.cart);
   const subtotalPrice = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
     0,
@@ -60,14 +60,14 @@ const CheckoutScreen = ({navigation}) => {
         vendors: vendorIds,
         shippingAddress: activeAddress,
       };
-      
+
       if (!activeAddress.latitude || !activeAddress.longitude) {
-           Alert.alert("Location Missing", "Please update your address with precise location.", [
-               { text: "Update", onPress: () => navigation.navigate('Location List', {isCheckOut: true}) }
-           ]);
-           setDeliveryCharge(0);
-           setDeliveryBreakdown([]);
-           return;
+        Alert.alert("Location Missing", "Please update your address with precise location.", [
+          { text: "Update", onPress: () => navigation.navigate('Location List', { isCheckOut: true }) }
+        ]);
+        setDeliveryCharge(0);
+        setDeliveryBreakdown([]);
+        return;
       }
 
       const response = await api.post('/calculate-delivery', payload);
@@ -114,20 +114,20 @@ const CheckoutScreen = ({navigation}) => {
         }
 
         const vendorGroup = vendorsMap.get(vendorId);
-        
+
         // Construct product object for backend
         const productPayload = {
           product: item.productId || item.product?._id || item._id, // Handle potential inconsistent id naming
           quantity: item.quantity,
           price: item.price, // Using current price (often discounted)
-          variations: item.variations ? item.variations.map(v => ({ 
-            _id: v._id, 
+          variations: item.variations ? item.variations.map(v => ({
+            _id: v._id,
             quantity: item.quantity,
             attributes: v.attributes,
             images: v.images
-          })) : [] 
+          })) : []
         };
-        
+
         vendorGroup.products.push(productPayload);
       });
 
@@ -141,9 +141,9 @@ const CheckoutScreen = ({navigation}) => {
 
       console.log('Order Payload:', JSON.stringify(payload, null, 2));
 
-        console.log('Final Order Payload:', JSON.stringify(payload, null, 2));
+      console.log('Final Order Payload:', JSON.stringify(payload, null, 2));
 
-        const response = await api.post('/order', payload);
+      const response = await api.post('/order', payload);
 
       if (response.status === 201 || response.status === 200) {
         Alert.alert('Success', 'Order placed successfully!', [
@@ -156,7 +156,7 @@ const CheckoutScreen = ({navigation}) => {
           },
         ]);
       } else {
-         Alert.alert('Order Failed', response.data.error || 'Something went wrong.');
+        Alert.alert('Order Failed', response.data.error || 'Something went wrong.');
       }
 
     } catch (error) {
@@ -164,10 +164,10 @@ const CheckoutScreen = ({navigation}) => {
       if (error.response) {
         console.log('Error Response Data:', JSON.stringify(error.response.data, null, 2));
       }
-      
+
       let errorMessage = error.response?.data?.error || error.message || 'Something went wrong';
       if (typeof errorMessage === 'object') {
-          errorMessage = JSON.stringify(errorMessage);
+        errorMessage = JSON.stringify(errorMessage);
       }
       Alert.alert('Error', errorMessage);
     } finally {
@@ -177,12 +177,12 @@ const CheckoutScreen = ({navigation}) => {
 
 
   const renderHeader = () => (
-    <View style={{padding: 15, paddingBottom: 0}}>
+    <View style={{ padding: 15, paddingBottom: 0 }}>
       <Text style={summarystyles.title}>Order Summary</Text>
     </View>
   );
 
-  const renderCartItem = ({item}) => {
+  const renderCartItem = ({ item }) => {
     return (
       <View style={summarystyles.cartItem}>
         {item?.images && item.images.length > 0 ? (
@@ -257,20 +257,22 @@ const CheckoutScreen = ({navigation}) => {
           <Text style={footerStyles.value}>₹{shippingFee.toFixed(2)}</Text>
         </View>
 
-        {deliveryBreakdown.length > 0 ? (
+        {deliveryBreakdown.length > 0 &&
           deliveryBreakdown.map((item, index) => (
-             <View key={index} style={footerStyles.row}>
-              <Text style={footerStyles.label}>
-                Delivery Charge ({item.distance.toFixed(1)} km)
-              </Text>
-              <Text style={footerStyles.value}>₹{item.charge.toFixed(2)}</Text>
+            <View key={index} style={footerStyles.deliveryBreakdownItem}>
+              <View style={footerStyles.deliveryExplainRow}>
+                <Icon.MaterialCommunityIcons name="information-outline" size={14} color="#666" />
+                <Text style={footerStyles.deliveryBreakdownText}>
+                  {item.description || `Distance: ${item.distance.toFixed(1)} km`}
+                </Text>
+              </View>
             </View>
-          ))
-        ) : (
-           <View style={footerStyles.row}>
-              <Text style={footerStyles.label}>Delivery Charge</Text>
-              <Text style={footerStyles.value}>₹{deliveryCharge.toFixed(2)}</Text>
-            </View>
+          ))}
+        {deliveryBreakdown.length === 0 && (
+          <View style={footerStyles.row}>
+            <Text style={footerStyles.label}>Delivery Charge</Text>
+            <Text style={footerStyles.value}>₹{deliveryCharge.toFixed(2)}</Text>
+          </View>
         )}
 
         <View style={footerStyles.row}>
@@ -292,8 +294,8 @@ const CheckoutScreen = ({navigation}) => {
   return (
     <>
       {loading && <Loading />}
-      <View style={{padding: 16}}>
-        <Text style={{color: 'black', fontSize: 18, marginBottom: 10}}>
+      <View style={{ padding: 16 }}>
+        <Text style={{ color: 'black', fontSize: 18, marginBottom: 10 }}>
           Select Payment Method:
         </Text>
         <RadioButton.Group
@@ -303,7 +305,7 @@ const CheckoutScreen = ({navigation}) => {
             <RadioButton value="online" />
             <Text style={{fontSize: 16}}>Online Payment</Text>
         </View> */}
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <RadioButton value="cod" />
             <Text
               style={{
@@ -352,7 +354,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 5,
@@ -406,6 +408,23 @@ const footerStyles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: 'grey',
     paddingTop: 10,
+  },
+  deliveryBreakdownItem: {
+    marginLeft: 15,
+    marginTop: 4,
+    paddingLeft: 10,
+    borderLeftWidth: 1,
+    borderLeftColor: '#eee',
+  },
+  deliveryExplainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deliveryBreakdownText: {
+    fontSize: 11,
+    color: '#777',
+    marginLeft: 6,
+    fontStyle: 'italic',
   },
 });
 

@@ -66,26 +66,26 @@ export const handleDownloadInvoice = async (order, contact) => {
     order.vendors.forEach(vendor => {
         const charge = vendor.deliveryCharge || 0;
         totalDeliveryCharge += charge;
-        
+
         let distanceStr = '';
         if (vendor.distance) {
             distanceStr = `${vendor.distance.toFixed(1)} km`;
         } else {
-             // Fallback calc if needed, similar to OrderItem but maybe overkill for PDF if not stored. 
-             // We'll rely on stored or 0 for now to keep it clean, or use 'Unknown distance'
-             // If we really want fallback, we need calculateDistance here too.
-             // Let's check if we can access calculateDistance here. It is exported.
-             if (vendor.vendor?.location?.coordinates && order.shippingAddress?.latitude && order.shippingAddress?.longitude) {
-                 const d = calculateDistance(
-                     vendor.vendor.location.coordinates[1], 
-                     vendor.vendor.location.coordinates[0], 
-                     order.shippingAddress.latitude, 
-                     order.shippingAddress.longitude
-                 );
-                 distanceStr = `${d.toFixed(1)} km`;
-             }
+            // Fallback calc if needed, similar to OrderItem but maybe overkill for PDF if not stored. 
+            // We'll rely on stored or 0 for now to keep it clean, or use 'Unknown distance'
+            // If we really want fallback, we need calculateDistance here too.
+            // Let's check if we can access calculateDistance here. It is exported.
+            if (vendor.vendor?.location?.coordinates && order.shippingAddress?.latitude && order.shippingAddress?.longitude) {
+                const d = calculateDistance(
+                    vendor.vendor.location.coordinates[1],
+                    vendor.vendor.location.coordinates[0],
+                    order.shippingAddress.latitude,
+                    order.shippingAddress.longitude
+                );
+                distanceStr = `${d.toFixed(1)} km`;
+            }
         }
-        
+
         deliveryBreakdown.push({
             vendorName: vendor.vendor?.businessName || 'Vendor',
             distance: distanceStr,
@@ -102,7 +102,7 @@ export const handleDownloadInvoice = async (order, contact) => {
     });
 
     const shippingFee = order.shippingFee || 9.00; // Use from order or fallback to 9
-    
+
     // Recalculate Final Total to ensure it matches components
     // Note: order.totalAmount from DB should be the source of truth, but if we build it up:
     // Total = ItemCost + ShippingFee + TotalDeliveryCharge
@@ -112,7 +112,7 @@ export const handleDownloadInvoice = async (order, contact) => {
     // In Checkout logic: product.totalAmount isn't explicitly used for subtotal, subtotal is price*qty.
     // Let's trust itemCost + fees for now or just use order.totalAmount if available.
     // Let's use the calculated sum for display consistency in breakdown.
-    
+
     const finalTotal = (parseFloat(itemCost) + parseFloat(totalDeliveryCharge) + shippingFee).toFixed(2);
 
     // Prepare Vendor Details String for Header
@@ -132,7 +132,7 @@ export const handleDownloadInvoice = async (order, contact) => {
     const tempLogoPath = await downloadImageToTmp(logoSource.uri);
     const logoBase64 = await getBase64Image(tempLogoPath);
 
-    let htmlContent =`<html>
+    let htmlContent = `<html>
     <head>
         <style>
             html, body {
@@ -551,30 +551,42 @@ export function getTimeRemaining(arrivalAt) {
     const arrivalTime = new Date(arrivalAt);
 
     if (isNaN(arrivalTime.getTime())) {
-         return { timeString: 'Arriving soon', isCritical: false };
+        return { timeString: 'Arriving soon', isCritical: false };
     }
 
     let timeDifference = arrivalTime - currentTime;
-    const gracePeriodMs = 5 * 60 * 1000; // 5 minutes
+    const extensionPeriodMs = 5 * 60 * 1000; // 5 minutes extension
 
     if (timeDifference < 0) {
-        // Check if within grace period
-        if (timeDifference > -gracePeriodMs) {
-             // Calculate remaining grace time
-             timeDifference = timeDifference + gracePeriodMs;
+        // Order is past the initial 15-minute arrival time
+        const delayTime = Math.abs(timeDifference);
+
+        if (delayTime <= extensionPeriodMs) {
+            // Within 5-minute extension period (15-20 minutes total)
+            const remainingExtensionTime = extensionPeriodMs - delayTime;
+            const totalMinutes = Math.floor(remainingExtensionTime / (1000 * 60));
+
+            let timeString;
+            if (totalMinutes < 1) {
+                timeString = `Less than a minute`;
+            } else {
+                timeString = `${totalMinutes} Minutes`;
+            }
+
+            return { timeString, isCritical: true, totalMinutes };
         } else {
-             // Grace period expired
-             return { timeString: 'Order delayed, Sorry for inconvenience', isCritical: true };
+            // More than 20 minutes total (15 + 5) - show delay message
+            return { timeString: "We're sorry for the delay!", isCritical: true };
         }
     }
 
+    // Still within initial 15-minute period
     const totalMinutes = Math.floor(timeDifference / (1000 * 60));
-    // Critical if less than 5 minutes (covers end of normal timer and entire grace period)
-    const isCritical = timeDifference <= 5 * 60 * 1000; 
+    const isCritical = totalMinutes <= 5; // Mark as critical when less than 5 minutes remaining
 
     let timeString;
     if (totalMinutes < 1) {
-         timeString = `Less than a minute`;
+        timeString = `Less than a minute`;
     } else if (totalMinutes <= 90) {
         timeString = `${totalMinutes} Minutes`;
     } else {
