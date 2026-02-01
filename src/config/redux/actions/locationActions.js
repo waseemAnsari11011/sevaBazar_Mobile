@@ -51,7 +51,8 @@ export const detectLocation = () => async (dispatch) => {
           );
           const data = await response.json();
           let addressData = {
-            addressLine1: 'Current Location',
+            addressLine1: '',
+            addressLine2: 'Current Location',
             city: 'Detected',
             state: 'Detected',
             postalCode: '000000',
@@ -60,7 +61,8 @@ export const detectLocation = () => async (dispatch) => {
 
           if (data.results && data.results.length > 0) {
             const addressComponents = data.results[0].address_components;
-            addressData.addressLine1 = data.results[0].formatted_address;
+            addressData.addressLine2 = data.results[0].formatted_address;
+            addressData.addressLine1 = '';
 
             addressComponents.forEach(component => {
               if (component.types.includes('locality')) addressData.city = component.long_name;
@@ -75,7 +77,8 @@ export const detectLocation = () => async (dispatch) => {
           resolve({
             latitude,
             longitude,
-            addressLine1: 'Current Location',
+            addressLine1: '',
+            addressLine2: 'Current Location',
             city: 'Detected',
             state: 'Detected',
             postalCode: '000000',
@@ -110,7 +113,6 @@ export const saveLocationToBackend = (locationData) => async (dispatch, getState
         isActive: true,
         name: user.name || '',
         phone: user.contactNumber,
-        addressDescription: 'Current Location',
         landmark: ''
       });
 

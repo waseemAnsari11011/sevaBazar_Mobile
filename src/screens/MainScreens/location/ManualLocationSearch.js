@@ -2,6 +2,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import {
   View,
+  Text,
   TextInput,
   ScrollView,
   StyleSheet,
@@ -16,11 +17,21 @@ import { GOOGLE_API_KEY } from '@env';
 
 // const GOOGLE_API_KEY = 'AIzaSyBtcD7utCMCNfVxGvn9CWoKSH-BJ068uw0'
 
+import { Picker } from '@react-native-picker/picker';
+
 const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) => {
   console.log('manualLocation-->>', manualLocation);
   const [loading, setLoading] = useState(false);
-  const [name, setname] = useState('');
-  const [phone, setphone] = useState('');
+
+  const states = [
+    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
+    'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka',
+    'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram',
+    'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu',
+    'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal',
+    'Andaman and Nicobar Islands', 'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu',
+    'Delhi', 'Jammu and Kashmir', 'Ladakh', 'Lakshadweep', 'Puducherry'
+  ];
 
   const requestLocationPermission = async () => {
     const result = await request(
@@ -48,14 +59,18 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
         const location = await getPhysicalAddress(latitude, longitude);
 
         if (location) {
-          handleManualLocationChange('description', location.description);
-          handleManualLocationChange('landmark', location.landmark);
-          handleManualLocationChange('city', location.city);
-          handleManualLocationChange('state', location.state);
-          handleManualLocationChange('country', location.country);
-          handleManualLocationChange('pincode', location.pincode);
-          handleManualLocationChange('latitude', latitude);
-          handleManualLocationChange('longitude', longitude);
+          handleManualLocationChange({
+            description: location.description,
+            flatNo: '',
+            area: location.description,
+            landmark: location.landmark || '',
+            city: location.city,
+            state: location.state,
+            country: location.country,
+            pincode: location.pincode,
+            latitude: latitude,
+            longitude: longitude,
+          });
         }
         setLoading(false);
       },
@@ -89,6 +104,9 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
           pincode: addressComponents.find(component =>
             component.types.includes('postal_code'),
           )?.long_name,
+          landmark: addressComponents.find(component =>
+            component.types.includes('sublocality_level_1'),
+          )?.long_name,
         };
         return location;
       } else {
@@ -107,88 +125,166 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
-        <>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Name"
-            value={manualLocation?.name}
-            onChangeText={text => handleManualLocationChange('name', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Phone"
-            value={manualLocation?.phone}
-            onChangeText={text => handleManualLocationChange('phone', text)}
-          />
-          <View style={{ marginVertical: 10 }}>
-            <Button title="Get Address" onPress={getCurrentLocation} />
+        <View style={styles.formContainer}>
+          <View style={styles.autofillContainer}>
+            <Button title="Autofill your current location" onPress={getCurrentLocation} color="#007bff" />
           </View>
 
-          <TextInput
-            style={styles.textInput}
-            placeholder="Address Description e.g. Home, Office"
-            value={manualLocation?.addressDescription}
-            onChangeText={text =>
-              handleManualLocationChange('addressDescription', text)
-            }
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Landmark"
-            value={manualLocation?.landmark}
-            onChangeText={text => handleManualLocationChange('landmark', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="City"
-            value={manualLocation?.city}
-            onChangeText={text => handleManualLocationChange('city', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="State"
-            value={manualLocation?.state}
-            onChangeText={text => handleManualLocationChange('state', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Country"
-            value={manualLocation?.country}
-            onChangeText={text => handleManualLocationChange('country', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Pincode"
-            value={manualLocation?.pincode}
-            onChangeText={text => handleManualLocationChange('pincode', text)}
-          />
-          <TextInput
-            style={styles.textInput}
-            placeholder="Address"
-            value={manualLocation?.description}
-            onChangeText={text =>
-              handleManualLocationChange('description', text)
-            }
-          />
-        </>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Country/Region</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={manualLocation?.country || 'India'}
+                onValueChange={(itemValue) => handleManualLocationChange('country', itemValue)}
+                style={styles.picker}
+              >
+                <Picker.Item label="India" value="India" />
+              </Picker>
+            </View>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Full name (First and Last name)</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder=""
+              value={manualLocation?.name}
+              onChangeText={text => handleManualLocationChange('name', text)}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Mobile number</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder=""
+              keyboardType="phone-pad"
+              value={manualLocation?.phone}
+              onChangeText={text => handleManualLocationChange('phone', text)}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Pincode</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="6-digit Pincode"
+              keyboardType="number-pad"
+              value={manualLocation?.pincode}
+              onChangeText={text => handleManualLocationChange('pincode', text)}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Flat, House no., Building, Company, Apartment</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder=""
+              value={manualLocation?.flatNo}
+              onChangeText={text => handleManualLocationChange('flatNo', text)}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Area, Street, Sector, Village</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder=""
+              value={manualLocation?.area}
+              onChangeText={text => handleManualLocationChange('area', text)}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Landmark</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="E.g. near apollo hospital"
+              value={manualLocation?.landmark}
+              onChangeText={text => handleManualLocationChange('landmark', text)}
+            />
+          </View>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <View style={[styles.inputGroup, { flex: 0.48 }]}>
+              <Text style={styles.label}>Town/City</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder=""
+                value={manualLocation?.city}
+                onChangeText={text => handleManualLocationChange('city', text)}
+              />
+            </View>
+
+            <View style={[styles.inputGroup, { flex: 0.48 }]}>
+              <Text style={styles.label}>State</Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={manualLocation?.state}
+                  onValueChange={(itemValue) => handleManualLocationChange('state', itemValue)}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select State" value="" />
+                  {states.map((state) => (
+                    <Picker.Item key={state} label={state} value={state} />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+          </View>
+        </View>
       )}
     </ScrollView>
   );
 };
 
+
+
 const styles = StyleSheet.create({
   manualInputContainer: {
     flex: 1,
+    backgroundColor: '#fff',
+  },
+  formContainer: {
+    padding: 15,
+  },
+  autofillContainer: {
+    backgroundColor: '#f0faff',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#bce8f1',
+  },
+  inputGroup: {
+    marginBottom: 15,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
   },
   textInput: {
-    height: 40,
-    color: '#5d5d5d',
+    height: 45,
+    color: '#333',
     fontSize: 16,
-    backgroundColor: 'transparent',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
     paddingHorizontal: 10,
+    backgroundColor: '#fff',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+  },
+  picker: {
+    height: 45,
+    width: '100%',
   },
 });
 

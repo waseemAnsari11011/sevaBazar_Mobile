@@ -9,11 +9,11 @@ const AddressManager = ({ navigation }) => {
     useEffect(() => {
         console.log("useEffect Called")
         const loadLocalData = async () => {
-         dispatch(loadData('user'));
+            dispatch(loadData('user'));
         };
         loadLocalData();
-      }, []);
-    const {data} = useSelector(state => state?.local);
+    }, []);
+    const { data } = useSelector(state => state?.local);
 
     const [addresses, setAddresses] = useState(data?.user?.shippingAddresses);
     const [newAddress, setNewAddress] = useState('');
@@ -43,7 +43,7 @@ const AddressManager = ({ navigation }) => {
                 <Card style={styles.card}>
                     <Card.Content>
                         <Title>Selected Address</Title>
-                        <Paragraph>{selectedAddress.address}</Paragraph>
+                        <Paragraph>{selectedAddress.addressLine2 || selectedAddress.address}</Paragraph>
                     </Card.Content>
                 </Card>
                 <Button mode="contained" onPress={() => navigation.navigate("Location List", { isCheckOut: true })} style={styles.button}>
@@ -52,7 +52,7 @@ const AddressManager = ({ navigation }) => {
                 <Title>Select Address</Title>
                 <RadioButton.Group onValueChange={value => selectAddress(addresses.find(addr => addr._id === value))} value={selectedAddress._id}>
                     {addresses.map(address => (
-                        <RadioButton.Item key={address._id} label={address.address} value={address._id} />
+                        <RadioButton.Item key={address._id} label={address.addressLine2 || address.address} value={address._id} />
                     ))}
                 </RadioButton.Group>
                 <Portal>

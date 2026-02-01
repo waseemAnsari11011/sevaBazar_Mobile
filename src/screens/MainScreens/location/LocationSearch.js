@@ -26,13 +26,13 @@ const LocationSearch = ({ navigation, route }) => {
   const [manualLocation, setManualLocation] = useState({
     name: '',
     phone: '',
-    phone: '',
-    addressDescription: '',
     description: '',
+    flatNo: '',
+    area: '',
     landmark: '',
     pincode: '',
     state: '',
-    country: '',
+    country: 'India',
     city: '',
     isActive: false,
   });
@@ -50,8 +50,9 @@ const LocationSearch = ({ navigation, route }) => {
       setManualLocation({
         name: address.name,
         phone: address.phone,
-        addressDescription: address.addressDescription,
         description: address.address,
+        flatNo: '', // DB address field is now empty
+        area: address.addressLine2, // DB addressLine2 has the merged content
         landmark: address.landmark,
         pincode: address.postalCode,
         state: address.state,
@@ -73,8 +74,9 @@ const LocationSearch = ({ navigation, route }) => {
       }
 
       const {
-        addressDescription,
         description,
+        flatNo,
+        area,
         landmark,
         city,
         state,
@@ -90,20 +92,22 @@ const LocationSearch = ({ navigation, route }) => {
       console.log('isActive-->', isActive);
 
       if (
-        !addressDescription ||
-        !description ||
+        !name ||
+        !phone ||
+        !area ||
         !city ||
         !state ||
         !country ||
         !pincode
       ) {
         let missingFields = [];
-        if (!addressDescription) missingFields.push('Address Description');
-        if (!description) missingFields.push('description');
-        if (!city) missingFields.push('city');
-        if (!state) missingFields.push('state');
-        if (!country) missingFields.push('country');
-        if (!pincode) missingFields.push('pincode');
+        if (!name) missingFields.push('Full Name');
+        if (!phone) missingFields.push('Mobile Number');
+        if (!area) missingFields.push('Area/Street');
+        if (!city) missingFields.push('City');
+        if (!state) missingFields.push('State');
+        if (!country) missingFields.push('Country');
+        if (!pincode) missingFields.push('Pincode');
 
         Alert.alert(
           'Missing Information',
@@ -118,12 +122,15 @@ const LocationSearch = ({ navigation, route }) => {
       const addressId = isEdit ? route.params?.address._id : null;
       let response;
 
+      const finalAddressLine2 = flatNo && area
+        ? `${flatNo}, ${area}`
+        : flatNo || area;
+
       if (isEdit) {
         response = await api.put(`/address/${userId}/${addressId}`, {
           name,
           phone,
-          addressDescription,
-          addressLine1: description,
+          addressLine2: finalAddressLine2,
           landmark,
           city,
           state,
@@ -138,8 +145,7 @@ const LocationSearch = ({ navigation, route }) => {
         response = await api.post(`/address/${userId}/`, {
           name,
           phone,
-          addressDescription,
-          addressLine1: description,
+          addressLine2: finalAddressLine2,
           landmark,
           city,
           state,
@@ -148,6 +154,7 @@ const LocationSearch = ({ navigation, route }) => {
           latitude,
           longitude,
           availableLocalities,
+          isActive: isActive, // Use the user's selection
         });
       }
 
@@ -162,14 +169,14 @@ const LocationSearch = ({ navigation, route }) => {
     }
   };
 
-  const handleLocationSelect = (data, details) => {
+  const handleLocationSelect = async (data, details) => {
     console.log('details', details);
     const { geometry } = details;
     const { location } = geometry;
     const lat = location.lat;
     const lng = location.lng;
 
-    const pincode = details.address_components.find(component =>
+    let pincode = details.address_components.find(component =>
       component.types.includes('postal_code'),
     )?.long_name;
 
@@ -183,6 +190,39 @@ const LocationSearch = ({ navigation, route }) => {
       component.types.includes('locality'),
     )?.long_name;
 
+    // Fallback 1: Extract pincode from formatted_address if not found in address_components
+    if (!pincode && details.formatted_address) {
+      const pincodeMatch = details.formatted_address.match(/\b\d{6}\b/);
+      if (pincodeMatch) {
+        pincode = pincodeMatch[0];
+      }
+    }
+
+    // Fallback 2: If still no pincode, try Reverse Geocoding via Lat/Lng
+    if (!pincode) {
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_PLACES_API_KEY}`
+        );
+        const json = await response.json();
+        if (json.results && json.results.length > 0) {
+          const addressComponents = json.results[0].address_components;
+          const postalCodeComponent = addressComponents.find(c => c.types.includes('postal_code'));
+          if (postalCodeComponent) {
+            pincode = postalCodeComponent.long_name;
+          }
+        }
+      } catch (error) {
+        console.log("Error fetching pincode via reverse geocoding", error);
+      }
+    }
+
+    // Ensure pincode is part of the address text
+    let finalAddress = details.formatted_address;
+    if (pincode && finalAddress && !finalAddress.includes(pincode)) {
+      finalAddress = `${finalAddress}, ${pincode}`;
+    }
+
     setSearchLocation(false);
 
     // if (!pincode) {
@@ -194,7 +234,9 @@ const LocationSearch = ({ navigation, route }) => {
 
     setManualLocation({
       ...manualLocation,
-      description: data.description,
+      description: finalAddress,
+      flatNo: '',
+      area: finalAddress,
       pincode: pincode,
       state: state,
       country,
@@ -205,10 +247,17 @@ const LocationSearch = ({ navigation, route }) => {
   };
 
   const handleManualLocationChange = (field, value) => {
-    setManualLocation(prevLocation => ({
-      ...prevLocation,
-      [field]: value,
-    }));
+    if (typeof field === 'object' && field !== null) {
+      setManualLocation(prevLocation => ({
+        ...prevLocation,
+        ...field,
+      }));
+    } else {
+      setManualLocation(prevLocation => ({
+        ...prevLocation,
+        [field]: value,
+      }));
+    }
   };
 
   console.log('manualLocation-->>>>', manualLocation);
@@ -238,7 +287,18 @@ const LocationSearch = ({ navigation, route }) => {
           handleManualLocationChange={handleManualLocationChange}
         />
       )}
-      <ButtonComponent title="Save Location" onPress={handleLocation} />
+      {!searchLocation && (
+        <View style={styles.defaultContainer}>
+          <Text style={styles.defaultText}>Make this my default address</Text>
+          <Switch
+            value={manualLocation.isActive}
+            onValueChange={value => handleManualLocationChange('isActive', value)}
+          />
+        </View>
+      )}
+      <View style={styles.buttonContainer}>
+        <ButtonComponent title="Save Location" onPress={handleLocation} />
+      </View>
     </View>
   );
 };
@@ -283,6 +343,25 @@ const styles = StyleSheet.create({
   switchText: {
     flex: 1,
     fontSize: 16,
+    color: '#333',
+  },
+  defaultContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  defaultText: {
+    flex: 1,
+    fontSize: 14,
+    color: '#333',
+  },
+  buttonContainer: {
+    padding: 15,
+    backgroundColor: '#fff',
   },
 });
 

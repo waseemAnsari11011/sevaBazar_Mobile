@@ -56,7 +56,7 @@ const ChatOrderItem = ({ order, contact }) => {
             <Card.Content>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order.orderId}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
-{order.orderStatus === 'Shipped' && <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}</Paragraph>}
+                {order.orderStatus === 'Shipped' && <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}</Paragraph>}
 
                 <Paragraph style={[styles.orderStatus, { color: getStatusColor(order.orderStatus), fontWeight: 'bold' }]}>
                     <Icon.FontAwesome name="info-circle" size={16} /> Order Status:
@@ -80,7 +80,7 @@ const ChatOrderItem = ({ order, contact }) => {
                 {/* Breakdown Section */}
                 <View style={styles.breakdownContainer}>
                     <Paragraph style={styles.breakdownTitle}>Payment Details</Paragraph>
-                    
+
                     {(() => {
                         let grossTotal = 0;
                         let discountTotal = 0;
@@ -93,12 +93,12 @@ const ChatOrderItem = ({ order, contact }) => {
                                 discountTotal += (p.price * p.quantity) - itemTotal;
                             });
                         }
-                        
+
                         // If no products (manual amount) or calc issue, fallback: Gross = Total, Disc = 0. 
                         // But if totalAmount matches our calc, we show breakdown. 
                         // For manual amounts that don't match products, we rely on totalAmount.
                         // Ideally, trust totalAmount for the bottom line, but use products for breakdown if available.
-                        
+
                         return (
                             <>
                                 <View style={styles.breakdownRow}>
@@ -128,8 +128,8 @@ const ChatOrderItem = ({ order, contact }) => {
                     <View style={[styles.breakdownRow, styles.totalRow]}>
                         <Paragraph style={styles.totalLabel}>Grand Total</Paragraph>
                         <Paragraph style={styles.totalValue}>
-                            {order.totalAmount 
-                                ? `₹${(order.totalAmount + (order.deliveryCharge || 0) + (order.shippingFee || 0)).toFixed(2)}` 
+                            {order.totalAmount
+                                ? `₹${(order.totalAmount + (order.deliveryCharge || 0) + (order.shippingFee || 0)).toFixed(2)}`
                                 : "Calculated after review"}
                         </Paragraph>
                     </View>
@@ -137,7 +137,7 @@ const ChatOrderItem = ({ order, contact }) => {
 
                 <View style={styles.shippingContainer}>
                     <Paragraph style={styles.shippingTitle}><Icon.FontAwesome name="truck" size={16} /> Shipping Address:</Paragraph>
-                    <Paragraph style={styles.shippingDetails}><Icon.FontAwesome name="map-marker" size={16} /> {order.shippingAddress.address}</Paragraph>
+                    <Paragraph style={styles.shippingDetails}><Icon.FontAwesome name="map-marker" size={16} /> {order.shippingAddress.addressLine2 || order.shippingAddress.address}</Paragraph>
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.city}, {order.shippingAddress.state}</Paragraph>
                     <Paragraph style={styles.shippingDetails}>{order.shippingAddress.country} - {order.shippingAddress.postalCode}</Paragraph>
                 </View>
