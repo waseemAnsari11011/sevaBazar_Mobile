@@ -257,27 +257,29 @@ const CheckoutScreen = ({ navigation }) => {
           <Text style={footerStyles.value}>₹{shippingFee.toFixed(2)}</Text>
         </View>
 
-        {deliveryBreakdown.length > 0 &&
-          deliveryBreakdown.map((item, index) => (
-            <View key={index} style={footerStyles.deliveryBreakdownItem}>
-              <View style={footerStyles.deliveryExplainRow}>
-                <Icon.MaterialCommunityIcons name="information-outline" size={14} color="#666" />
-                <Text style={footerStyles.deliveryBreakdownText}>
-                  {item.description || `Distance: ${item.distance.toFixed(1)} km`}
-                </Text>
-              </View>
+        {deliveryCharge > 0 && (
+          <>
+            <View style={footerStyles.row}>
+              <Text style={footerStyles.label}>Delivery Charge</Text>
+              <Text style={footerStyles.value}>₹{deliveryCharge.toFixed(2)}</Text>
             </View>
-          ))}
-        {deliveryBreakdown.length === 0 && (
-          <View style={footerStyles.row}>
-            <Text style={footerStyles.label}>Delivery Charge</Text>
-            <Text style={footerStyles.value}>₹{deliveryCharge.toFixed(2)}</Text>
-          </View>
+            {deliveryBreakdown.length > 0 &&
+              deliveryBreakdown.map((item, index) => (
+                <View key={index} style={footerStyles.deliveryBreakdownItem}>
+                  <View style={footerStyles.deliveryExplainRow}>
+                    <Icon.MaterialCommunityIcons name="information-outline" size={14} color="#666" />
+                    <Text style={footerStyles.deliveryBreakdownText}>
+                      {item.description || `Distance: ${item.distance.toFixed(1)} km`}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+          </>
         )}
 
         <View style={footerStyles.row}>
           <Text style={footerStyles.label}>Discount</Text>
-          <Text style={footerStyles.value}>₹{totalDiscount.toFixed(2)}</Text>
+          <Text style={[footerStyles.value, { color: 'red' }]}>-₹{totalDiscount.toFixed(2)}</Text>
         </View>
         <View style={footerStyles.row}>
           <Text style={footerStyles.label}>Tax</Text>

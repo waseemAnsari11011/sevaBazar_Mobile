@@ -14,6 +14,7 @@ import ManualLocationSearch from './ManualLocationSearch';
 import ButtonComponent from '../../../components/Button';
 import api from '../../../utils/api';
 import { loadData, saveData } from '../../../config/redux/actions/storageActions';
+import { clearCart } from '../../../config/redux/actions/cartActions';
 import { GOOGLE_API_KEY } from '@env';
 
 const GOOGLE_PLACES_API_KEY = GOOGLE_API_KEY;
@@ -160,6 +161,7 @@ const LocationSearch = ({ navigation, route }) => {
 
       if (response.status === 200) {
         dispatch(saveData('user', response.data.user));
+        dispatch(clearCart());
         if (route.params?.isSignin === false) {
           navigation.goBack();
         }

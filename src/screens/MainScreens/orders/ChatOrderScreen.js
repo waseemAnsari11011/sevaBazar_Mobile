@@ -30,7 +30,7 @@ const ChatOrderScreen = () => {
     setRefreshing(false);
   };
 
-  if (loading && !refreshing) {
+  if (loading && !refreshing && orders.length === 0) {
     return (
       <View style={styles.loader}>
         <ActivityIndicator size="large" color="#0000ff" />
@@ -46,7 +46,7 @@ const ChatOrderScreen = () => {
     );
   }
 
-  if (orders.length ===0) {
+  if (orders.length === 0) {
     return (
       <View style={styles.emptyContainer}>
         <Text style={styles.emptyText}>Place Order to see here</Text>

@@ -20,7 +20,8 @@ const orderReducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                order: action.payload,
+                order: action.payload.order,
+                orders: [action.payload.order, ...state.orders], // Add new order to the top of the list
             };
         case 'GET_ORDERS_SUCCESS':
             return {

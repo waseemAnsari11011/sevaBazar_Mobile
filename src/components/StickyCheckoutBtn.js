@@ -7,7 +7,7 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
     const dispatch = useDispatch();
     const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
     const { data } = useSelector(state => state.local);
-    const userAddress = data?.user?.shippingAddresses?.[0]; // Assuming first address is default/current
+    const userAddress = data?.user?.shippingAddresses?.find(addr => addr.isActive);
 
     const handleUpdateLocation = async () => {
         setIsUpdatingLocation(true);

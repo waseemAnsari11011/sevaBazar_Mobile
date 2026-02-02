@@ -26,7 +26,9 @@ const Chat = () => {
             }
 
             const activeAddress = data?.user?.shippingAddresses.find(address => address.isActive);
-            const addressText = activeAddress ? activeAddress.address : 'No active address selected';
+            const addressText = activeAddress
+                ? `${activeAddress.addressLine2 || ''}, ${activeAddress.landmark ? activeAddress.landmark + ', ' : ''}${activeAddress.city || ''}, ${activeAddress.state || ''} - ${activeAddress.postalCode || ''}`
+                : 'No active address selected';
 
             Alert.alert(
                 'Confirm Location',
@@ -71,6 +73,12 @@ const Chat = () => {
         }
     };
 
+    const getFormattedAddress = () => {
+        const activeAddress = data?.user?.shippingAddresses.find(address => address.isActive);
+        if (!activeAddress) return 'No active address selected';
+        return `${activeAddress.addressLine2 || ''}, ${activeAddress.landmark ? activeAddress.landmark + ', ' : ''}${activeAddress.city || ''}, ${activeAddress.state || ''} - ${activeAddress.postalCode || ''}`;
+    };
+
     return (
         <View style={styles.container}>
             {loading && <Loading />}
@@ -87,7 +95,7 @@ const Chat = () => {
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 15, borderTopWidth: 0.8, borderTopColor: 'grey', paddingTop: 10 }}>
                         <Icon.Ionicons name="location" size={25} color={'#ff6600'} />
-                        <Text style={styles.addressContent}>{data?.user?.shippingAddresses.find(address => address.isActive)?.address}</Text>
+                        <Text style={styles.addressContent}>{getFormattedAddress()}</Text>
                     </View>
                 </View>
                 {/*

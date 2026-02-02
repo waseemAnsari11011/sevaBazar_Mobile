@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useDispatch, useSelector } from 'react-redux';
 import api from '../../../utils/api';
 import { loadData, saveData } from '../../../config/redux/actions/storageActions';
+import { clearCart } from '../../../config/redux/actions/cartActions';
 
 const ShippingAddressesList = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -52,6 +53,7 @@ const ShippingAddressesList = ({ navigation }) => {
       const response = await api.put(`/customer/${userId}/address/${addressId}/activate`);
       if (response.status === 200) {
         dispatch(saveData('user', response.data.user));
+        dispatch(clearCart());
 
         setShippingAddresses(response.data.user.shippingAddresses);
 
@@ -143,7 +145,8 @@ const styles = StyleSheet.create({
   cardActions: {
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-start', // Align actions to top
+    justifyContent: 'space-between',
+    alignSelf: 'stretch',
   },
   activeLabel: {
     fontSize: 14,

@@ -22,6 +22,7 @@ import {
   detectLocation,
   saveLocationToBackend,
 } from '../../../../config/redux/actions/locationActions';
+import { clearCart } from '../../../../config/redux/actions/cartActions';
 
 const HomeHeader = ({ user }) => {
   const navigation = useNavigation();
@@ -74,6 +75,7 @@ const HomeHeader = ({ user }) => {
       // Confirm and save
       try {
         await dispatch(saveLocationToBackend(detectedAddress));
+        dispatch(clearCart());
         setIsBottomSheetVisible(false);
         setDetectedAddress(null);
       } catch (error) {

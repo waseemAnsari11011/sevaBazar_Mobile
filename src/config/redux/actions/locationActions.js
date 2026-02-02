@@ -103,24 +103,50 @@ export const detectLocation = () => async (dispatch) => {
 
 export const saveLocationToBackend = (locationData) => async (dispatch, getState) => {
   try {
-    const { local } = getState();
-    const user = local?.data?.user;
+    const { local, auth } = getState();
+    const user = local?.data?.user || auth?.user;
 
-    if (user) {
+    if (user && user._id) {
       console.log(`Saving confirmed location. UserID: ${user._id}`);
-      const response = await api.post(`/address/${user._id}`, {
-        ...locationData,
-        isActive: true,
-        name: user.name || '',
-        phone: user.contactNumber,
-        landmark: ''
+
+      // Normalize string for comparison
+      const normalize = (str) => str ? str.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+
+      const newPostal = normalize(locationData.postalCode);
+      const newAddr = normalize(locationData.addressLine2);
+
+      // Check if address already exists with more flexible matching
+      const existingAddress = user.shippingAddresses?.find(addr => {
+        const existingPostal = normalize(addr.postalCode);
+        const existingAddr = normalize(addr.addressLine2 || addr.address);
+
+        const postalMatch = existingPostal === newPostal;
+        const addrMatch = existingAddr.includes(newAddr) || newAddr.includes(existingAddr);
+
+        return postalMatch && addrMatch;
       });
+
+      let response;
+      if (existingAddress) {
+        console.log(`Address already exists, activating it: ${existingAddress._id}`);
+        response = await api.put(`/customer/${user._id}/address/${existingAddress._id}/activate`);
+      } else {
+        response = await api.post(`/address/${user._id}/`, {
+          ...locationData,
+          isActive: true,
+          name: user.name || 'User',
+          phone: user.contactNumber || user.phone || '',
+          landmark: ''
+        });
+      }
 
       if (response && response.data && response.data.user) {
         dispatch({ type: LOGIN_SUCCESS, payload: response.data.user });
         dispatch(saveData('user', response.data.user));
         return response.data.user;
       }
+    } else {
+      console.warn('saveLocationToBackend: No user ID found');
     }
   } catch (error) {
     console.error('Error saving confirmed location:', error);

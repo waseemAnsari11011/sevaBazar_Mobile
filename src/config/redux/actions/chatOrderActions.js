@@ -26,7 +26,7 @@ export const getChatOrdersByCustomer = (customerId) => async dispatch => {
     });
     try {
         const response = await api.get(`/customer/${customerId}/chat-orders`);
-        console.log("response-->>>", response.data)
+
         dispatch({
             type: 'GET_ORDERS_SUCCESS',
             payload: response.data,
@@ -72,7 +72,7 @@ export const updateChatOrderStatus = (orderId, newStatus) => async (dispatch) =>
             payload: response.data // You might not necessarily need to update the entire order in Redux state
         });
 
-      
+
     } catch (error) {
         dispatch({
             type: 'UPDATE_ORDER_STATUS_FAILURE',
