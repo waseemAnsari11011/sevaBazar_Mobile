@@ -19,6 +19,7 @@ import StickyProceedButton from '../../components/StickyProceed';
 import { useDispatch, useSelector } from 'react-redux';
 import api, { baseURL } from '../../utils/api';
 import calculateDiscountedPrice from '../../utils/calculateDiscountedPrice';
+import { formatCurrency } from '../../utils/currency';
 import QuantityUpdater from '../../components/QuantityUpdater';
 import { clearCart } from '../../config/redux/actions/cartActions';
 import Loading from '../../components/Loading';
@@ -203,13 +204,11 @@ const CheckoutScreen = ({ navigation }) => {
           )}
           <View style={summarystyles.priceContainer}>
             <Text style={summarystyles.discountedPrice}>
-              ₹
-              {calculateDiscountedPrice(
-                item?.price,
-                item?.discount,
-              ).discountedPrice.split('.')[0]}
+              {formatCurrency(
+                calculateDiscountedPrice(item?.price, item?.discount).discountedPrice
+              )}
             </Text>
-            <Text style={summarystyles.originalPrice}>₹{item?.price}</Text>
+            <Text style={summarystyles.originalPrice}>{formatCurrency(item?.price)}</Text>
             <Text style={summarystyles.discountPercentage}>
               {item?.discount}% Off
             </Text>
@@ -250,18 +249,18 @@ const CheckoutScreen = ({ navigation }) => {
           <Text style={footerStyles.label}>
             Sub Total({cartItems.length} items)
           </Text>
-          <Text style={footerStyles.value}>₹{subtotal.toFixed(2)}</Text>
+          <Text style={footerStyles.value}>{formatCurrency(subtotal)}</Text>
         </View>
         <View style={footerStyles.row}>
           <Text style={footerStyles.label}>Shipping Fee</Text>
-          <Text style={footerStyles.value}>₹{shippingFee.toFixed(2)}</Text>
+          <Text style={footerStyles.value}>{formatCurrency(shippingFee)}</Text>
         </View>
 
         {deliveryCharge > 0 && (
           <>
             <View style={footerStyles.row}>
               <Text style={footerStyles.label}>Delivery Charge</Text>
-              <Text style={footerStyles.value}>₹{deliveryCharge.toFixed(2)}</Text>
+              <Text style={footerStyles.value}>{formatCurrency(deliveryCharge)}</Text>
             </View>
             {deliveryBreakdown.length > 0 &&
               deliveryBreakdown.map((item, index) => (
@@ -279,15 +278,15 @@ const CheckoutScreen = ({ navigation }) => {
 
         <View style={footerStyles.row}>
           <Text style={footerStyles.label}>Discount</Text>
-          <Text style={[footerStyles.value, { color: 'red' }]}>-₹{totalDiscount.toFixed(2)}</Text>
+          <Text style={[footerStyles.value, { color: 'red' }]}>-{formatCurrency(totalDiscount)}</Text>
         </View>
         <View style={footerStyles.row}>
           <Text style={footerStyles.label}>Tax</Text>
-          <Text style={footerStyles.value}>₹{tax.toFixed(2)}</Text>
+          <Text style={footerStyles.value}>{formatCurrency(tax)}</Text>
         </View>
         <View style={[footerStyles.row, footerStyles.totalRow]}>
           <Text style={footerStyles.label}>Total</Text>
-          <Text style={footerStyles.value}>₹{total.toFixed(2)}</Text>
+          <Text style={footerStyles.value}>{formatCurrency(total)}</Text>
         </View>
       </View>
     );

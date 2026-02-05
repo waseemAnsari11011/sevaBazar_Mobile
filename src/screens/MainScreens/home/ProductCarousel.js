@@ -1,13 +1,14 @@
 //home/ProductCarousel.js
 
 import React from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
-import {useSelector} from 'react-redux';
-import {baseURL} from '../../../utils/api';
+import { useSelector } from 'react-redux';
+import { baseURL } from '../../../utils/api';
 import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
+import { formatCurrency } from '../../../utils/currency';
 
-const ProductCarousel = ({navigation}) => {
+const ProductCarousel = ({ navigation }) => {
   const {
     loading: recentlyAddedLoading,
     products,
@@ -38,22 +39,21 @@ const ProductCarousel = ({navigation}) => {
           snapDirection,
           stackInterval: mode === 'vertical-stack' ? 8 : 18,
         }}
-        renderItem={({item}) => (
+        renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={() => navigation.navigate('Details', {product: item})}
+            onPress={() => navigation.navigate('Details', { product: item })}
             style={styles.productContainer}
             key={item.id}>
             <Image
-              source={{uri: item?.images[0]}}
+              source={{ uri: item?.images[0] }}
               style={styles.productImage}
             />
             <Text style={styles.productName}>{item.name}</Text>
             <Text style={styles.discountedPrice}>
-              ₹
-              {calculateDiscountedPrice(
+              {formatCurrency(calculateDiscountedPrice(
                 item.variations[0].price,
                 item.variations[0].discount,
-              ).discountedPrice}
+              ).discountedPrice)}
             </Text>
           </TouchableOpacity>
         )}

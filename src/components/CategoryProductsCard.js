@@ -14,6 +14,7 @@ import { addToCart } from '../config/redux/actions/cartActions';
 import { useDispatch, useSelector } from 'react-redux';
 import QuantityUpdater from './QuantityUpdater';
 import { baseURL } from '../utils/api';
+import { formatCurrency } from '../utils/currency';
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -78,13 +79,12 @@ const CategoryProductsCard = ({ item, onPressNavigation }) => {
               </Text>
               <View style={styles.priceContainer}>
                 <Text style={styles.discountedPrice}>
-                  ₹
-                  {calculateDiscountedPrice(
+                  {formatCurrency(calculateDiscountedPrice(
                     item.variations[0].price,
                     item.variations[0].discount
-                  )}
+                  ))}
                 </Text>
-                <Text style={styles.originalPrice}>₹{item.variations[0].price}</Text>
+                <Text style={styles.originalPrice}>{formatCurrency(item.variations[0].price)}</Text>
               </View>
               <Text style={styles.discountPercentage}>
                 -{item.variations[0].discount}%
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
   productWeight: {
     color: 'black',
     fontSize: 14,
-    fontWeight:"500"
+    fontWeight: "500"
   },
   priceContainer: {
     flexDirection: 'row',

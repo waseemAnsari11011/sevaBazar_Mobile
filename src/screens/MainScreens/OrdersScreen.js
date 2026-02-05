@@ -14,6 +14,7 @@ import QuantityUpdater from '../../components/QuantityUpdater';
 import StickyCheckoutBtn from '../../components/StickyCheckoutBtn';
 import { baseURL } from '../../utils/api';
 import calculateDiscountedPrice from '../../utils/calculateDiscountedPrice';
+import { formatCurrency } from '../../utils/currency';
 import Icon from '../../components/Icons/Icon';
 import { removeItem } from '../../config/redux/actions/cartActions';
 
@@ -60,8 +61,8 @@ const OrdersScreen = ({ navigation }) => {
               </Text>
             ))}
             <View style={styles.priceContainer}>
-              <Text style={styles.discountedPrice}>₹{calculateDiscountedPrice(item.price, item.discount).discountedPrice}</Text>
-              <Text style={styles.originalPrice}>₹{item.price}</Text>
+              <Text style={styles.discountedPrice}>{formatCurrency(calculateDiscountedPrice(item.price, item.discount).discountedPrice)}</Text>
+              <Text style={styles.originalPrice}>{formatCurrency(item.price)}</Text>
             </View>
             <Text style={styles.discountPercentage}>-{item.discount}%</Text>
             <View style={styles.addContainer}>
@@ -112,7 +113,7 @@ const OrdersScreen = ({ navigation }) => {
           renderEmptyCart()
         )}
       </View>
-      {cartItems.length > 0 && <StickyCheckoutBtn total={totalPrice.toFixed(2)} navigation={navigation} />}
+      {cartItems.length > 0 && <StickyCheckoutBtn total={formatCurrency(totalPrice)} navigation={navigation} />}
     </SafeAreaView>
   );
 };

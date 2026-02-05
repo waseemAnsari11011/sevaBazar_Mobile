@@ -8,12 +8,13 @@ import {
   Dimensions,
 } from 'react-native';
 import React from 'react';
-import {useSelector} from 'react-redux';
-import {baseURL} from '../../../utils/api';
+import { useSelector } from 'react-redux';
+import { baseURL } from '../../../utils/api';
 import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
+import { formatCurrency } from '../../../utils/currency';
 const windowWidth = Dimensions.get('window').width;
 
-const DealOfDay = ({navigation}) => {
+const DealOfDay = ({ navigation }) => {
   const {
     loading: onDiscountLoading,
     products: onDiscountProducts,
@@ -43,7 +44,7 @@ const DealOfDay = ({navigation}) => {
           </Text>
           <TouchableOpacity
             style={styles.container}
-            onPress={() => navigation.navigate('Details', {product: item})}>
+            onPress={() => navigation.navigate('Details', { product: item })}>
             {item?.images?.length === 0 && (
               <Image
                 source={{
@@ -54,7 +55,7 @@ const DealOfDay = ({navigation}) => {
             )}
             {item?.images?.length !== 0 && (
               <Image
-                source={{uri: item?.images[0]}}
+                source={{ uri: item?.images[0] }}
                 style={styles.productImage}
               />
             )}
@@ -65,14 +66,13 @@ const DealOfDay = ({navigation}) => {
               </Text>
               <View style={styles.priceContainer}>
                 <Text style={styles.discountedPrice}>
-                  ₹
-                  {calculateDiscountedPrice(
+                  {formatCurrency(calculateDiscountedPrice(
                     item?.variations[0].price,
                     item?.variations[0]?.discount,
-                  ).discountedPrice}
+                  ).discountedPrice)}
                 </Text>
                 <Text style={styles.originalPrice}>
-                  ₹{item?.variations[0]?.price}
+                  {formatCurrency(item?.variations[0]?.price)}
                 </Text>
               </View>
               <Text style={styles.discountPercentage}>

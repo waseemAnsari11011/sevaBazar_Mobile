@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import FileViewer from 'react-native-file-viewer';
 import { getTimeRemaining, handleChatDownloadInvoice } from './utils';
+import { formatCurrency } from '../../../utils/currency';
 import OutlinedBtn from '../../../components/OutlinedBtn';
 import ButtonComponent from '../../../components/Button';
 
@@ -58,6 +59,37 @@ const ChatOrderItem = ({ order, contact }) => {
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
                 {order.orderStatus === 'Shipped' && <Paragraph style={[styles.orderId, isCritical ? styles.critical : styles.notcritical]}><Icon.AntDesign name="clockcircleo" size={16} /> Delivery Time: {timeString}</Paragraph>}
 
+                {/* Delivery OTP Card - Appears when Out for Delivery */}
+                {order.deliveryOtp && order.orderStatus === 'Shipped' && (
+                    <View style={styles.otpHighlightCard}>
+                        <View style={styles.otpHeader}>
+                            <Icon.MaterialCommunityIcons name="shield-check" size={20} color="#FF6600" />
+                            <Text style={styles.otpTitle}>DELIVERY OTP</Text>
+                        </View>
+                        <Text style={styles.otpValue}>{order.deliveryOtp}</Text>
+                        <Text style={styles.otpSubtext}>Share this code with the driver to receive your order.</Text>
+                    </View>
+                )}
+
+                {/* Driver Details Card - Appears below OTP when driver is assigned */}
+                {order.driverId && order.orderStatus === 'Shipped' && (
+                    <View style={styles.driverCard}>
+                        <Text style={styles.driverCardTitle}>Driver Information</Text>
+                        <View style={styles.driverInfoRow}>
+                            <Icon.FontAwesome name="user" size={14} color="#666" />
+                            <Text style={styles.driverInfoText}>
+                                {order.driverId.personalDetails?.name || 'N/A'}
+                            </Text>
+                        </View>
+                        <View style={styles.driverInfoRow}>
+                            <Icon.FontAwesome name="phone" size={14} color="#666" />
+                            <Text style={styles.driverInfoText}>
+                                {order.driverId.personalDetails?.phone || 'N/A'}
+                            </Text>
+                        </View>
+                    </View>
+                )}
+
                 <Paragraph style={[styles.orderStatus, { color: getStatusColor(order.orderStatus), fontWeight: 'bold' }]}>
                     <Icon.FontAwesome name="info-circle" size={16} /> Order Status:
                     {order.orderStatus === 'Delivered'
@@ -104,13 +136,13 @@ const ChatOrderItem = ({ order, contact }) => {
                                 <View style={styles.breakdownRow}>
                                     <Paragraph style={styles.breakdownLabel}>MRP Total</Paragraph>
                                     <Paragraph style={styles.breakdownValue}>
-                                        {hasProducts ? `₹${grossTotal.toFixed(2)}` : (order.totalAmount ? `₹${order.totalAmount}` : "In Review")}
+                                        {hasProducts ? formatCurrency(grossTotal) : (order.totalAmount ? formatCurrency(order.totalAmount) : "In Review")}
                                     </Paragraph>
                                 </View>
                                 {discountTotal > 0 && (
                                     <View style={styles.breakdownRow}>
                                         <Paragraph style={styles.breakdownLabel}>Discount</Paragraph>
-                                        <Paragraph style={[styles.breakdownValue, { color: 'green' }]}>-₹{discountTotal.toFixed(2)}</Paragraph>
+                                        <Paragraph style={[styles.breakdownValue, { color: 'green' }]}>-{formatCurrency(discountTotal)}</Paragraph>
                                     </View>
                                 )}
                             </>
@@ -118,18 +150,28 @@ const ChatOrderItem = ({ order, contact }) => {
                     })()}
 
                     <View style={styles.breakdownRow}>
-                        <Paragraph style={styles.breakdownLabel}>Delivery Fee {order.distance ? `(${order.distance.toFixed(1)} km)` : ''}</Paragraph>
-                        <Paragraph style={styles.breakdownValue}>₹{order.deliveryCharge || 0}</Paragraph>
+                        <Paragraph style={styles.breakdownLabel}>Delivery Fee</Paragraph>
+                        <Paragraph style={styles.breakdownValue}>{formatCurrency(order.deliveryCharge || 0)}</Paragraph>
                     </View>
+                    {order.deliveryCharge > 0 && (
+                        <View style={styles.deliveryBreakdownItem}>
+                            <View style={styles.deliveryExplainRow}>
+                                <Icon.MaterialCommunityIcons name="information-outline" size={14} color="#666" />
+                                <Paragraph style={styles.deliveryBreakdownText}>
+                                    {order.deliveryChargeDescription || (order.distance ? `Distance: ${order.distance.toFixed(1)} km` : "Calculated based on distance")}
+                                </Paragraph>
+                            </View>
+                        </View>
+                    )}
                     <View style={styles.breakdownRow}>
                         <Paragraph style={styles.breakdownLabel}>Shipping Fee</Paragraph>
-                        <Paragraph style={styles.breakdownValue}>₹{order.shippingFee || 0}</Paragraph>
+                        <Paragraph style={styles.breakdownValue}>{formatCurrency(order.shippingFee || 0)}</Paragraph>
                     </View>
                     <View style={[styles.breakdownRow, styles.totalRow]}>
                         <Paragraph style={styles.totalLabel}>Grand Total</Paragraph>
                         <Paragraph style={styles.totalValue}>
                             {order.totalAmount
-                                ? `₹${(order.totalAmount + (order.deliveryCharge || 0) + (order.shippingFee || 0)).toFixed(2)}`
+                                ? formatCurrency((order.totalAmount + (order.deliveryCharge || 0) + (order.shippingFee || 0)))
                                 : "Calculated after review"}
                         </Paragraph>
                     </View>
@@ -242,5 +284,85 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         color: '#ff6600',
+    },
+    otpHighlightCard: {
+        backgroundColor: '#FFF5EE',
+        borderWidth: 1,
+        borderColor: '#FFDAB9',
+        borderRadius: 10,
+        padding: 12,
+        marginVertical: 10,
+        alignItems: 'center',
+        elevation: 1,
+    },
+    otpHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 4,
+    },
+    otpTitle: {
+        fontSize: 12,
+        fontWeight: 'bold',
+        color: '#FF6600',
+        marginLeft: 6,
+        letterSpacing: 1,
+    },
+    otpValue: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#333',
+        letterSpacing: 4,
+        marginVertical: 2,
+    },
+    otpSubtext: {
+        fontSize: 10,
+        color: '#666',
+        textAlign: 'center',
+        marginTop: 2,
+    },
+    driverCard: {
+        backgroundColor: '#F0F8FF',
+        borderWidth: 1,
+        borderColor: '#B0D4F1',
+        borderRadius: 10,
+        padding: 12,
+        marginVertical: 10,
+        elevation: 1,
+    },
+    driverCardTitle: {
+        fontSize: 13,
+        fontWeight: 'bold',
+        color: '#1E90FF',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    driverInfoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 6,
+        paddingLeft: 8,
+    },
+    driverInfoText: {
+        fontSize: 13,
+        color: '#333',
+        marginLeft: 8,
+        fontWeight: '500',
+    },
+    deliveryBreakdownItem: {
+        marginLeft: 15,
+        marginBottom: 8,
+        paddingLeft: 10,
+        borderLeftWidth: 1,
+        borderLeftColor: '#eee',
+    },
+    deliveryExplainRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    deliveryBreakdownText: {
+        fontSize: 11,
+        color: '#777',
+        marginLeft: 6,
+        fontStyle: 'italic',
     },
 });

@@ -1,15 +1,26 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { Platform } from 'react-native';
+import DeviceInfo from 'react-native-device-info';
 
-const baseURL = 'http://10.0.2.2:8000/';
+// Automatic BASE_URL detection for development
+// For production, use: 'https://server.sevabazar.com'
+let baseURL = 'https://server.sevabazar.com';
+
+if (__DEV__) {
+  baseURL = (Platform.OS === 'android' && DeviceInfo.isEmulatorSync())
+    ? 'http://10.0.2.2:8000'
+    : 'http://192.168.137.1:8000';
+}
+
+
 const api = axios.create({
-  baseURL: 'http://10.0.2.2:8000/', // Use http and local IP for development
+  baseURL: baseURL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
-
-// const baseURL = 'https://server.sevabazar.com/';
-// const api = axios.create({
-//   baseURL: 'https://server.sevabazar.com/', // Use http and local IP for development
-// });
 
 api.interceptors.request.use(
   async config => {

@@ -12,6 +12,7 @@ import {
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { baseURL } from '../../utils/api';
+import { formatCurrency } from '../../utils/currency';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
@@ -51,7 +52,7 @@ const OfferScreen = () => {
           {item.name}
         </Text>
         <Text style={styles.price}>
-          ₹{item.variations[0]?.price}
+          {formatCurrency(item.variations[0]?.price)}
         </Text>
         {item.variations[0]?.discount > 0 && (
           <View style={styles.discountBadge}>

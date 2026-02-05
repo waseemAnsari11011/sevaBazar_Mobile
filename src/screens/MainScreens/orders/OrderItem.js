@@ -5,6 +5,7 @@ import Icon from '../../../components/Icons/Icon';
 import { fetchOrdersByCustomerId, updateOrderStatus } from '../../../config/redux/actions/orderActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTimeRemaining, handleDownloadInvoice, calculateDistance } from './utils';
+import { formatCurrency } from '../../../utils/currency';
 import ButtonComponent from '../../../components/Button';
 import OutlinedBtn from '../../../components/OutlinedBtn';
 
@@ -120,9 +121,7 @@ const OrderItem = ({ order, navigation, contact }) => {
                             const productImage = productItem?.product?.variations?.[0]?.images?.[0] || 'https://via.placeholder.com/60';
 
                             return (
-                                <TouchableOpacity key={productItem._id} style={styles.productContainer} onPress={() =>
-                                    navigation.navigate('Details', { product: productItem?.product })
-                                }>
+                                <View key={productItem._id} style={styles.productContainer}>
                                     <View style={styles.productDetailsContainer}>
                                         <Image
                                             source={{ uri: productImage }}
@@ -135,9 +134,9 @@ const OrderItem = ({ order, navigation, contact }) => {
 
 
                                             <Paragraph style={styles.productDetails}><Icon.FontAwesome name="sort-numeric-asc" size={16} /> Quantity: {productItem?.quantity}</Paragraph>
-                                            <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: ₹{productItem?.price}</Paragraph>
+                                            <Paragraph style={styles.productDetails}><Icon.FontAwesome name="dollar" size={16} /> Price: {formatCurrency(productItem?.price)}</Paragraph>
                                             <Paragraph style={styles.productDetails}><Icon.FontAwesome name="percent" size={16} /> Discount: {productItem?.discount}%</Paragraph>
-                                            <Paragraph style={styles.productDetails}><Icon.FontAwesome name="calculator" size={16} /> Total Amount: ₹{productItem?.totalAmount.toFixed(2)}</Paragraph>
+                                            <Paragraph style={styles.productDetails}><Icon.FontAwesome name="calculator" size={16} /> Total Amount: {formatCurrency(productItem?.totalAmount)}</Paragraph>
                                             {productItem.variations?.map((variation, index) => (
                                                 <View key={index}>
                                                     {variation.attributes?.map((attr, attrIndex) => (
@@ -149,7 +148,7 @@ const OrderItem = ({ order, navigation, contact }) => {
                                             ))}
                                         </View>
                                     </View>
-                                </TouchableOpacity>
+                                </View>
                             );
                         })}
 
@@ -191,19 +190,19 @@ const OrderItem = ({ order, navigation, contact }) => {
                             <Paragraph style={styles.breakdownTitle}>Payment Details</Paragraph>
                             <View style={styles.breakdownRow}>
                                 <Paragraph style={styles.breakdownLabel}>MRP Total</Paragraph>
-                                <Paragraph style={styles.breakdownValue}>₹{grossTotal.toFixed(2)}</Paragraph>
+                                <Paragraph style={styles.breakdownValue}>{formatCurrency(grossTotal)}</Paragraph>
                             </View>
                             {discountTotal > 0 && (
                                 <View style={styles.breakdownRow}>
                                     <Paragraph style={styles.breakdownLabel}>Discount</Paragraph>
-                                    <Paragraph style={[styles.breakdownValue, { color: 'green' }]}>-₹{discountTotal.toFixed(2)}</Paragraph>
+                                    <Paragraph style={[styles.breakdownValue, { color: 'green' }]}>-{formatCurrency(discountTotal)}</Paragraph>
                                 </View>
                             )}
 
                             {/* Delivery Fee Breakdown */}
                             <View style={styles.breakdownRow}>
                                 <Paragraph style={styles.breakdownLabel}>Delivery Fee</Paragraph>
-                                <Paragraph style={styles.breakdownValue}>₹{deliveryTotal.toFixed(2)}</Paragraph>
+                                <Paragraph style={styles.breakdownValue}>{formatCurrency(deliveryTotal)}</Paragraph>
                             </View>
                             {order?.vendors?.map((vendor, index) => {
                                 const charge = vendor.deliveryCharge || 0;
@@ -240,11 +239,11 @@ const OrderItem = ({ order, navigation, contact }) => {
 
                             <View style={styles.breakdownRow}>
                                 <Paragraph style={styles.breakdownLabel}>Shipping Fee</Paragraph>
-                                <Paragraph style={styles.breakdownValue}>₹{shippingFee.toFixed(2)}</Paragraph>
+                                <Paragraph style={styles.breakdownValue}>{formatCurrency(shippingFee)}</Paragraph>
                             </View>
                             <View style={[styles.breakdownRow, styles.totalRow]}>
                                 <Paragraph style={styles.totalLabel}>Grand Total</Paragraph>
-                                <Paragraph style={styles.totalValue}>₹{grandTotal.toFixed(2)}</Paragraph>
+                                <Paragraph style={styles.totalValue}>{formatCurrency(grandTotal)}</Paragraph>
                             </View>
                         </View>
                     );

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUserLocation } from '../config/redux/actions/locationActions';
+import { formatCurrency } from '../utils/currency';
 
 const StickyComponent = ({ total, onCheckout, navigation }) => {
     const dispatch = useDispatch();
@@ -68,7 +69,7 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
                         <Text style={styles.taxInfo}> (inc. VAT/TAX)</Text>
                     </Text>
                     <Text style={styles.Price}>
-                        ₹{total}
+                        {total.toString().includes('₹') ? total : formatCurrency(total)}
                     </Text>
                 </View>
 

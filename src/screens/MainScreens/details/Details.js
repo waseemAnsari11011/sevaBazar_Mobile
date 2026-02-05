@@ -1,6 +1,6 @@
 // src/screens/MainScreens/details/Details.js
 
-import React, {useEffect, useMemo} from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,16 +8,16 @@ import {
   FlatList,
   StyleSheet,
 } from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // --- Local Imports ---
 import useProductVariations from './useProductVariations';
-import {getProductById} from '../../../config/redux/actions/productAction';
+import { getProductById } from '../../../config/redux/actions/productAction';
 import {
   fetchSimilarProducts,
   resetSimilarProducts,
 } from '../../../config/redux/actions/similiarProductsActions';
-import {getImages} from './utils';
+import { getImages } from './utils';
 import HorizontalSelector from './HorizontalSelector';
 
 // --- Component Imports ---
@@ -25,8 +25,9 @@ import CustomImageCarousalSquare from '../../../components/CustomImageCarousalSq
 import StickyButton from '../../../components/stickyBottomCartBtn';
 import ProductCard from '../../../components/ProductCard';
 import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
+import { formatCurrency } from '../../../utils/currency';
 
-const ProductDetails = ({route, navigation}) => {
+const ProductDetails = ({ route, navigation }) => {
   const dispatch = useDispatch();
   const productId = route.params.product._id;
 
@@ -69,7 +70,7 @@ const ProductDetails = ({route, navigation}) => {
 
   // --- Memoized Price Calculation ---
   // This safely calculates the price and only re-runs when the variation changes.
-  const {discountedPrice, originalPrice} = useMemo(
+  const { discountedPrice, originalPrice } = useMemo(
     () =>
       calculateDiscountedPrice(
         currentVariation?.price,
@@ -113,9 +114,9 @@ const ProductDetails = ({route, navigation}) => {
           {/* Conditionally render price section only when a variation is selected */}
           {currentVariation ? (
             <View style={styles.priceContainer}>
-              <Text style={styles.discountedPrice}>₹{discountedPrice}</Text>
+              <Text style={styles.discountedPrice}>{formatCurrency(discountedPrice)}</Text>
               {parseFloat(originalPrice) > parseFloat(discountedPrice) && (
-                <Text style={styles.originalPrice}>₹{originalPrice}</Text>
+                <Text style={styles.originalPrice}>{formatCurrency(originalPrice)}</Text>
               )}
               {currentVariation.discount > 0 && (
                 <Text style={styles.discountBadge}>
@@ -158,8 +159,8 @@ const ProductDetails = ({route, navigation}) => {
     <View style={styles.flex}>
       <FlatList
         data={similarProducts} // Replace with similar products data source
-        renderItem={({item}) => (
-          <View style={{width: '50%', padding: 5}}>
+        renderItem={({ item }) => (
+          <View style={{ width: '50%', padding: 5 }}>
             <ProductCard item={item} navigation={navigation} />
           </View>
         )}
@@ -182,9 +183,9 @@ const ProductDetails = ({route, navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  flex: {flex: 1, backgroundColor: '#fff'},
-  center: {flex: 1, justifyContent: 'center', alignItems: 'center'},
-  errorText: {fontSize: 16, color: 'red'},
+  flex: { flex: 1, backgroundColor: '#fff' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorText: { fontSize: 16, color: 'red' },
   detailsContainer: {
     paddingHorizontal: 16,
     paddingTop: 16,

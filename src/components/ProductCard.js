@@ -10,14 +10,15 @@ import {
   Dimensions,
 } from 'react-native';
 import calculateDiscountedPrice from '../utils/calculateDiscountedPrice';
+import { formatCurrency } from '../utils/currency';
 
-const ProductCard = ({item = {}, navigation}) => {
+const ProductCard = ({ item = {}, navigation }) => {
   const variation = item?.variations?.[0] || {};
   const basePrice = variation?.price ?? 0;
   const discount = variation?.discount ?? 0;
   const totalVariations = item?.variations?.length || 0;
 
-  const {discountedPrice, originalPrice} = calculateDiscountedPrice(
+  const { discountedPrice, originalPrice } = calculateDiscountedPrice(
     basePrice,
     discount,
   );
@@ -28,7 +29,7 @@ const ProductCard = ({item = {}, navigation}) => {
 
   const handlePress = () => {
     if (navigation && item) {
-      navigation.navigate('Details', {product: item});
+      navigation.navigate('Details', { product: item });
     }
   };
 
@@ -74,7 +75,7 @@ const ProductCard = ({item = {}, navigation}) => {
         </View>
       )}
 
-      <Image source={{uri: imageUrl}} style={styles.productImage} />
+      <Image source={{ uri: imageUrl }} style={styles.productImage} />
 
       <View style={styles.details}>
         {/* Product Name */}
@@ -104,11 +105,10 @@ const ProductCard = ({item = {}, navigation}) => {
           </Text>
         )}
 
-        {/* Price Container */}
         <View style={styles.priceContainer}>
-          <Text style={styles.discountedPrice}>₹{discountedPrice}</Text>
+          <Text style={styles.discountedPrice}>{formatCurrency(discountedPrice)}</Text>
           {discount > 0 && (
-            <Text style={styles.originalPrice}>₹{originalPrice}</Text>
+            <Text style={styles.originalPrice}>{formatCurrency(originalPrice)}</Text>
           )}
         </View>
 
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#fff',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 4,
