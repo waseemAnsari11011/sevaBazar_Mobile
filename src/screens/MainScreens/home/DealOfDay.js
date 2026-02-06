@@ -14,7 +14,7 @@ import calculateDiscountedPrice from '../../../utils/calculateDiscountedPrice';
 import { formatCurrency } from '../../../utils/currency';
 const windowWidth = Dimensions.get('window').width;
 
-const DealOfDay = ({ navigation }) => {
+const DealOfDay = React.memo(({ navigation }) => {
   const {
     loading: onDiscountLoading,
     products: onDiscountProducts,
@@ -28,7 +28,7 @@ const DealOfDay = ({ navigation }) => {
         <View
           style={{
             backgroundColor: '#ff660030',
-            marginHorizontal: -15,
+            marginHorizontal: 0,
             alignItems: 'center',
             padding: 20,
             marginTop: 15,
@@ -91,7 +91,7 @@ const DealOfDay = ({ navigation }) => {
       )}
     </>
   );
-};
+});
 
 export default DealOfDay;
 

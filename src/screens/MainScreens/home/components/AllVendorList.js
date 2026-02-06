@@ -1,25 +1,30 @@
 import React from 'react';
-import {View, Text, StyleSheet, FlatList} from 'react-native';
-import {useSelector} from 'react-redux';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { useSelector } from 'react-redux';
 import VendorCard from '../../vendors/VendorCard';
+import { useVendorInfiniteScroll } from '../hooks/useVendorInfiniteScroll';
 
-const VendorList = ({navigation}) => {
+const VendorList = ({ navigation }) => {
   const {
-    loading: vendorsLoading,
     vendors,
-    error: vendorsError,
-  } = useSelector(state => state.recentlyAddedVendors);
-  const {location: userLocation} = useSelector(state => state.location);
+    vendorsLoading,
+    vendorsError,
+    fetchMoreVendors,
+    reachedEnd,
+  } = useVendorInfiniteScroll();
+
+  const { location: userLocation } = useSelector(state => state.location);
 
   if (vendorsLoading && vendors.length === 0) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading new vendors...</Text>
+        <ActivityIndicator size="large" color="#000066" />
+        <Text style={styles.loadingText}>Loading vendors...</Text>
       </View>
     );
   }
 
-  if (vendorsError) {
+  if (vendorsError && vendors.length === 0) {
     return (
       <View style={styles.loadingContainer}>
         <Text style={styles.errorText}>Error: {vendorsError}</Text>
@@ -27,15 +32,24 @@ const VendorList = ({navigation}) => {
     );
   }
 
-  const renderVendorItem = ({item}) => {
+  const renderVendorItem = ({ item }) => {
     return (
       <VendorCard
         vendor={item}
         userLocation={userLocation}
         onPress={() =>
-          navigation.navigate('VendorDetails', {vendorId: item._id})
+          navigation.navigate('VendorDetails', { vendorId: item._id })
         }
       />
+    );
+  };
+
+  const renderFooter = () => {
+    if (!vendorsLoading) return null;
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color="#000066" />
+      </View>
     );
   };
 
@@ -47,6 +61,10 @@ const VendorList = ({navigation}) => {
         keyExtractor={item => item._id}
         contentContainerStyle={styles.listContentContainer}
         showsVerticalScrollIndicator={false}
+        onEndReached={fetchMoreVendors}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={renderFooter}
+        scrollEnabled={false} // Disable nested scrolling if used inside another scrollable
       />
     </View>
   );
@@ -66,9 +84,9 @@ const styles = StyleSheet.create({
     minHeight: 200,
   },
   loadingText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#7f8c8d',
-    fontWeight: '500',
+    marginTop: 10,
   },
   errorText: {
     fontSize: 16,
@@ -77,5 +95,9 @@ const styles = StyleSheet.create({
   listContentContainer: {
     paddingHorizontal: 0,
     paddingVertical: 0,
+  },
+  footerLoader: {
+    marginVertical: 15,
+    alignItems: 'center',
   },
 });

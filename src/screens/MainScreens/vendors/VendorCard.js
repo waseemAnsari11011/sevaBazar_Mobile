@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -35,7 +35,7 @@ const getDistance = (start, end) => {
 /**
  * A reusable card component to display individual vendor information.
  */
-const VendorCard = ({vendor, userLocation, onPress}) => {
+const VendorCard = ({ vendor, userLocation, onPress }) => {
   const imageUrl =
     vendor.documents?.shopPhoto?.length > 0
       ? vendor.documents.shopPhoto[0]
@@ -44,9 +44,9 @@ const VendorCard = ({vendor, userLocation, onPress}) => {
   const vendorCoords =
     vendor.location?.coordinates?.length === 2
       ? {
-          longitude: vendor.location.coordinates[0],
-          latitude: vendor.location.coordinates[1],
-        }
+        longitude: vendor.location.coordinates[0],
+        latitude: vendor.location.coordinates[1],
+      }
       : null;
 
   const distance = userLocation
@@ -57,13 +57,13 @@ const VendorCard = ({vendor, userLocation, onPress}) => {
 
   return (
     <TouchableOpacity
-      style={[styles.card, !isVendorOnline && {backgroundColor: '#f5f5f5'}]}
+      style={[styles.card, !isVendorOnline && { backgroundColor: '#f5f5f5' }]}
       onPress={onPress}
       activeOpacity={0.8} // Higher opacity for a solid feel
       disabled={!isVendorOnline}>
       {/* Image Section */}
       <View style={styles.imageContainer}>
-        <Image source={{uri: imageUrl}} style={styles.vendorImage} />
+        <Image source={{ uri: imageUrl }} style={styles.vendorImage} />
         <View
           style={[
             styles.imageOverlay,
@@ -74,18 +74,18 @@ const VendorCard = ({vendor, userLocation, onPress}) => {
         <View
           style={[
             styles.statusIndicator,
-            {backgroundColor: isVendorOnline ? '#108915' : '#555'}, // Darker green like the image
+            { backgroundColor: isVendorOnline ? '#108915' : '#555' }, // Darker green like the image
           ]}>
           <View style={isVendorOnline ? styles.statusDot : null} />
           {isVendorOnline ? (
             <Text style={styles.statusText}>Open</Text>
           ) : (
-            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Icon
                 name="lock"
                 size={12}
                 color="#fff"
-                style={{marginRight: 4}}
+                style={{ marginRight: 4 }}
               />
               <Text style={styles.statusText}>Closed</Text>
             </View>
@@ -94,7 +94,7 @@ const VendorCard = ({vendor, userLocation, onPress}) => {
       </View>
 
       {/* Content Section */}
-      <View style={[styles.cardContent, !isVendorOnline && {opacity: 0.6}]}>
+      <View style={[styles.cardContent, !isVendorOnline && { opacity: 0.6 }]}>
         {/* Business Name - Uppercase & Bold */}
         <Text style={styles.businessName} numberOfLines={1}>
           {vendor.vendorInfo?.businessName?.toUpperCase() ||
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     borderRadius: 12, // Matches the rounded look in image
     elevation: 4, // Shadow for Android
     shadowColor: '#000', // Shadow for iOS
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
     overflow: 'hidden',
@@ -252,4 +252,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default VendorCard;
+export default React.memo(VendorCard);

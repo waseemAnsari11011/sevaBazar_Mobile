@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import BannerCarousel from './BannerCarousel';
 import CategoryList from './CategoryList';
 import DealOfDay from '../DealOfDay';
@@ -15,69 +15,8 @@ import AllVendorList from './AllVendorList';
  * The header component for the HomeScreen's main FlatList.
  * It composes various sections like banners, categories, and vendor showcases.
  */
-const HomeScreenHeader = ({
-  banners,
-  categories,
-  vendorsWithDiscounts,
-  vendorsWithDiscountsLoading,
-  navigation,
-  // 👇 RECEIVE THE NEW PROPS
-  groupedVendors,
-  groupedVendorsLoading,
-}) => {
-  return (
-    <View>
-      <BannerCarousel banners={banners} />
-      <CategoryList categories={categories} navigation={navigation} />
-
-      <View style={{marginBottom: 15}}>
-        <DealOfDay navigation={navigation} />
-      </View>
-
-      {/* Recently added Section */}
-      <View style={styles.header}>
-        <Text style={styles.title}>New Dukaan</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('New Dukaans')}
-          style={styles.viewAllButton}>
-          <Text style={styles.viewAllText}>View all</Text>
-          <Icon.AntDesign name="right" color="#ffffff" size={13} />
-        </TouchableOpacity>
-      </View>
-      <View style={{marginHorizontal: -20, marginBottom: 15}}>
-        <VendorCarousel navigation={navigation} />
-      </View>
-
-      {/* Vendors with discounts Section */}
-      <VendorsWithDiscounts
-        vendors={vendorsWithDiscounts}
-        loading={vendorsWithDiscountsLoading}
-        navigation={navigation}
-      />
-
-      {/* 👇 RENDER THE NEW COMPONENT HERE */}
-      <GroupedVendorSections
-        groupedVendors={groupedVendors}
-        loading={groupedVendorsLoading}
-      />
-
-      {/*All Dukaans Section */}
-      <View style={styles.header}>
-        <Text style={styles.title}>All Dukaans</Text>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('New Dukaans')}
-          style={styles.viewAllButton}>
-          <Text style={styles.viewAllText}>View all</Text>
-          <Icon.AntDesign name="right" color="#ffffff" size={13} />
-        </TouchableOpacity>
-      </View>
-      <View>
-        <AllVendorList navigation={navigation} />
-      </View>
-
-
-    </View>
-  );
+const HomeScreenHeader = () => {
+  return null;
 };
 
 const styles = StyleSheet.create({

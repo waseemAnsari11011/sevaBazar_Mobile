@@ -1,29 +1,81 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity} from 'react-native';
-import Carousel from 'react-native-reanimated-carousel';
-import {useSelector} from 'react-redux';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Dimensions, FlatList } from 'react-native';
+import { useSelector } from 'react-redux';
 
+const windowWidth = Dimensions.get('window').width;
 const FALLBACK_IMAGE_URL = 'https://placehold.co/150x150/EEE/31343C?text=Photo';
 
 import Icon from '../../../../components/Icons/Icon';
 
-const VendorCarousel = ({navigation}) => {
-  // Select state from the new vendors reducer
+const CarouselItem = React.memo(({ item, navigation, width }) => {
+  const imageUrl =
+    item?.documents?.shopPhoto?.length > 0
+      ? item.documents.shopPhoto[0]
+      : FALLBACK_IMAGE_URL;
+
+  const isOnline = item.isOnline;
+
+  return (
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate('VendorDetails', { vendorId: item._id })
+      }
+      style={[
+        styles.vendorContainer,
+        { width: width },
+        !isOnline && { backgroundColor: '#f5f5f5' },
+      ]}
+      activeOpacity={0.9}
+      disabled={!isOnline}>
+      <View style={styles.imageWrapper}>
+        <Image source={{ uri: imageUrl }} style={styles.vendorImage} />
+        {!isOnline && <View style={styles.offlineOverlay} />}
+        <View
+          style={[
+            styles.statusIndicator,
+            { backgroundColor: isOnline ? '#108915' : '#555' },
+          ]}>
+          {!isOnline && (
+            <Text style={styles.statusText}>Closed</Text>
+          )}
+          {isOnline && <View style={styles.statusDot} />}
+          {isOnline && <Text style={styles.statusText}>Open</Text>}
+        </View>
+      </View>
+
+      <View style={styles.contentContainer}>
+        <Text
+          style={[styles.vendorName, !isOnline && { opacity: 0.6 }]}
+          numberOfLines={1}>
+          {item.vendorInfo.businessName}
+        </Text>
+
+        <View style={[styles.locationRow, !isOnline && { opacity: 0.6 }]}>
+          <Icon.Ionicons name="location-sharp" size={12} color="#666" style={{ marginRight: 2 }} />
+          <Text style={styles.vendorLocation} numberOfLines={1}>
+            {item.location?.address?.addressLine1 || item.location?.address?.city}
+          </Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+});
+
+const VendorCarousel = React.memo(({ navigation }) => {
   const {
     loading: vendorsLoading,
     vendors,
     error: vendorsError,
   } = useSelector(state => state.recentlyAddedVendors);
 
-  // Only autoPlay if we have more than 1 vendor
-  const autoPlay = vendors.length > 1;
-  // Only loop if we have enough vendors to look good (e.g., > 3) 
-  // ensuring we don't see "duplicates" of the same few vendors
-  const loop = vendors.length > 3;
-  const pagingEnabled = false;
-  const snapEnabled = false;
+  const carouselItemWidth = windowWidth * 0.75; // peeking effect
 
-  // Handle loading or error states if needed
+  const renderItem = React.useCallback(({ item }) => (
+    <CarouselItem item={item} navigation={navigation} width={carouselItemWidth} />
+  ), [navigation, carouselItemWidth]);
+
+  const keyExtractor = React.useCallback((item) => item._id, []);
+
   if (vendorsLoading && vendors.length === 0) {
     return (
       <View style={styles.container}>
@@ -42,91 +94,33 @@ const VendorCarousel = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <Carousel
-        style={styles.carousel}
-        width={300} // Adjust width as needed
-        height={210}
-        pagingEnabled={pagingEnabled}
-        snapEnabled={snapEnabled}
-        enabled
-        loop={loop}
-        autoPlay={autoPlay}
+      <FlatList
         data={vendors}
-        renderItem={({item}) => {
-          const imageUrl =
-            item?.documents?.shopPhoto?.length > 0
-              ? item.documents.shopPhoto[0]
-              : FALLBACK_IMAGE_URL;
-
-          const isOnline = item.isOnline;
-          
-          return (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate('VendorDetails', {vendorId: item._id})
-              }
-              style={[
-                styles.vendorContainer,
-                !isOnline && {backgroundColor: '#f5f5f5'},
-              ]}
-              key={item._id}
-              activeOpacity={0.9}
-              disabled={!isOnline}>
-              <View style={styles.imageWrapper}>
-                <Image source={{uri: imageUrl}} style={styles.vendorImage} />
-                {!isOnline && <View style={styles.offlineOverlay} />}
-                <View
-                  style={[
-                    styles.statusIndicator,
-                    {backgroundColor: isOnline ? '#108915' : '#555'},
-                  ]}>
-                  {!isOnline && (
-                    <Text style={styles.statusText}>Closed</Text>
-                  )}
-                  {isOnline && <View style={styles.statusDot} />}
-                  {isOnline && <Text style={styles.statusText}>Open</Text>}
-                </View>
-              </View>
-              
-              <View style={styles.contentContainer}>
-                <Text
-                  style={[styles.vendorName, !isOnline && {opacity: 0.6}]}
-                  numberOfLines={1}>
-                  {item.vendorInfo.businessName}
-                </Text>
-                
-                <View style={[styles.locationRow, !isOnline && {opacity: 0.6}]}>
-                  <Icon.Ionicons name="location-sharp" size={12} color="#666" style={{marginRight: 2}} />
-                  <Text style={styles.vendorLocation} numberOfLines={1}>
-                    {item.location?.address?.addressLine1 || item.location?.address?.city}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          );
-        }}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={carouselItemWidth + 16} // item width + marginRight
+        decelerationRate="fast"
+        contentContainerStyle={{ paddingHorizontal: 15 }}
+        removeClippedSubviews={true}
+        initialNumToRender={3}
       />
     </View>
   );
-};
+});
 
 export default VendorCarousel;
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-  },
-  carousel: {
-    width: '100%',
-    height: 230,
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginVertical: 5,
   },
   vendorContainer: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    marginHorizontal: 8,
     marginVertical: 5,
+    marginRight: 16,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,

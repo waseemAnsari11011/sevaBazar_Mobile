@@ -8,13 +8,13 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useDispatch} from 'react-redux';
-import {resetProductsByCategory} from '../../../../config/redux/actions/productsByCategoryActions';
-import {baseURL} from '../../../../utils/api';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import { resetProductsByCategory } from '../../../../config/redux/actions/productsByCategoryActions';
+import { baseURL } from '../../../../utils/api';
 import Icon from '../../../../components/Icons/Icon';
 
-const CategoryList = ({categories}) => {
+const CategoryList = React.memo(({ categories }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
@@ -25,9 +25,12 @@ const CategoryList = ({categories}) => {
     });
   };
 
-  // Calculate the number of columns based on the categories array length.
-  // This will be 0 initially and change when data arrives.
-  const numColumns = categories.length === 2 ? 2 : Math.ceil(categories.length / 2);
+  // Use a fixed 4-column grid for standard display
+  const numColumns = 4;
+
+  if (!categories || categories.length === 0) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
@@ -35,7 +38,7 @@ const CategoryList = ({categories}) => {
         <Text style={styles.title}>Explore Dukaans</Text>
         <TouchableOpacity
           onPress={() =>
-            navigation.navigate('All Categories', {categoriesData: categories})
+            navigation.navigate('All Categories', { categoriesData: categories })
           }
           style={styles.viewAllButton}>
           <Text style={styles.viewAllText}>View all</Text>
@@ -43,15 +46,15 @@ const CategoryList = ({categories}) => {
         </TouchableOpacity>
       </View>
       <FlatList
-        key={4} // Fixed key for 4 columns
+        key={numColumns}
         data={categories}
-        numColumns={4}
-        scrollEnabled={false} // Disable scrolling as it's nested
-        renderItem={({item}) => (
+        numColumns={numColumns}
+        scrollEnabled={false}
+        renderItem={({ item }) => (
           <TouchableOpacity onPress={() => handleNavigateToVendors(item)} style={styles.itemContainer}>
             <View style={styles.categoryItem}>
               <View style={styles.imageContainer}>
-                <Image source={{uri: item?.images[0]}} style={styles.image} />
+                <Image source={{ uri: item?.images[0] }} style={styles.image} />
               </View>
               <Text style={styles.categoryName} numberOfLines={2}>{item.name}</Text>
             </View>
@@ -62,7 +65,7 @@ const CategoryList = ({categories}) => {
       />
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

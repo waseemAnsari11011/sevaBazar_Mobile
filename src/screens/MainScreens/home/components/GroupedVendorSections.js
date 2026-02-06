@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from '../../../../components/Icons/Icon';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
 const VENDOR_PLACEHOLDER_IMAGE = 'https://via.placeholder.com/150';
 
@@ -17,57 +17,57 @@ const VENDOR_PLACEHOLDER_IMAGE = 'https://via.placeholder.com/150';
  * Renders a single vendor card.
  * (Re-used from VendorsWithDiscounts, but removed discount badge for general use)
  */
-const VendorCard = ({item, navigation}) => {
+const VendorCard = React.memo(({ item, navigation }) => {
   const shopPhoto = item.documents?.shopPhoto;
   const imageUrl = Array.isArray(shopPhoto)
     ? shopPhoto[0] // It's an array, get the first item
     : shopPhoto || // It's a string, use it directly
-      VENDOR_PLACEHOLDER_IMAGE; // Fallback if it's null/undefined
+    VENDOR_PLACEHOLDER_IMAGE; // Fallback if it's null/undefined
 
   const isOnline = item.isOnline;
-  
+
   return (
     <TouchableOpacity
       style={[
         cardStyles.cardContainer,
-        !isOnline && {backgroundColor: '#f5f5f5'},
+        !isOnline && { backgroundColor: '#f5f5f5' },
       ]}
       disabled={!isOnline}
       activeOpacity={0.9}
       onPress={() =>
-        navigation.navigate('VendorDetails', {vendorId: item._id})
+        navigation.navigate('VendorDetails', { vendorId: item._id })
       }>
-      <View style={{position: 'relative'}}>
-        <Image source={{uri: imageUrl}} style={cardStyles.image} />
+      <View style={{ position: 'relative' }}>
+        <Image source={{ uri: imageUrl }} style={cardStyles.image} />
         {!isOnline && <View style={cardStyles.offlineOverlay} />}
         <View
           style={[
             cardStyles.statusIndicator,
-            {backgroundColor: isOnline ? '#108915' : '#555'},
+            { backgroundColor: isOnline ? '#108915' : '#555' },
           ]}>
           {!isOnline && <Icon.MaterialCommunityIcons name="lock" size={10} color="#fff" />}
           {isOnline && <View style={cardStyles.statusDot} />}
         </View>
       </View>
-      <View style={[cardStyles.infoContainer, !isOnline && {opacity: 0.6}]}>
+      <View style={[cardStyles.infoContainer, !isOnline && { opacity: 0.6 }]}>
         <Text style={cardStyles.vendorName} numberOfLines={1}>
           {item.vendorInfo?.businessName || item.name}
         </Text>
         <View style={cardStyles.locationRow}>
-           <Icon.Ionicons name="location-sharp" size={10} color="#7f8c8d" style={{marginRight: 2}} />
-           <Text style={cardStyles.vendorCity} numberOfLines={1}>
-             {item.location?.address?.addressLine1 || item.location?.address?.city}
-           </Text>
+          <Icon.Ionicons name="location-sharp" size={10} color="#7f8c8d" style={{ marginRight: 2 }} />
+          <Text style={cardStyles.vendorCity} numberOfLines={1}>
+            {item.location?.address?.addressLine1 || item.location?.address?.city}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
   );
-};
+});
 
 /**
  * Renders a single category section with a grid of 4 vendors.
  */
-const VendorCategorySection = ({group}) => {
+export const VendorCategorySection = React.memo(({ group }) => {
   const navigation = useNavigation();
 
   // Skip rendering if the category has no vendors
@@ -97,30 +97,33 @@ const VendorCategorySection = ({group}) => {
       </View>
 
       {/* Grid of 4 vendors */}
-      <FlatList
-        data={gridVendors}
-        renderItem={({item}) => (
-          <VendorCard item={item} navigation={navigation} />
-        )}
-        keyExtractor={item => item._id}
-        numColumns={2}
-        scrollEnabled={false}
-        columnWrapperStyle={{justifyContent: 'space-between'}}
-      />
+      <View style={styles.gridContainer}>
+        {Array.from({ length: Math.ceil(gridVendors.length / 2) }).map((_, rowIndex) => (
+          <View key={`row-${rowIndex}`} style={styles.row}>
+            {gridVendors.slice(rowIndex * 2, rowIndex * 2 + 2).map((item) => (
+              <VendorCard key={item._id} item={item} navigation={navigation} />
+            ))}
+            {/* Placeholder to keep alignment if single item in row */}
+            {gridVendors.slice(rowIndex * 2, rowIndex * 2 + 2).length === 1 && (
+              <View style={{ flex: 1, maxWidth: '48.5%' }} />
+            )}
+          </View>
+        ))}
+      </View>
     </View>
   );
-};
+});
 
 /**
  * Renders the list of all grouped vendor sections.
  */
-const GroupedVendorSections = ({groupedVendors, loading}) => {
+const GroupedVendorSections = ({ groupedVendors, loading }) => {
   if (loading && (!groupedVendors || groupedVendors.length === 0)) {
     return (
       <ActivityIndicator
         size="large"
         color="#000066"
-        style={{marginVertical: 20}}
+        style={{ marginVertical: 20 }}
       />
     );
   }
@@ -142,6 +145,13 @@ const GroupedVendorSections = ({groupedVendors, loading}) => {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
+  },
+  gridContainer: {
+    width: '100%',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   header: {
     flexDirection: 'row',
@@ -176,14 +186,13 @@ const styles = StyleSheet.create({
 // Styles for the re-used VendorCard
 const cardStyles = StyleSheet.create({
   cardContainer: {
-    flex: 1,
-    maxWidth: '48%', // Ensures a gap between the two columns
+    width: '48.5%', // Precise width for 2 columns
     marginBottom: 15,
     borderRadius: 12,
     backgroundColor: '#fff',
     elevation: 3,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     overflow: 'hidden',
