@@ -48,204 +48,203 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{
-        flex: 1,
-        backgroundColor: 'white',
-        justifyContent: 'space-between',
-      }}>
-      <View>
-        <View
-          style={{
-            flexDirection: 'row',
-            backgroundColor: `#f5fffa`,
-            padding: 20,
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingTop: hasNotch ? 80 : 20,
-          }}>
-          <View style={{ flexDirection: 'row' }}>
-            {url && (
-              <Image
-                style={{
-                  height: 50,
-                  width: 50,
-                  resizeMode: 'contain',
-                  borderRadius: 25,
-                  marginRight: 15,
-                }}
-                source={{ uri: url }}
-              />
-            )}
-            {!url && (
-              <Image
-                style={{
-                  height: 50,
-                  width: 50,
-                  resizeMode: 'contain',
-                  borderRadius: 25,
-                  marginRight: 15,
-                }}
-                source={require('../../assets/images/default_profile.png')}
-              />
-            )}
-            <View>
-              <Text style={{ color: 'black', fontSize: 20, fontWeight: '600' }}>
-                {data.user.name}
-              </Text>
-              {/* <View style={{flexDirection: 'row', marginTop: 5}}>
-              <Ionicons name="call-outline" size={20} />
-              <Text style={{marginLeft: 10}}>{data.user.mobile_number}</Text>
-            </View> */}
-            </View>
-          </View>
-          <LogoutButton />
-        </View>
-        <View style={{ padding: 20 }}>
-          <Text style={{ fontSize: 16, color: 'black', fontWeight: '600' }}>
-            Your delivery address
-          </Text>
+    <View style={{ flex: 1, backgroundColor: 'white' }}>
+      <ScrollView
+        contentContainerStyle={{
+          backgroundColor: 'white',
+        }}>
+        <View>
           <View
             style={{
               flexDirection: 'row',
+              backgroundColor: `#f5fffa`,
+              padding: 20,
               justifyContent: 'space-between',
-              marginTop: 8,
               alignItems: 'center',
+              paddingTop: hasNotch ? 80 : 20,
             }}>
-            <View>
-              <Text
-                style={{
-                  fontSize: 17,
-                  color: 'black',
-                  width: 250,
-                  fontWeight: '300',
-                }}>
-                {data.user.shippingAddresses
-                  .filter(i => i.isActive == true)
-                  .map(i => i.address)}
-              </Text>
+            <View style={{ flexDirection: 'row' }}>
+              {url && (
+                <Image
+                  style={{
+                    height: 50,
+                    width: 50,
+                    resizeMode: 'contain',
+                    borderRadius: 25,
+                    marginRight: 15,
+                  }}
+                  source={{ uri: url }}
+                />
+              )}
+              {!url && (
+                <Image
+                  style={{
+                    height: 50,
+                    width: 50,
+                    resizeMode: 'contain',
+                    borderRadius: 25,
+                    marginRight: 15,
+                  }}
+                  source={require('../../assets/images/default_profile.png')}
+                />
+              )}
+              <View>
+                <Text style={{ color: 'black', fontSize: 20, fontWeight: '600' }}>
+                  {data.user.name}
+                </Text>
+                {/* <View style={{flexDirection: 'row', marginTop: 5}}>
+              <Ionicons name="call-outline" size={20} />
+              <Text style={{marginLeft: 10}}>{data.user.mobile_number}</Text>
+            </View> */}
+              </View>
             </View>
+            <LogoutButton />
+          </View>
+          <View style={{ padding: 20 }}>
+            <Text style={{ fontSize: 16, color: 'black', fontWeight: '600' }}>
+              Your delivery address
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 8,
+                alignItems: 'center',
+              }}>
+              <View>
+                <Text
+                  style={{
+                    fontSize: 17,
+                    color: 'black',
+                    width: 250,
+                    fontWeight: '300',
+                  }}>
+                  {data.user.shippingAddresses
+                    .filter(i => i.isActive == true)
+                    .map(i => i.address)}
+                </Text>
+              </View>
 
 
-            <AntDesign
-              onPress={() => navigation.navigate('Location List', { goBack: true })}
-              name="edit"
-              style={{ color: `#000066` }}
-              size={20}
-            />
-          </View>
-        </View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Support Ticket')}
-          style={styles.needHelpContainer}>
-          <View style={styles.itemSubContainer}>
-            <Image
-              style={[styles.itemImage, { height: 30, width: 30 }]}
-              source={require('../../assets/images/headphone.png')}
-            />
-            <View style={{}}>
-              <Text
-                style={[styles.itemTitle, { fontWeight: '600', fontSize: 15 }]}>
-                Need Help?
-              </Text>
-              <Text style={{ fontWeight: '300', fontSize: 13 }}>
-                We're here for you
-              </Text>
+              <AntDesign
+                onPress={() => navigation.navigate('Location List', { goBack: true })}
+                name="edit"
+                style={{ color: `#000066` }}
+                size={20}
+              />
             </View>
           </View>
-          <AntDesign name="right" style={{ color: 'black' }} size={20} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Edit Profile')}
-          style={styles.itemContainer}>
-          <View style={styles.itemSubContainer}>
-            <Icon.FontAwesome
-              name="user"
-              style={styles.itemIcon}
-              size={24}
-              color="#000066"
-            />
-            <Text style={styles.itemTitle}>Edit Profile</Text>
-          </View>
-          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
-        </TouchableOpacity>
-        <View style={styles.borderBottom}></View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Location List', { goBack: true })}
-          style={styles.itemContainer}>
-          <View style={styles.itemSubContainer}>
-            <Icon.Ionicons
-              name="location-sharp"
-              style={styles.itemIcon}
-              size={24}
-              color="#000066"
-            />
-            <Text style={styles.itemTitle}>Shipping Addresses</Text>
-          </View>
-          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
-        </TouchableOpacity>
-        <View style={styles.borderBottom}></View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('My order')}
-          style={styles.itemContainer}>
-          <View style={styles.itemSubContainer}>
-            <Icon.Entypo
-              name="shopping-cart"
-              style={styles.itemIcon}
-              size={24}
-              color="#000066"
-            />
-            <Text style={styles.itemTitle}>My orders</Text>
-          </View>
-          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
-        </TouchableOpacity>
-        <View style={styles.borderBottom}></View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Order History')}
-          style={styles.itemContainer}>
-          <View style={styles.itemSubContainer}>
-            <Icon.FontAwesome
-              name="history"
-              style={styles.itemIcon}
-              size={24}
-              color="#000066"
-            />
-            <Text style={styles.itemTitle}>Order History</Text>
-          </View>
-          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
-        </TouchableOpacity>
-        <View style={styles.borderBottom}></View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Submit Inquiry')}
-          style={styles.itemContainer}>
-          <View style={styles.itemSubContainer}>
-            <Icon.FontAwesome
-              name="inbox"
-              style={styles.itemIcon}
-              size={24}
-              color="#000066"
-            />
-            <Text style={styles.itemTitle}>Inquiries</Text>
-          </View>
-          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
-        </TouchableOpacity>
-        <View style={styles.borderBottom}></View>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Faqs')}
-          style={styles.itemContainer}>
-          <View style={styles.itemSubContainer}>
-            <Icon.AntDesign
-              name="questioncircle"
-              style={styles.itemIcon}
-              size={24}
-              color="#000066"
-            />
-            <Text style={styles.itemTitle}>Faqs</Text>
-          </View>
-          <AntDesign name="right" style={{ color: '#000066' }} size={20} />
-        </TouchableOpacity>
-        <View style={styles.borderBottom}></View>
-        {/* <TouchableOpacity
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Support Ticket')}
+            style={styles.needHelpContainer}>
+            <View style={styles.itemSubContainer}>
+              <Image
+                style={[styles.itemImage, { height: 30, width: 30 }]}
+                source={require('../../assets/images/headphone.png')}
+              />
+              <View style={{}}>
+                <Text
+                  style={[styles.itemTitle, { fontWeight: '600', fontSize: 15 }]}>
+                  Need Help?
+                </Text>
+                <Text style={{ fontWeight: '300', fontSize: 13 }}>
+                  We're here for you
+                </Text>
+              </View>
+            </View>
+            <AntDesign name="right" style={{ color: 'black' }} size={20} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Edit Profile')}
+            style={styles.itemContainer}>
+            <View style={styles.itemSubContainer}>
+              <Icon.FontAwesome
+                name="user"
+                style={styles.itemIcon}
+                size={24}
+                color="#000066"
+              />
+              <Text style={styles.itemTitle}>Edit Profile</Text>
+            </View>
+            <AntDesign name="right" style={{ color: '#000066' }} size={20} />
+          </TouchableOpacity>
+          <View style={styles.borderBottom}></View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Location List', { goBack: true })}
+            style={styles.itemContainer}>
+            <View style={styles.itemSubContainer}>
+              <Icon.Ionicons
+                name="location-sharp"
+                style={styles.itemIcon}
+                size={24}
+                color="#000066"
+              />
+              <Text style={styles.itemTitle}>Shipping Addresses</Text>
+            </View>
+            <AntDesign name="right" style={{ color: '#000066' }} size={20} />
+          </TouchableOpacity>
+          <View style={styles.borderBottom}></View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('My order')}
+            style={styles.itemContainer}>
+            <View style={styles.itemSubContainer}>
+              <Icon.Entypo
+                name="shopping-cart"
+                style={styles.itemIcon}
+                size={24}
+                color="#000066"
+              />
+              <Text style={styles.itemTitle}>My orders</Text>
+            </View>
+            <AntDesign name="right" style={{ color: '#000066' }} size={20} />
+          </TouchableOpacity>
+          <View style={styles.borderBottom}></View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Order History')}
+            style={styles.itemContainer}>
+            <View style={styles.itemSubContainer}>
+              <Icon.FontAwesome
+                name="history"
+                style={styles.itemIcon}
+                size={24}
+                color="#000066"
+              />
+              <Text style={styles.itemTitle}>Order History</Text>
+            </View>
+            <AntDesign name="right" style={{ color: '#000066' }} size={20} />
+          </TouchableOpacity>
+          <View style={styles.borderBottom}></View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Submit Inquiry')}
+            style={styles.itemContainer}>
+            <View style={styles.itemSubContainer}>
+              <Icon.FontAwesome
+                name="inbox"
+                style={styles.itemIcon}
+                size={24}
+                color="#000066"
+              />
+              <Text style={styles.itemTitle}>Inquiries</Text>
+            </View>
+            <AntDesign name="right" style={{ color: '#000066' }} size={20} />
+          </TouchableOpacity>
+          <View style={styles.borderBottom}></View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Faqs')}
+            style={styles.itemContainer}>
+            <View style={styles.itemSubContainer}>
+              <Icon.AntDesign
+                name="questioncircle"
+                style={styles.itemIcon}
+                size={24}
+                color="#000066"
+              />
+              <Text style={styles.itemTitle}>Faqs</Text>
+            </View>
+            <AntDesign name="right" style={{ color: '#000066' }} size={20} />
+          </TouchableOpacity>
+          <View style={styles.borderBottom}></View>
+          {/* <TouchableOpacity
           onPress={() => navigation.navigate('Contact us')}
           style={styles.itemContainer}>
           <View style={styles.itemSubContainer}>
@@ -259,18 +258,19 @@ const ProfileScreen = ({ navigation }) => {
           </View>
           <AntDesign name="right" style={{color: '#000066'}} size={20} />
         </TouchableOpacity> */}
-        {/* <View style={styles.borderBottom}></View> */}
-      </View>
-      {/* <View style={styles.footer}>
-        <Text style={styles.footerText}>Seva Bazar</Text>
-        <Text style={styles.footerSubText}>© 2024 Seva Bazar.</Text>
-        <TouchableOpacity onPress={openLink}>
-          <Text style={[styles.footerSubText, { color: 'blue', textDecorationLine: 'underline' }]}>
-            Developed by Waizcom.com
-          </Text>
-        </TouchableOpacity>
-      </View> */}
-    </ScrollView>
+          {/* <View style={styles.borderBottom}></View> */}
+        </View>
+      </ScrollView>
+      <TouchableOpacity
+        onPress={() => Linking.openURL('https://ecarts.agency/')}
+        style={styles.developerCard}
+      >
+        <View style={styles.developerSubContainer}>
+          <Text style={styles.developerText}>Developed By Ecarts</Text>
+          <Ionicons name="open-outline" size={16} color="#000066" style={{ marginLeft: 5 }} />
+        </View>
+      </TouchableOpacity>
+    </View>
   );
 };
 export default ProfileScreen;
@@ -319,5 +319,34 @@ const styles = StyleSheet.create({
   footerSubText: {
     fontSize: 16,
     color: '#666',
+    marginBottom: 80, // Add space so scroll content doesn't get hidden behind sticky card
+  },
+  developerCard: {
+    margin: 15,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  developerSubContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  developerText: {
+    fontSize: 14,
+    color: '#000066',
+    fontWeight: 'bold',
   },
 });

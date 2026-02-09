@@ -35,7 +35,8 @@ const Chat = () => {
                 `Are you sure you want to place this order for this location?\n\n${addressText}`,
                 [
                     {
-                        text: 'Cancel',
+                        text: 'Change Location',
+                        onPress: () => navigation.navigate('Location List', { isCheckOut: true }),
                         style: 'cancel',
                     },
                     {

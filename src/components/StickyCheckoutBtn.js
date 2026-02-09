@@ -1,27 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserLocation } from '../config/redux/actions/locationActions';
 import { formatCurrency } from '../utils/currency';
 
 const StickyComponent = ({ total, onCheckout, navigation }) => {
     const dispatch = useDispatch();
-    const [isUpdatingLocation, setIsUpdatingLocation] = useState(false);
     const { data } = useSelector(state => state.local);
     const userAddress = data?.user?.shippingAddresses?.find(addr => addr.isActive);
-
-    const handleUpdateLocation = async () => {
-        setIsUpdatingLocation(true);
-        try {
-            await dispatch(fetchUserLocation());
-            // Navigate directly to checkout after updating the location
-            navigation.navigate('Checkout');
-        } catch (error) {
-            Alert.alert("Error", "Could not update location. Please try again.");
-        } finally {
-            setIsUpdatingLocation(false);
-        }
-    };
 
 
     const handleCheckout = () => {
@@ -29,6 +14,7 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
             // Construct address string safely, filtering out undefined/null values
             const addressParts = [
                 userAddress.address || userAddress.addressLine1,
+                userAddress.addressLine2,
                 userAddress.landmark,
                 userAddress.city,
                 userAddress.state,
@@ -42,8 +28,8 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
                 `Do you want to deliver to:\n\n${addressString}`,
                 [
                     {
-                        text: "Use Current Location",
-                        onPress: handleUpdateLocation,
+                        text: "Change Location",
+                        onPress: () => navigation.navigate('Location List', { isCheckOut: true }),
                         style: "cancel"
                     },
                     {
@@ -74,15 +60,10 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
                 </View>
 
                 <TouchableOpacity
-                    style={[styles.button, isUpdatingLocation && { opacity: 0.7 }]}
+                    style={styles.button}
                     onPress={handleCheckout}
-                    disabled={isUpdatingLocation}
                 >
-                    {isUpdatingLocation ? (
-                        <ActivityIndicator color="#fff" />
-                    ) : (
-                        <Text style={styles.text}>Checkout</Text>
-                    )}
+                    <Text style={styles.text}>Checkout</Text>
                 </TouchableOpacity>
 
             </View>
