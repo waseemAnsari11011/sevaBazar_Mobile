@@ -43,7 +43,14 @@ const HomeScreen = ({ navigation }) => {
 
   const { vendors = [], fetchMoreVendors, vendorsLoading } = useVendorInfiniteScroll();
 
-  const { location: userLocation } = useSelector(state => state.location || {});
+  const { location: gpsLocation } = useSelector(state => state.location || {});
+  const activeAddress = user?.shippingAddresses?.find(addr => addr.isActive);
+
+  // Use GPS location if available, otherwise fall back to active saved address coordinates
+  const userLocation = gpsLocation ||
+    (activeAddress?.latitude && activeAddress?.longitude
+      ? { latitude: activeAddress.latitude, longitude: activeAddress.longitude }
+      : null);
 
   // Build the unified data feed for full virtualization
   const combinedData = React.useMemo(() => {

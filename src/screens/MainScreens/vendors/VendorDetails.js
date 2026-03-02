@@ -118,12 +118,26 @@ const VendorDetails = () => {
     Alert.alert('Full Address', `${ownerInfo}${fullAddress}`);
   };
 
+  /* ... */
   const renderHeader = () => {
     if (!vendor) return null;
+
+    const isOnline = vendor.isOnline;
 
     return (
       <View style={{ marginHorizontal: -5 }}>
         {renderImageCarousel()}
+
+        {/* Shop Closed Banner */}
+        {!isOnline && (
+          <View style={styles.closedBanner}>
+            <Icon name="store-clock-outline" size={20} color="#fff" />
+            <Text style={styles.closedBannerText}>
+              Shop is currently closed. Ordering is disabled.
+            </Text>
+          </View>
+        )}
+
         <View style={styles.vendorInfoContainer}>
           <Text style={styles.vendorName}>
             {vendor.vendorInfo?.businessName}
@@ -168,7 +182,11 @@ const VendorDetails = () => {
           </View>
         </View>
         <View style={styles.separator} />
-        <VendorCategoryList categories={categories} vendorId={vendorId} />
+        <VendorCategoryList
+          categories={categories}
+          vendorId={vendorId}
+          disabled={!isOnline} // Pass disabled prop
+        />
         <View style={styles.separator} />
       </View>
     );
@@ -176,6 +194,7 @@ const VendorDetails = () => {
 
   // Move useMemo BEFORE conditional returns
   const groupedProducts = useMemo(() => {
+    // ... existing groupedProducts logic ...
     if (!products) return [];
 
     const grouped = [];
@@ -195,7 +214,7 @@ const VendorDetails = () => {
       });
     }
 
-    // 2. Handle Uncategorized (products with no vendorProductCategory or not matching any fetched category)
+    // 2. Handle Uncategorized
     const categorizedIds = grouped.flatMap(g => g.data.map(p => p._id));
     const uncategorized = products.filter(p => !categorizedIds.includes(p._id));
 
@@ -207,9 +226,8 @@ const VendorDetails = () => {
       });
     }
 
-    // 3. Add "All Products" section containing all products
+    // 3. Add "All Products" section
     if (products.length > 0) {
-      // Fisher-Yates Shuffle
       const shuffledProducts = [...products];
       for (let i = shuffledProducts.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -228,10 +246,12 @@ const VendorDetails = () => {
 
   const renderCategoryItem = ({ item }) => {
     const PREVIEW_LIMIT = 4;
-    const showViewAll = true; // Always show View All button
+    // Don't show "View All" if shop is closed to prevent navigation
+    const showViewAll = vendor?.isOnline;
     const displayedProducts = item.data.slice(0, PREVIEW_LIMIT);
 
     const handleViewAll = () => {
+      if (!vendor?.isOnline) return;
       navigation.navigate('VendorCategoryProducts', {
         categoryId: item._id,
         categoryName: item.name,
@@ -252,7 +272,11 @@ const VendorDetails = () => {
         <View style={styles.productsGrid}>
           {displayedProducts.map(product => (
             <View key={product._id} style={styles.productWrapper}>
-              <ProductCard item={product} navigation={navigation} />
+              <ProductCard
+                item={product}
+                navigation={navigation}
+                disabled={!vendor?.isOnline} // Pass disabled prop
+              />
             </View>
           ))}
         </View>
@@ -323,6 +347,23 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     fontSize: 16,
+  },
+  closedBanner: {
+    backgroundColor: '#C62828', // Red color
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    borderRadius: 8,
+    marginHorizontal: 16,
+    marginTop: 10,
+  },
+  closedBannerText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginLeft: 8,
   },
   vendorInfoContainer: {
     padding: 16,

@@ -8,11 +8,12 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
+  Alert,
 } from 'react-native';
 import calculateDiscountedPrice from '../utils/calculateDiscountedPrice';
 import { formatCurrency } from '../utils/currency';
 
-const ProductCard = ({ item = {}, navigation }) => {
+const ProductCard = ({ item = {}, navigation, disabled = false }) => {
   const variation = item?.variations?.[0] || {};
   const basePrice = variation?.price ?? 0;
   const discount = variation?.discount ?? 0;
@@ -28,6 +29,10 @@ const ProductCard = ({ item = {}, navigation }) => {
     : `https://via.placeholder.com/150`;
 
   const handlePress = () => {
+    if (disabled) {
+      Alert.alert('Shop Closed', 'This shop is currently closed. You cannot view product details or place orders at this time.');
+      return;
+    }
     if (navigation && item) {
       navigation.navigate('Details', { product: item });
     }
@@ -53,7 +58,11 @@ const ProductCard = ({ item = {}, navigation }) => {
   const lowStock = variation?.quantity > 0 && variation?.quantity < 10;
 
   return (
-    <TouchableOpacity onPress={handlePress} style={styles.cardContainer}>
+    <TouchableOpacity
+      onPress={handlePress}
+      style={[styles.cardContainer, disabled && styles.disabledCard]}
+      activeOpacity={disabled ? 1 : 0.7}
+    >
       {/* Discount Badge */}
       {discount > 0 && (
         <View style={styles.discountTag}>
@@ -141,7 +150,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 4,
+    elevation: 4,
     marginBottom: 10,
+  },
+  disabledCard: {
+    opacity: 0.6,
+    backgroundColor: '#f9f9f9',
   },
   details: {
     padding: 12,

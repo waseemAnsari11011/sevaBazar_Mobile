@@ -31,7 +31,8 @@ const ShippingAddressesList = ({ navigation }) => {
       const userId = data?.user?._id;
       const response = await api.delete(`/address/${userId}/${addressId}`);
       if (response.status === 200) {
-        setShippingAddresses(prevAddresses => prevAddresses.filter(address => address._id !== addressId));
+        dispatch(saveData('user', response.data.user));
+        setShippingAddresses(response.data.user.shippingAddresses);
       }
     } catch (error) {
       console.error('Error deleting shipping address:', error);
@@ -94,7 +95,9 @@ const ShippingAddressesList = ({ navigation }) => {
             <View style={styles.cardContent}>
               <Text style={[styles.cardText, { fontWeight: 'bold' }]}>{address.name}</Text>
               <Text style={[styles.cardText, { marginBottom: 5 }]}>{address.phone}</Text>
-              <Text style={styles.cardText}>{address.addressLine2 || address.address}</Text>
+              <Text style={styles.cardText}>
+                {address.fullAddress || address.address}
+              </Text>
 
               {address.isActive && <Text style={styles.activeLabel}>Active</Text>}
             </View>

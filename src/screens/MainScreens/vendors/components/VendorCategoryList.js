@@ -7,13 +7,18 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
+  Alert,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 
-const VendorCategoryList = ({categories, vendorId}) => {
+const VendorCategoryList = ({ categories, vendorId, disabled = false }) => {
   const navigation = useNavigation();
 
   const handleNavigateToCategory = item => {
+    if (disabled) {
+      Alert.alert('Shop Closed', 'This shop is currently closed. You cannot view categories at this time.');
+      return;
+    }
     navigation.navigate('VendorCategoryProducts', {
       categoryId: item._id,
       categoryName: item.name,
@@ -39,13 +44,17 @@ const VendorCategoryList = ({categories, vendorId}) => {
         data={categories}
         numColumns={4}
         scrollEnabled={false} // Disable scrolling as it's nested
-        renderItem={({item}) => (
-          <TouchableOpacity onPress={() => handleNavigateToCategory(item)} style={styles.itemContainer}>
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={() => handleNavigateToCategory(item)}
+            style={[styles.itemContainer, disabled && styles.disabledItem]}
+            activeOpacity={disabled ? 1 : 0.7}
+          >
             <View style={styles.categoryItem}>
               <View style={styles.imageContainer}>
-                <Image 
-                  source={{uri: item?.images?.[0] || 'https://placehold.co/100x100'}} 
-                  style={styles.image} 
+                <Image
+                  source={{ uri: item?.images?.[0] || 'https://placehold.co/100x100' }}
+                  style={styles.image}
                   resizeMode="cover"
                 />
               </View>
@@ -111,6 +120,9 @@ const styles = StyleSheet.create({
     color: '#34495e',
     textAlign: 'center',
     lineHeight: 14,
+  },
+  disabledItem: {
+    opacity: 0.5,
   },
 });
 

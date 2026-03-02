@@ -8,6 +8,8 @@ import { loadData } from '../config/redux/actions/storageActions';
 import SplashScreen from '../components/SplashScreen';
 import { fetchUserLocation } from '../config/redux/actions/locationActions'; // 👈 Import action
 
+import { navigationRef } from '../utils/navigationRef';
+
 const RootNavigator = () => {
   const [isLoading, setIsLoading] = React.useState(true);
   useEffect(() => {
@@ -49,7 +51,7 @@ const RootNavigator = () => {
     !location.permissionDenied;
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       {isLoading || isWaitingForLocation ? (
         <SplashScreen />
       ) : data?.user ? (

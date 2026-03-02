@@ -43,8 +43,8 @@ const CategoryProductsCard = ({ item, onPressNavigation }) => {
     // Calculate the discounted price
     const discountedPrice = priceNumber - (priceNumber * discountNumber / 100);
 
-    // Return the discounted price as a string, rounded to 2 decimal places
-    return discountedPrice.toFixed(2).toString();
+    // Return the discounted price as a rounded integer
+    return Math.round(discountedPrice).toString();
   }
 
 

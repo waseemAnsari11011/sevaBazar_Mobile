@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { baseURL } from '../../utils/api';
+import api from '../../utils/api';
 import Icon from '../../components/Icons/Icon';
 
 const SupportTicketScreen = ({ navigation }) => {
@@ -10,7 +10,7 @@ const SupportTicketScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [ticketSuccess, setTicketSuccess] = useState(false);
     const [isCooldown, setIsCooldown] = useState(false);
-    
+
     // 5 minutes in milliseconds
     const COOLDOWN_DURATION = 5 * 60 * 1000;
 
@@ -37,7 +37,7 @@ const SupportTicketScreen = ({ navigation }) => {
     const startCooldown = (duration) => {
         setIsCooldown(true);
         setTicketSuccess(true);
-        
+
         setTimeout(() => {
             setIsCooldown(false);
             setTicketSuccess(false);
@@ -46,31 +46,27 @@ const SupportTicketScreen = ({ navigation }) => {
 
     const handleSubmit = async () => {
         setLoading(true);
-        setTicketSuccess(false); 
+        setTicketSuccess(false);
         try {
-            const response = await fetch(`${baseURL}tickets/create`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    customerId: data.user._id,
-                    reason: "One Tap Support Request" // Default reason
-                }),
+            const response = await api.post('/tickets/create', {
+                customerId: data.user._id,
+                userType: 'Customer',
+                reason: "One Tap Support Request" // Default reason
             });
-            const result = await response.json();
-            if (result.success) {
+
+            if (response.data && response.data.success) {
                 // Save current time
                 await AsyncStorage.setItem('last_ticket_time', Date.now().toString());
-                
+
                 // Start cooldown
                 startCooldown(COOLDOWN_DURATION);
             } else {
-                Alert.alert("Error", "Failed to generate ticket. Please try again.");
+                Alert.alert("Error", response.data?.message || "Failed to generate ticket. Please try again.");
             }
         } catch (error) {
             console.error("Ticket generation error:", error);
-            Alert.alert("Error", "Something went wrong. Please check your internet connection.");
+            const errorMessage = error.response?.data?.message || "Something went wrong. Please check your internet connection.";
+            Alert.alert("Error", errorMessage);
         } finally {
             setLoading(false);
         }
@@ -95,8 +91,8 @@ const SupportTicketScreen = ({ navigation }) => {
                     </Text>
                 </View>
 
-                <TouchableOpacity 
-                    style={[styles.submitButton, isCooldown && styles.disabledButton]} 
+                <TouchableOpacity
+                    style={[styles.submitButton, isCooldown && styles.disabledButton]}
                     onPress={handleSubmit}
                     disabled={loading || isCooldown}
                 >
@@ -111,10 +107,10 @@ const SupportTicketScreen = ({ navigation }) => {
 
                 {ticketSuccess && (
                     <View style={styles.successContainer}>
-                         <Text style={styles.successText}>
+                        <Text style={styles.successText}>
                             Ticket generated successfully. Please wait 5 minutes for a call.
                         </Text>
-                         <Text style={styles.subText}>
+                        <Text style={styles.subText}>
                             Our team will call you back shortly.
                         </Text>
                     </View>

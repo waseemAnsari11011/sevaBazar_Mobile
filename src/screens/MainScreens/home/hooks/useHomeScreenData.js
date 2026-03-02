@@ -1,10 +1,10 @@
-import {useEffect} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {getBanners} from '../../../../config/redux/actions/bannerActions';
-import {fetchCategories} from '../../../../config/redux/actions/categoryAction';
-import {fetchAllCategoryProducts} from '../../../../config/redux/actions/getallCategoryProductsActions';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getBanners } from '../../../../config/redux/actions/bannerActions';
+import { fetchCategories } from '../../../../config/redux/actions/categoryAction';
+import { fetchAllCategoryProducts } from '../../../../config/redux/actions/getallCategoryProductsActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {updateFcm} from '../../../../config/redux/actions/customerActions';
+import { updateFcm } from '../../../../config/redux/actions/customerActions';
 import {
   fetchRecentlyAddedVendors,
   resetRecentlyAddedVendors,
@@ -23,18 +23,18 @@ export const useHomeScreenData = () => {
   const dispatch = useDispatch();
 
   // Selectors to get data from the Redux store
-  const {user} = useSelector(state => state?.local?.data || {});
+  const { user } = useSelector(state => state?.local?.data || {});
   const {
     loading: categoryLoading,
     category,
     error: categoryError,
   } = useSelector(state => state.categories);
-  const {banners} = useSelector(state => state.banners);
+  const { banners } = useSelector(state => state.banners);
 
-  const {vendors: vendorsWithDiscounts, loading: vendorsWithDiscountsLoading} =
+  const { vendors: vendorsWithDiscounts, loading: vendorsWithDiscountsLoading } =
     useSelector(state => state.vendorsWithDiscounts);
 
-  const {data: allCategoryProducts} = useSelector(
+  const { data: allCategoryProducts } = useSelector(
     state => state.allCategoryProducts,
   );
 
@@ -45,8 +45,24 @@ export const useHomeScreenData = () => {
     error: groupedVendorsError,
   } = useSelector(state => state.vendors.groupedList);
 
-  // TODO: Add your FCM token logic back in if you have it
-  // ... (useEffect for FCM token remains the same)
+  // Effect to sync FCM token with the backend
+  useEffect(() => {
+    const syncFcmToken = async () => {
+      if (user?._id) {
+        try {
+          const storedToken = await AsyncStorage.getItem('deviceToken');
+          if (storedToken) {
+            const token = JSON.parse(storedToken);
+            console.log('Syncing FCM token to backend:', token);
+            await updateFcm(user._id, token);
+          }
+        } catch (error) {
+          console.error('Error syncing FCM token:', error);
+        }
+      }
+    };
+    syncFcmToken();
+  }, [user]);
 
   // Effect to fetch initial data required for the screen
   useEffect(() => {

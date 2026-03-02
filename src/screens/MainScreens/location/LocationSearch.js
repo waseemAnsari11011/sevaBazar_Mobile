@@ -35,6 +35,9 @@ const LocationSearch = ({ navigation, route }) => {
     state: '',
     country: 'India',
     city: '',
+    plusCode: '',
+    locality: '',
+    sublocality: '',
     isActive: false,
   });
   const googlePlacesRef = useRef(null);
@@ -52,8 +55,8 @@ const LocationSearch = ({ navigation, route }) => {
         name: address.name,
         phone: address.phone,
         description: address.address,
-        flatNo: '', // DB address field is now empty
-        area: address.addressLine2, // DB addressLine2 has the merged content
+        flatNo: address.houseNo || '',
+        area: address.fullAddress || '',
         landmark: address.landmark,
         pincode: address.postalCode,
         state: address.state,
@@ -61,6 +64,9 @@ const LocationSearch = ({ navigation, route }) => {
         city: address.city,
         latitude: address.latitude,
         longitude: address.longitude,
+        plusCode: address.plusCode || '',
+        locality: address.locality || '',
+        sublocality: address.sublocality || '',
         isActive: address.isActive,
       });
       setSelectedLocation(address); // if using searchLocation as well
@@ -87,10 +93,11 @@ const LocationSearch = ({ navigation, route }) => {
         phone,
         latitude,
         longitude,
+        plusCode,
+        locality,
+        sublocality,
         isActive,
       } = location;
-
-      console.log('isActive-->', isActive);
 
       if (
         !name ||
@@ -117,21 +124,26 @@ const LocationSearch = ({ navigation, route }) => {
         return;
       }
 
+      console.log('DEBUG: handleLocation - Current location object:', location);
+
       const availableLocalities = pincode;
-      const userId = data?.user?._id;
+      const user = data?.user;
+      const userId = user?._id || user?.id;
+      console.log('DEBUG: Manual Save. UserId:', userId);
+      console.log('DEBUG: Payload - plusCode:', plusCode, 'locality:', locality, 'sublocality:', sublocality);
       const isEdit = route.params?.isEdit;
       const addressId = isEdit ? route.params?.address._id : null;
       let response;
-
-      const finalAddressLine2 = flatNo && area
-        ? `${flatNo}, ${area}`
-        : flatNo || area;
 
       if (isEdit) {
         response = await api.put(`/address/${userId}/${addressId}`, {
           name,
           phone,
-          addressLine2: finalAddressLine2,
+          houseNo: flatNo,
+          plusCode: plusCode,
+          locality: locality,
+          sublocality: sublocality,
+          fullAddress: area,
           landmark,
           city,
           state,
@@ -143,10 +155,14 @@ const LocationSearch = ({ navigation, route }) => {
           isActive,
         });
       } else {
-        response = await api.post(`/address/${userId}/`, {
+        response = await api.post(`/address/${userId}`, {
           name,
           phone,
-          addressLine2: finalAddressLine2,
+          houseNo: flatNo,
+          plusCode: plusCode,
+          locality: locality,
+          sublocality: sublocality,
+          fullAddress: area,
           landmark,
           city,
           state,
@@ -155,7 +171,7 @@ const LocationSearch = ({ navigation, route }) => {
           latitude,
           longitude,
           availableLocalities,
-          isActive: isActive, // Use the user's selection
+          isActive: isActive,
         });
       }
 
@@ -167,7 +183,13 @@ const LocationSearch = ({ navigation, route }) => {
         }
       }
     } catch (error) {
+      const errorDetail = error.response ? JSON.stringify(error.response.data) : error.message;
+      const userId = data?.user?._id || data?.user?.id || 'NO_ID';
       console.error('Error saving address and localities:', error);
+      Alert.alert(
+        'Save Error (Manual)',
+        `Could not save address.\nUser: ${userId}\nError: ${errorDetail}`
+      );
     }
   };
 
@@ -188,9 +210,28 @@ const LocationSearch = ({ navigation, route }) => {
     const country = details.address_components.find(component =>
       component.types.includes('country'),
     )?.long_name;
-    const city = details.address_components.find(component =>
+    const district = details.address_components.find(component =>
+      component.types.includes('administrative_area_level_2'),
+    )?.long_name;
+    const subDistrict = details.address_components.find(component =>
+      component.types.includes('administrative_area_level_3'),
+    )?.long_name;
+    const locality = details.address_components.find(component =>
       component.types.includes('locality'),
     )?.long_name;
+    let city = subDistrict || district || locality || '';
+
+    // SUPER ROBUST FALLBACK FOR INDIA
+    if (details.formatted_address && state) {
+      const addrParts = details.formatted_address.split(',').map(p => p.trim());
+      const stateIndex = addrParts.findIndex(p => p.toLowerCase().includes(state.toLowerCase()));
+      if (stateIndex > 0) {
+        const inferredCity = addrParts[stateIndex - 1];
+        if (inferredCity && inferredCity.length > 2) {
+          city = inferredCity;
+        }
+      }
+    }
 
     // Fallback 1: Extract pincode from formatted_address if not found in address_components
     if (!pincode && details.formatted_address) {
@@ -208,11 +249,29 @@ const LocationSearch = ({ navigation, route }) => {
         );
         const json = await response.json();
         if (json.results && json.results.length > 0) {
-          const addressComponents = json.results[0].address_components;
-          const postalCodeComponent = addressComponents.find(c => c.types.includes('postal_code'));
-          if (postalCodeComponent) {
-            pincode = postalCodeComponent.long_name;
-          }
+          const results = json.results;
+          let locality = '';
+          let district = '';
+          let subDistrict = '';
+
+          results.forEach(result => {
+            result.address_components.forEach(component => {
+              if (component.types.includes('locality') && !locality) {
+                locality = component.long_name;
+              }
+              if (component.types.includes('administrative_area_level_2') && !district) {
+                district = component.long_name;
+              }
+              if (component.types.includes('administrative_area_level_3') && !subDistrict) {
+                subDistrict = component.long_name;
+              }
+              if (component.types.includes('postal_code') && !pincode) {
+                pincode = component.long_name;
+              }
+            });
+          });
+          const inferredCity = district || subDistrict || locality || '';
+          if (inferredCity) setManualLocation(prev => ({ ...prev, city: inferredCity }));
         }
       } catch (error) {
         console.log("Error fetching pincode via reverse geocoding", error);
@@ -234,32 +293,90 @@ const LocationSearch = ({ navigation, route }) => {
     //   return;
     // }
 
-    setManualLocation({
+    // ROBUST Landmark detection from Places details
+    const landmarkTypesList = [
+      'point_of_interest', 'establishment', 'premise', 'place_of_worship',
+      'park', 'natural_feature', 'shopping_mall', 'school', 'hospital', 'landmark'
+    ];
+    const detectedLandmark = details.address_components.find(c =>
+      c.types.some(t => landmarkTypesList.includes(t)) && !c.long_name.includes('+')
+    )?.long_name || '';
+    let landmark = detectedLandmark ? `Near ${detectedLandmark}` : '';
+
+
+    const sublocality = details.address_components.find(c => c.types.includes('sublocality_level_1'))?.long_name || '';
+
+    // Deduplicate landmark if it's already in sublocality/locality
+    if (landmark) {
+      const landmarkTrimmed = landmark.replace('Near ', '').toLowerCase().trim();
+      const sublocLower = (sublocality || '').toLowerCase().trim();
+      const locLower = (locality || '').toLowerCase().trim();
+      if (sublocLower.includes(landmarkTrimmed) || locLower.includes(landmarkTrimmed)) {
+        landmark = '';
+      }
+    }
+
+    // Construct custom fullAddress string strictly as: houseNo, sublocality, locality, landmark, city, state, country, postalCode
+    const customAddress = [
+      manualLocation.houseNo || '',
+      sublocality,
+      locality,
+      landmark, // Include landmark
+      city,
+      state,
+      country,
+      pincode
+    ].filter(part => part && String(part).trim() !== '').join(', ');
+
+    const updatedLocation = {
       ...manualLocation,
       description: finalAddress,
-      flatNo: '',
-      area: finalAddress,
+      landmark: landmark, // Store detected landmark
+      area: customAddress, // This 'area' is used as 'fullAddress' in the payload
+      fullAddress: customAddress,
       pincode: pincode,
       state: state,
       country,
       city,
+      plusCode: details.plus_code?.global_code || '',
+      locality: locality || '',
+      sublocality: details.address_components.find(c => c.types.includes('sublocality_level_1'))?.long_name || '',
       latitude: lat,
       longitude: lng,
-    });
+    };
+    console.log('DEBUG: handleLocationSelect - setting manualLocation:', updatedLocation);
+    setManualLocation(updatedLocation);
   };
 
   const handleManualLocationChange = (field, value) => {
-    if (typeof field === 'object' && field !== null) {
-      setManualLocation(prevLocation => ({
-        ...prevLocation,
-        ...field,
-      }));
-    } else {
-      setManualLocation(prevLocation => ({
-        ...prevLocation,
-        [field]: value,
-      }));
-    }
+    const update = typeof field === 'object' && field !== null ? field : { [field]: value };
+
+    setManualLocation(prevLocation => {
+      const newLocation = { ...prevLocation, ...update };
+
+      // List of fields that trigger a fullAddress (area) re-construction
+      const triggerFields = ['houseNo', 'flatNo', 'sublocality', 'locality', 'landmark', 'city', 'state', 'country', 'pincode'];
+      const shouldUpdateFullAddress = Object.keys(update).some(k => triggerFields.includes(k));
+
+      if (shouldUpdateFullAddress) {
+        // Construct custom fullAddress strictly as: houseNo, sublocality, locality, landmark, city, state, country, postalCode
+        const components = [
+          newLocation.houseNo || newLocation.flatNo || '',
+          newLocation.sublocality,
+          newLocation.locality,
+          newLocation.landmark,
+          newLocation.city,
+          newLocation.state,
+          newLocation.country,
+          newLocation.pincode
+        ].filter(part => part && String(part).trim() !== '');
+
+        newLocation.area = components.join(', ');
+        newLocation.fullAddress = newLocation.area;
+      }
+
+      return newLocation;
+    });
   };
 
   console.log('manualLocation-->>>>', manualLocation);

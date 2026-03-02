@@ -119,9 +119,11 @@ const ProfileScreen = ({ navigation }) => {
                     width: 250,
                     fontWeight: '300',
                   }}>
-                  {data.user.shippingAddresses
-                    .filter(i => i.isActive == true)
-                    .map(i => i.address)}
+                  {data.user.shippingAddresses?.filter(i => i.isActive == true).length > 0
+                    ? data.user.shippingAddresses
+                      .filter(i => i.isActive == true)
+                      .map(i => i.fullAddress || i.address)
+                    : "No active address set"}
                 </Text>
               </View>
 

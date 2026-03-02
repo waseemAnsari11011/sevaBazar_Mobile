@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View, Alert, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, Alert, TouchableOpacity, Image, Modal, ScrollView, TextInput } from 'react-native';
+import React, { useState } from 'react';
 import { Card, Paragraph, Button } from 'react-native-paper';
 import Icon from '../../../components/Icons/Icon';
 import { fetchOrdersByCustomerId, updateOrderStatus } from '../../../config/redux/actions/orderActions';
@@ -9,11 +9,27 @@ import { formatCurrency } from '../../../utils/currency';
 import ButtonComponent from '../../../components/Button';
 import OutlinedBtn from '../../../components/OutlinedBtn';
 
+const REASONS = [
+    "Order placed by mistake",
+    "Changed my mind",
+    "Estimated delivery time is too long",
+    "Duplicate order",
+    "Found better price elsewhere",
+    "Forgot to apply coupon",
+    "Other"
+];
+
 
 const OrderItem = ({ order, navigation, contact }) => {
     const { data } = useSelector(state => state.local);
     const customerId = data.user._id;
     const dispatch = useDispatch();
+
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [selectedReason, setSelectedReason] = useState("");
+    const [otherReason, setOtherReason] = useState("");
+    const [cancellingVendorId, setCancellingVendorId] = useState(null);
+    const [isCancelling, setIsCancelling] = useState(false);
 
     // console.log("order-->>", order)
 
@@ -37,13 +53,36 @@ const OrderItem = ({ order, navigation, contact }) => {
         }
     };
 
-    const handleCancelOrder = async (orderId, vendorId) => {
+    const handleCancelOrder = async () => {
+        if (!selectedReason) {
+            Alert.alert("Error", "Please select a reason for cancellation");
+            return;
+        }
+
+        const finalReason = selectedReason === "Other" ? otherReason : selectedReason;
+        if (selectedReason === "Other" && !otherReason.trim()) {
+            Alert.alert("Error", "Please provide a reason");
+            return;
+        }
+
+        setIsCancelling(true);
         try {
-            await dispatch(updateOrderStatus(orderId, vendorId, { newStatus: "Cancelled" }));
-            await dispatch(fetchOrdersByCustomerId(customerId)); // Assuming customerId is accessible here
+            await dispatch(updateOrderStatus(order._id, cancellingVendorId, {
+                newStatus: "Cancelled",
+                cancelledBy: "customer",
+                cancellationReason: finalReason
+            }));
+            await dispatch(fetchOrdersByCustomerId(customerId));
+            Alert.alert("Success", "Your order has been cancelled successfully");
+            setShowCancelModal(false);
+            setSelectedReason("");
+            setOtherReason("");
+            setCancellingVendorId(null);
         } catch (error) {
             console.error('Error cancelling order:', error);
-            // Handle error as needed, like showing a toast or message to the user
+            Alert.alert("Error", "Failed to cancel order. Please try again.");
+        } finally {
+            setIsCancelling(false);
         }
     };
 
@@ -54,6 +93,16 @@ const OrderItem = ({ order, navigation, contact }) => {
             <Card.Content>
                 <Paragraph style={styles.orderId}><Icon.FontAwesome name="barcode" size={16} /> Order ID: {order.orderId}</Paragraph>
                 <Paragraph style={styles.orderId}><Icon.AntDesign name="calendar" size={16} /> Ordered On: {formattedCreatedDate}</Paragraph>
+                {order.deliveredAt && order.vendors.some(v => v.orderStatus === 'Delivered') && (
+                    <Paragraph style={styles.orderId}>
+                        <Icon.AntDesign name="checkcircleo" size={16} color="green" /> Delivered On: {
+                            (() => {
+                                const dDate = new Date(order.deliveredAt);
+                                return `${dDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} ${dDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+                            })()
+                        }
+                    </Paragraph>
+                )}
 
                 {/* Delivery OTP Card - Appears when Out for Delivery */}
                 {order.deliveryOtp && order.vendors.some(v => v.orderStatus === 'Shipped') && (
@@ -96,12 +145,16 @@ const OrderItem = ({ order, navigation, contact }) => {
                             }
                         </Paragraph>
 
-                        {vendorItem.orderStatus !== 'Cancelled' && vendorItem.orderStatus !== 'Delivered' && vendorItem.orderStatus !== 'Shipped' && (
-                            <View style={{ marginVertical: 5 }}>
-                                <OutlinedBtn buttonWidth={160} textColor={'red'} borderColor={'red'} onPress={() => handleCancelOrder(order._id, vendorItem.vendor._id)} />
-
+                        {vendorItem.orderStatus === 'Cancelled' && vendorItem.cancellationReason && (
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 5, marginBottom: 10 }}>
+                                <Icon.FontAwesome name="info-circle" size={16} color="green" />
+                                <Text style={{ color: 'green', marginLeft: 8, fontSize: 13, flex: 1 }}>
+                                    <Text style={{ fontWeight: 'bold' }}>Reason: </Text>
+                                    {vendorItem.cancellationReason}
+                                </Text>
                             </View>
                         )}
+
 
                         {vendorItem.orderStatus === 'Shipped' && (() => {
                             const { timeString, isCritical } = getTimeRemaining(vendorItem.products?.[0]?.arrivalAt);
@@ -251,19 +304,131 @@ const OrderItem = ({ order, navigation, contact }) => {
 
                 <View style={styles.shippingContainer}>
                     <Paragraph style={styles.shippingTitle}><Icon.FontAwesome name="truck" size={16} /> Shipping Address:</Paragraph>
-                    <Paragraph style={styles.shippingDetails}><Icon.FontAwesome name="map-marker" size={16} /> {order.shippingAddress.addressLine2 || order.shippingAddress.address}</Paragraph>
-                    <Paragraph style={styles.shippingDetails}>{order.shippingAddress.city}, {order.shippingAddress.state}</Paragraph>
-                    <Paragraph style={styles.shippingDetails}>{order.shippingAddress.country} - {order.shippingAddress.postalCode}</Paragraph>
+                    <View style={styles.shippingDetailsRow}>
+                        <Icon.FontAwesome name="map-marker" size={16} color="#666" style={styles.shippingIcon} />
+                        <Text style={styles.shippingDetailsText}>
+                            {
+                                order.shippingAddress.fullAddress ||
+                                `${order.shippingAddress.addressLine1 || ''} ${order.shippingAddress.addressLine2 || order.shippingAddress.address || ''}, ${order.shippingAddress.city || ''}, ${order.shippingAddress.state || ''}, ${order.shippingAddress.postalCode || ''}`.trim().replace(/, ,/g, ',')
+                            }
+                        </Text>
+                    </View>
                 </View>
-                <View style={{ marginTop: 5 }}>
-                    <ButtonComponent
-                        title={'Download Invoice'}
-                        color={'#ff6600'}
+                <View style={[styles.buttonRow, { justifyContent: 'space-between' }]}>
+                    {order.vendors.some(v => v.orderStatus === 'Delivered') && (
+                        <View style={styles.buttonContainer}>
+                            <ButtonComponent
+                                title={'Download Invoice'}
+                                color={'#28a745'} // Green
+                                onPress={() => handleDownloadInvoice(order, contact)}
+                            />
+                        </View>
+                    )}
 
-                        onPress={() => handleDownloadInvoice(order, contact)}
-                        style={styles.downloadButton}
-                    />
+                    {order?.vendors?.map((vendorItem) => {
+                        const isCancellable = vendorItem.orderStatus !== 'Cancelled' &&
+                            vendorItem.orderStatus !== 'Delivered' &&
+                            vendorItem.orderStatus !== 'Shipped';
+
+                        if (!isCancellable) return null;
+
+                        return (
+                            <View key={`cancel-${vendorItem?.vendor?._id}`} style={styles.buttonContainer}>
+                                <ButtonComponent
+                                    title={'Cancel Order'}
+                                    color={'#dc3545'} // Red
+                                    onPress={() => {
+                                        setCancellingVendorId(vendorItem.vendor._id);
+                                        setShowCancelModal(true);
+                                    }}
+                                />
+                                {order.vendors.length > 1 && (
+                                    <Text style={styles.cancelSubText}>
+                                        ({vendorItem?.vendor?.name || 'Items'})
+                                    </Text>
+                                )}
+                            </View>
+                        );
+                    })}
                 </View>
+
+                {/* Cancellation Reason Modal */}
+                <Modal
+                    visible={showCancelModal}
+                    transparent={true}
+                    animationType="fade"
+                    onRequestClose={() => setShowCancelModal(false)}
+                >
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContainer}>
+                            <Text style={styles.modalTitle}>Select Cancellation Reason</Text>
+                            <Text style={styles.modalSubtitle}>Please choose a reason for cancelling this order</Text>
+
+                            <ScrollView style={styles.reasonsList}>
+                                {REASONS.map((reason, index) => (
+                                    <TouchableOpacity
+                                        key={index}
+                                        style={[
+                                            styles.reasonItem,
+                                            selectedReason === reason && styles.reasonItemSelected
+                                        ]}
+                                        onPress={() => setSelectedReason(reason)}
+                                    >
+                                        <Icon.MaterialCommunityIcons
+                                            name={selectedReason === reason ? "radiobox-marked" : "radiobox-blank"}
+                                            size={22}
+                                            color={selectedReason === reason ? "#ff6600" : "#8E8E93"}
+                                        />
+                                        <Text style={[
+                                            styles.reasonText,
+                                            selectedReason === reason && styles.reasonTextSelected
+                                        ]}>
+                                            {reason}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+
+                                {selectedReason === "Other" && (
+                                    <View style={styles.customReasonContainer}>
+                                        <Text style={styles.customReasonLabel}>Enter your reason:</Text>
+                                        <TextInput
+                                            style={styles.customReasonInput}
+                                            placeholder="Type your reason here..."
+                                            placeholderTextColor="#8E8E93"
+                                            value={otherReason}
+                                            onChangeText={setOtherReason}
+                                            multiline
+                                            numberOfLines={3}
+                                            textAlignVertical="top"
+                                        />
+                                    </View>
+                                )}
+                            </ScrollView>
+
+                            <View style={styles.modalActions}>
+                                <TouchableOpacity
+                                    style={[styles.modalBtn, styles.modalCancelBtn]}
+                                    onPress={() => {
+                                        setShowCancelModal(false);
+                                        setSelectedReason("");
+                                        setOtherReason("");
+                                    }}
+                                >
+                                    <Text style={styles.modalCancelBtnText}>Go Back</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={[styles.modalBtn, styles.modalConfirmBtn, (!selectedReason || isCancelling) && { opacity: 0.6 }]}
+                                    onPress={handleCancelOrder}
+                                    disabled={isCancelling || !selectedReason}
+                                >
+                                    <Text style={styles.modalConfirmBtnText}>
+                                        {isCancelling ? "..." : "Confirm"}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
 
 
             </Card.Content>
@@ -288,7 +453,22 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     downloadButton: {
-        marginTop: 10
+        // Space removed as it's now in a row
+    },
+    buttonRow: {
+        flexDirection: 'row',
+        marginTop: 15,
+        alignItems: 'flex-start',
+    },
+    buttonContainer: {
+        flex: 1,
+        marginHorizontal: 4,
+    },
+    cancelSubText: {
+        fontSize: 9,
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 2,
     },
     vendorContainer: {
         marginBottom: 8,
@@ -355,6 +535,20 @@ const styles = StyleSheet.create({
     shippingDetails: {
         fontSize: 14,
         color: '#666',
+    },
+    shippingDetailsRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    shippingIcon: {
+        marginRight: 8,
+    },
+    shippingDetailsText: {
+        flex: 1,
+        fontSize: 14,
+        color: '#666',
+        lineHeight: 20,
     },
     cancelButton: {
         marginVertical: 5,
@@ -493,4 +687,114 @@ const styles = StyleSheet.create({
         marginLeft: 8,
         fontWeight: '500',
     },
+    // Modal Styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    modalContainer: {
+        backgroundColor: '#151515',
+        borderRadius: 20,
+        padding: 24,
+        width: '100%',
+        maxWidth: 400,
+        maxHeight: '80%',
+        elevation: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.5,
+        shadowRadius: 10,
+    },
+    modalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#fff',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    modalSubtitle: {
+        fontSize: 14,
+        color: '#8E8E93',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    reasonsList: {
+        marginBottom: 20,
+    },
+    reasonItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
+        borderRadius: 12,
+        borderWidth: 1.5,
+        borderColor: '#333',
+        marginBottom: 10,
+        backgroundColor: '#222',
+    },
+    reasonItemSelected: {
+        borderColor: '#ff6600',
+        backgroundColor: 'rgba(255, 102, 0, 0.1)',
+    },
+    reasonText: {
+        fontSize: 15,
+        color: '#eee',
+        fontWeight: '500',
+        marginLeft: 12,
+        flex: 1,
+    },
+    reasonTextSelected: {
+        color: '#ff6600',
+        fontWeight: 'bold',
+    },
+    customReasonContainer: {
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    customReasonLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#fff',
+        marginBottom: 8,
+    },
+    customReasonInput: {
+        borderWidth: 1.5,
+        borderColor: '#ff6600',
+        borderRadius: 12,
+        padding: 12,
+        fontSize: 15,
+        color: '#fff',
+        backgroundColor: 'rgba(255, 102, 0, 0.05)',
+        minHeight: 80,
+    },
+    modalActions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12,
+    },
+    modalBtn: {
+        flex: 1,
+        paddingVertical: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalCancelBtn: {
+        backgroundColor: '#333',
+    },
+    modalConfirmBtn: {
+        backgroundColor: '#dc3545',
+    },
+    modalCancelBtnText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    modalConfirmBtnText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '700',
+    }
 });

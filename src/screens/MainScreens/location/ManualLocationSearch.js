@@ -59,18 +59,23 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
         const location = await getPhysicalAddress(latitude, longitude);
 
         if (location) {
-          handleManualLocationChange({
+          const updateObj = {
             description: location.description,
             flatNo: '',
-            area: location.description,
+            area: location.address,
             landmark: location.landmark || '',
             city: location.city,
             state: location.state,
             country: location.country,
             pincode: location.pincode,
+            plusCode: location.plusCode,
+            locality: location.locality,
+            sublocality: location.sublocality,
             latitude: latitude,
             longitude: longitude,
-          });
+          };
+          console.log('DEBUG: ManualLocationSearch - calling handleManualLocationChange with:', updateObj);
+          handleManualLocationChange(updateObj);
         }
         setLoading(false);
       },
@@ -88,26 +93,107 @@ const ManualLocationSearch = ({ manualLocation, handleManualLocationChange }) =>
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_API_KEY}`,
       );
-      if (response.status === 200) {
-        const addressComponents = response.data.results[0].address_components;
+      if (response.status === 200 && response.data.results.length > 0) {
+        const results = response.data.results;
         const location = {
-          description: response.data.results[0].formatted_address,
-          city: addressComponents.find(component =>
-            component.types.includes('locality'),
-          )?.long_name,
-          state: addressComponents.find(component =>
-            component.types.includes('administrative_area_level_1'),
-          )?.long_name,
-          country: addressComponents.find(component =>
-            component.types.includes('country'),
-          )?.long_name,
-          pincode: addressComponents.find(component =>
-            component.types.includes('postal_code'),
-          )?.long_name,
-          landmark: addressComponents.find(component =>
-            component.types.includes('sublocality_level_1'),
-          )?.long_name,
+          description: results[0].formatted_address,
+          city: '',
+          state: '',
+          country: '',
+          pincode: '',
+          landmark: '',
         };
+
+        let locality = '';
+        let district = '';
+        let subDistrict = '';
+        let landmark = '';
+
+        // ROBUST LANDMARK DETECTION: Scan all results for POIs or Establishments
+        const landmarkTypesList = [
+          'point_of_interest', 'establishment', 'premise', 'place_of_worship',
+          'park', 'natural_feature', 'shopping_mall', 'school', 'hospital', 'landmark'
+        ];
+
+        // Try to find the most specific landmark from the first few results
+        for (let i = 0; i < Math.min(results.length, 5); i++) {
+          const res = results[i];
+          if (res.types.some(t => landmarkTypesList.includes(t))) {
+            const poiName = res.address_components[0]?.long_name;
+            // Avoid using Plus Codes as landmark names (Plus Codes contain '+')
+            if (poiName && poiName.length > 2 && !poiName.includes('+')) {
+              landmark = `Near ${poiName}`;
+              break;
+            }
+          }
+        }
+
+        results.forEach(result => {
+          result.address_components.forEach(component => {
+            if (component.types.includes('locality') && !locality) {
+              locality = component.long_name;
+            }
+            if (component.types.includes('administrative_area_level_2') && !district) {
+              district = component.long_name;
+            }
+            if (component.types.includes('administrative_area_level_3') && !subDistrict) {
+              subDistrict = component.long_name;
+            }
+            if (component.types.includes('administrative_area_level_1') && !location.state) {
+              location.state = component.long_name;
+            }
+            if (component.types.includes('country') && !location.country) {
+              location.country = component.long_name;
+            }
+            if (component.types.includes('postal_code') && !location.pincode) {
+              location.pincode = component.long_name;
+            }
+
+          });
+        });
+
+        location.city = subDistrict || district || locality || '';
+        location.plusCode = response.data.plus_code?.global_code || '';
+        location.locality = locality || '';
+        location.sublocality = results[0].address_components.find(c => c.types.includes('sublocality_level_1'))?.long_name || '';
+
+        // Deduplicate landmark if it's already in sublocality/locality
+        let finalLandmark = landmark;
+        if (finalLandmark) {
+          const landmarkTrimmed = finalLandmark.replace('Near ', '').toLowerCase().trim();
+          const sublocLower = (location.sublocality || '').toLowerCase().trim();
+          const locLower = (location.locality || '').toLowerCase().trim();
+          if (sublocLower.includes(landmarkTrimmed) || locLower.includes(landmarkTrimmed)) {
+            finalLandmark = '';
+          }
+        }
+        location.landmark = finalLandmark;
+
+        // SUPER ROBUST FALLBACK FOR INDIA
+        if (results[0].formatted_address && location.state) {
+          const addrParts = results[0].formatted_address.split(',').map(p => p.trim());
+          const stateIndex = addrParts.findIndex(p => p.toLowerCase().includes(location.state.toLowerCase()));
+          if (stateIndex > 0) {
+            const inferredCity = addrParts[stateIndex - 1];
+            if (inferredCity && inferredCity.length > 2) {
+              location.city = inferredCity;
+            }
+          }
+        }
+
+        // Construct custom fullAddress string strictly as: houseNo, sublocality, locality, landmark, city, state, country, postalCode
+        const customAddress = [
+          location.houseNo || '',
+          location.sublocality,
+          location.locality,
+          location.landmark, // Include landmark
+          location.city,
+          location.state,
+          location.country,
+          location.pincode
+        ].filter(part => part && String(part).trim() !== '').join(', ');
+        location.fullAddress = customAddress;
+
         return location;
       } else {
         Alert.alert('Error', 'Unable to fetch address from coordinates');

@@ -13,7 +13,15 @@ const VendorList = ({ navigation }) => {
     reachedEnd,
   } = useVendorInfiniteScroll();
 
-  const { location: userLocation } = useSelector(state => state.location);
+  const { location: gpsLocation } = useSelector(state => state.location);
+  const { user } = useSelector(state => state.auth || state.local?.data || {});
+  const activeAddress = user?.shippingAddresses?.find(addr => addr.isActive);
+
+  // Use GPS location if available, otherwise fall back to active saved address coordinates
+  const userLocation = gpsLocation ||
+    (activeAddress?.latitude && activeAddress?.longitude
+      ? { latitude: activeAddress.latitude, longitude: activeAddress.longitude }
+      : null);
 
   if (vendorsLoading && vendors.length === 0) {
     return (

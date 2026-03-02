@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 
 // Automatic BASE_URL detection for development
-// For production, use: 'https://server.sevabazar.com'
+// For production, use: 'https://server.sevabazar.com/'
 let baseURL = 'https://server.sevabazar.com';
 
 if (__DEV__) {

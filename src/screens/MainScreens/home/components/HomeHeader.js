@@ -37,8 +37,8 @@ const HomeHeader = ({ user }) => {
   // Format the location text for display
   const locationText = activeAddress
     ? activeAddress.address === 'Current Location'
-      ? 'Current Location (Detected)'
-      : `${activeAddress.city}, ${activeAddress.postalCode}`
+      ? activeAddress.fullAddress || 'Current Location'
+      : activeAddress.fullAddress || `${activeAddress.address}, ${activeAddress.city}`
     : 'Select Location';
 
   let profileUrl = user?.image;
@@ -74,13 +74,21 @@ const HomeHeader = ({ user }) => {
     } else {
       // Confirm and save
       try {
-        await dispatch(saveLocationToBackend(detectedAddress));
+        const updatedUser = await dispatch(saveLocationToBackend(detectedAddress));
         dispatch(clearCart());
         setIsBottomSheetVisible(false);
         setDetectedAddress(null);
+        if (updatedUser) {
+          Alert.alert('Success', 'Location saved successfully.');
+        }
       } catch (error) {
+        const errorDetail = error.response ? JSON.stringify(error.response.data) : error.message;
+        const userId = user?._id || user?.id || 'NO_ID';
         console.error('Save failed:', error);
-        Alert.alert('Error', 'Failed to save location. Please try again.');
+        Alert.alert(
+          'Save Error (Home)',
+          `Failed to save location.\nUser: ${userId}\nError: ${errorDetail}`
+        );
       }
     }
   };
@@ -162,18 +170,18 @@ const HomeHeader = ({ user }) => {
                   ) : (
                     <Text style={{ fontSize: 16, fontWeight: '600', color: '#333', marginTop: 5 }}>
                       {detectedAddress
-                        ? (detectedAddress.city || 'Detected Location')
+                        ? (detectedAddress.fullAddress || detectedAddress.city || 'Detected Location')
                         : activeAddress ? (
                           activeAddress.address === 'Current Location'
-                            ? 'Current GPS Location'
-                            : `${activeAddress.address}, ${activeAddress.city}, ${activeAddress.postalCode}`
+                            ? (activeAddress.fullAddress || 'Current GPS Location')
+                            : `${activeAddress.fullAddress || activeAddress.address}, ${activeAddress.city}`
                         ) : 'No location selected'}
                     </Text>
                   )}
 
                   {detectedAddress && !isDetecting && (
                     <Text style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
-                      {detectedAddress.addressLine1}
+                      {detectedAddress.houseNo}
                     </Text>
                   )}
 
@@ -184,20 +192,33 @@ const HomeHeader = ({ user }) => {
                   )}
                 </View>
 
-                <TouchableOpacity
-                  style={[
-                    styles.useCurrentLocationButton,
-                    detectedAddress && { backgroundColor: '#000066' } // Change color to primary for confirm
-                  ]}
-                  onPress={handleUseCurrentLocation}
-                  disabled={isDetecting}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons name={detectedAddress ? "checkmark-circle" : "locate"} size={22} color="#fff" />
-                  </View>
-                  <Text style={styles.useCurrentLocationText}>
-                    {isDetecting ? 'Fetching...' : detectedAddress ? 'Confirm Location' : 'Use Current Location'}
-                  </Text>
-                </TouchableOpacity>
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity
+                    style={[
+                      styles.locationButton,
+                      styles.useCurrentLocationButton,
+                      detectedAddress && { backgroundColor: '#000066' }
+                    ]}
+                    onPress={handleUseCurrentLocation}
+                    disabled={isDetecting}>
+                    <Ionicons name={detectedAddress ? "checkmark-circle" : "locate"} size={20} color="#fff" />
+                    <Text style={[styles.buttonText, styles.useCurrentLocationText]} numberOfLines={1}>
+                      {isDetecting ? 'Fetching...' : detectedAddress ? 'Confirm' : 'Current'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  {!isDetecting && (
+                    <TouchableOpacity
+                      style={[styles.locationButton, styles.changeAddressButton]}
+                      onPress={() => {
+                        setIsBottomSheetVisible(false);
+                        navigation.navigate('Profile', { screen: 'Location List' });
+                      }}>
+                      <Ionicons name="map" size={20} color="#fff" />
+                      <Text style={[styles.buttonText, styles.changeAddressText]} numberOfLines={1}>Change Address</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
 
               </View>
             </TouchableWithoutFeedback>
@@ -307,24 +328,37 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  useCurrentLocationButton: {
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  locationButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#27ae60', // Green color similar to blinkit location permissions
-    paddingVertical: 14,
-    borderRadius: 10,
-    marginTop: 10,
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginHorizontal: 4,
+  },
+  useCurrentLocationButton: {
+    backgroundColor: '#27ae60',
+  },
+  changeAddressButton: {
+    backgroundColor: '#000066',
+  },
+  buttonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginLeft: 6,
   },
   useCurrentLocationText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
   },
-  iconContainer: {
-    // width: 40,
-    // alignItems: 'center',
+  changeAddressText: {
+    color: '#fff',
   },
 });
 

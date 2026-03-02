@@ -44,9 +44,20 @@ const VendorCard = React.memo(({ item, navigation }) => {
           style={[
             cardStyles.statusIndicator,
             { backgroundColor: isOnline ? '#108915' : '#555' },
+            { flexDirection: 'row', paddingHorizontal: 6, borderRadius: 12 }
           ]}>
-          {!isOnline && <Icon.MaterialCommunityIcons name="lock" size={10} color="#fff" />}
-          {isOnline && <View style={cardStyles.statusDot} />}
+          {!isOnline && (
+            <>
+              <Icon.MaterialCommunityIcons name="lock" size={10} color="#fff" />
+              <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700', marginLeft: 2 }}>Closed</Text>
+            </>
+          )}
+          {isOnline && (
+            <>
+              <View style={cardStyles.statusDot} />
+              <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700', marginLeft: 2 }}>Open</Text>
+            </>
+          )}
         </View>
       </View>
       <View style={[cardStyles.infoContainer, !isOnline && { opacity: 0.6 }]}>

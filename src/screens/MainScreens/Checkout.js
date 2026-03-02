@@ -152,7 +152,10 @@ const CheckoutScreen = ({ navigation }) => {
             text: 'OK',
             onPress: () => {
               dispatch(clearCart());
-              navigation.navigate('Profile', { screen: 'My order' });
+              navigation.navigate('Profile', {
+                screen: 'My order',
+                initial: false,
+              });
             },
           },
         ]);
@@ -259,20 +262,25 @@ const CheckoutScreen = ({ navigation }) => {
         {deliveryCharge > 0 && (
           <>
             <View style={footerStyles.row}>
-              <Text style={footerStyles.label}>Delivery Charge</Text>
+              <Text style={footerStyles.label}>Delivery Distance Charges</Text>
               <Text style={footerStyles.value}>{formatCurrency(deliveryCharge)}</Text>
             </View>
             {deliveryBreakdown.length > 0 &&
-              deliveryBreakdown.map((item, index) => (
-                <View key={index} style={footerStyles.deliveryBreakdownItem}>
-                  <View style={footerStyles.deliveryExplainRow}>
-                    <Icon.MaterialCommunityIcons name="information-outline" size={14} color="#666" />
-                    <Text style={footerStyles.deliveryBreakdownText}>
-                      {item.description || `Distance: ${item.distance.toFixed(1)} km`}
-                    </Text>
+              deliveryBreakdown.map((item, index) => {
+                const descriptionLines = (item.description || `Distance: ${item.distance.toFixed(1)} km`).split('\n');
+                return (
+                  <View key={index} style={footerStyles.deliveryBreakdownItem}>
+                    {descriptionLines.map((line, lIndex) => (
+                      <View key={lIndex} style={footerStyles.deliveryExplainRow}>
+                        <Icon.MaterialCommunityIcons name="information-outline" size={14} color="#666" />
+                        <Text style={footerStyles.deliveryBreakdownText}>
+                          {line}
+                        </Text>
+                      </View>
+                    ))}
                   </View>
-                </View>
-              ))}
+                );
+              })}
           </>
         )}
 
@@ -416,16 +424,17 @@ const footerStyles = StyleSheet.create({
     paddingLeft: 10,
     borderLeftWidth: 1,
     borderLeftColor: '#eee',
+    paddingVertical: 4,
   },
   deliveryExplainRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   deliveryBreakdownText: {
-    fontSize: 11,
-    color: '#777',
+    fontSize: 12,
+    color: '#666',
     marginLeft: 6,
-    fontStyle: 'italic',
+    lineHeight: 16,
   },
 });
 

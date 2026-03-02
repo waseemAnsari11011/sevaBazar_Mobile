@@ -1,9 +1,9 @@
 // src/screens/MainScreens/vendors/NewlyAddedVendorsScreen.js
 
-import React, {useEffect} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
+import React, { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import SafeScreen from '../../../components/SafeScreen';
 import CustomHeader from '../../../components/CustomHeader';
 import {
@@ -31,7 +31,13 @@ const NewlyAddedVendorsScreen = () => {
     // hasMore,
   } = useSelector(state => state.recentlyAddedVendors);
 
-  const {location: userLocation} = useSelector(state => state.location);
+  const { location: gpsLocation } = useSelector(state => state.location);
+  const { user } = useSelector(state => state?.local?.data || {});
+  const activeAddress = user?.shippingAddresses?.find(addr => addr.isActive);
+  const userLocation = gpsLocation ||
+    (activeAddress?.latitude && activeAddress?.longitude
+      ? { latitude: activeAddress.latitude, longitude: activeAddress.longitude }
+      : null);
 
   // Fetch data on component mount and reset on unmount
   useEffect(() => {
@@ -51,13 +57,13 @@ const NewlyAddedVendorsScreen = () => {
   };
 
   const handleVendorPress = vendor => {
-    navigation.navigate('VendorDetails', {vendorId: vendor._id});
+    navigation.navigate('VendorDetails', { vendorId: vendor._id });
   };
 
   return (
     <SafeScreen style={styles.screen}>
-      
-      <View style={{flex: 1}}>
+
+      <View style={{ flex: 1 }}>
         <SearchableVendorList
           initialVendors={vendors}
           loading={loading}

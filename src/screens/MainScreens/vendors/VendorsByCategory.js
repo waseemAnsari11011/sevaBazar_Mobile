@@ -1,9 +1,9 @@
 // src/screens/MainScreens/vendors/VendorsByCategory.js
 
-import React, {useEffect} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {useRoute, useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
+import React, { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import { useRoute, useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import SafeScreen from '../../../components/SafeScreen';
 import CustomHeader from '../../../components/CustomHeader';
 import {
@@ -16,11 +16,17 @@ const VendorsByCategory = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const dispatch = useDispatch();
-  const {categoryId, categoryTitle} = route.params;
+  const { categoryId, categoryTitle } = route.params;
 
   // The parent screen is now responsible for getting data from Redux
-  const {vendors, loading, error} = useSelector(state => state.vendors.list);
-  const {location: userLocation} = useSelector(state => state.location);
+  const { vendors, loading, error } = useSelector(state => state.vendors.list);
+  const { location: gpsLocation } = useSelector(state => state.location);
+  const { user } = useSelector(state => state?.local?.data || {});
+  const activeAddress = user?.shippingAddresses?.find(addr => addr.isActive);
+  const userLocation = gpsLocation ||
+    (activeAddress?.latitude && activeAddress?.longitude
+      ? { latitude: activeAddress.latitude, longitude: activeAddress.longitude }
+      : null);
 
   // Fetch data on component mount
   useEffect(() => {
@@ -36,13 +42,13 @@ const VendorsByCategory = () => {
   };
 
   const handleVendorPress = vendor => {
-    navigation.navigate('VendorDetails', {vendorId: vendor._id});
+    navigation.navigate('VendorDetails', { vendorId: vendor._id });
   };
 
   return (
     <SafeScreen style={styles.screen}>
-      
-      <View style={{flex: 1}}>
+
+      <View style={{ flex: 1 }}>
         <SearchableVendorList
           initialVendors={vendors}
           loading={loading}

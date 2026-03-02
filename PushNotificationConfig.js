@@ -1,4 +1,7 @@
+import { Platform } from 'react-native';
 import PushNotification from 'react-native-push-notification';
+
+import { navigate } from './src/utils/navigationRef';
 
 PushNotification.configure({
   // Called when Token is generated (iOS and Android)
@@ -6,14 +9,22 @@ PushNotification.configure({
     console.log('TOKEN:', token);
   },
 
-  // Called when a remote or local notification is opened or received
   onNotification: function (notification) {
-    console.log('NOTIFICATION:', notification);
+    console.log("NOTIFICATION CLICKED:", notification);
 
-    // process the notification
+    if (notification.userInteraction) {
+      const data = notification.data || notification;
+      if (data?.type === 'order_cancelled' || data?.newStatus === 'Cancelled') {
+        navigate('Profile', { screen: 'Order History' });
+      } else {
+        navigate('Profile', { screen: 'My order' });
+      }
+    }
 
     // (required) Called when a remote is received or opened, or local notification is opened
-    notification.finish(PushNotificationIOS.FetchResult.NoData);
+    if (Platform.OS === 'ios' && typeof notification.finish === 'function') {
+      notification.finish('noData');
+    }
   },
 
   // Permissions to register.
@@ -30,7 +41,21 @@ PushNotification.configure({
   requestPermissions: true,
 });
 
-export const showLocalNotification = (title, message) => {
+// Create Global Channel for Android
+PushNotification.createChannel(
+  {
+    channelId: "default-channel-id", // (required)
+    channelName: "Default Channel", // (required)
+    channelDescription: "A default channel for notifications", // (optional) default: undefined.
+    playSound: true, // (optional) default: true
+    soundName: "default", // (optional) default: "default".
+    importance: 4, // (optional) default: 4. Int value of the Android notification importance
+    vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
+  },
+  (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
+);
+
+export const showLocalNotification = (title, message, data = {}) => {
   PushNotification.localNotification({
     /* Android Only Properties */
     channelId: "default-channel-id", // (required) channelId, if the channel doesn't exist, it will be created. 
@@ -45,5 +70,6 @@ export const showLocalNotification = (title, message) => {
     message: message, // (required)
     playSound: true, // (optional) default: true
     soundName: 'default', // (optional) default: 'default'
+    userInfo: data, // (optional) default: {} (managed by the library as 'data' on Android)
   });
 };

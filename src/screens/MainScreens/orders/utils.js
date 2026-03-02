@@ -52,11 +52,11 @@ export const handleDownloadInvoice = async (order, contact) => {
     console.log("order.vendors", order.vendors);
 
     // Calculate Item Cost (Subtotal of products)
-    const itemCost = order.vendors.reduce((total, vendor) => {
+    const itemCost = Math.round(order.vendors.reduce((total, vendor) => {
         return total + vendor.products.reduce((vendorTotal, product) => {
             return vendorTotal + product.totalAmount;
         }, 0);
-    }, 0).toFixed(2);
+    }, 0));
 
     // Calculate Total Delivery Charge and prepare breakdown
     let totalDeliveryCharge = 0;
@@ -89,7 +89,7 @@ export const handleDownloadInvoice = async (order, contact) => {
         deliveryBreakdown.push({
             vendorName: vendor.vendor?.businessName || 'Vendor',
             distance: distanceStr,
-            charge: charge.toFixed(2)
+            charge: Math.round(charge)
         });
 
         vendorDetails.push({
@@ -113,7 +113,7 @@ export const handleDownloadInvoice = async (order, contact) => {
     // Let's trust itemCost + fees for now or just use order.totalAmount if available.
     // Let's use the calculated sum for display consistency in breakdown.
 
-    const finalTotal = (parseFloat(itemCost) + parseFloat(totalDeliveryCharge) + shippingFee).toFixed(2);
+    const finalTotal = Math.round(parseFloat(itemCost) + parseFloat(totalDeliveryCharge) + shippingFee);
 
     // Prepare Vendor Details String for Header
     // If single vendor, show nice. If multiple, list them.
@@ -282,8 +282,8 @@ export const handleDownloadInvoice = async (order, contact) => {
                             <td>${product.product?.name || 'N/A'}</td>
                             <td>${product.quantity}</td>
                             <td>${product.discount} %</td>
-                            <td>₹ ${product.price.toFixed(2)}</td>
-                            <td>₹ ${product.totalAmount.toFixed(2)}</td>
+                            <td>₹ ${Math.round(product.price)}</td>
+                            <td>₹ ${Math.round(product.totalAmount)}</td>
                         </tr>
                     `)).join('')}
                 </table>
@@ -296,7 +296,7 @@ export const handleDownloadInvoice = async (order, contact) => {
                 </div>
                 <div class="summary-row">
                     <span>Shipping Fee:</span>
-                    <span>₹ ${shippingFee.toFixed(2)}</span>
+                    <span>₹ ${Math.round(shippingFee)}</span>
                 </div>
                 
                  ${deliveryBreakdown.map(d => `
@@ -308,7 +308,7 @@ export const handleDownloadInvoice = async (order, contact) => {
                 
                 <div class="summary-row">
                     <span>Total Delivery Charge:</span>
-                    <span>₹ ${totalDeliveryCharge.toFixed(2)}</span>
+                    <span>₹ ${Math.round(totalDeliveryCharge)}</span>
                 </div>
                 
                 <div class="summary-total">
@@ -343,9 +343,9 @@ export const handleDownloadInvoice = async (order, contact) => {
 
 export const handleChatDownloadInvoice = async (order, contact) => {
 
-    const totalAmount = (order.totalAmount || 0).toFixed(2); // Use the totalAmount from the order object
+    const totalAmount = Math.round(order.totalAmount || 0); // Use the totalAmount from the order object
     // Correctly calculate final total using deliveryCharge and shippingFee from order
-    const finalTotal = (parseFloat(totalAmount) + (order.deliveryCharge || 0) + (order.shippingFee || 0)).toFixed(2);
+    const finalTotal = Math.round(parseFloat(totalAmount) + (order.deliveryCharge || 0) + (order.shippingFee || 0));
     const rupeeSymbol = '\u20B9';
 
     // Download the logo to a temporary location and get the Base64 encoded string
@@ -482,16 +482,16 @@ export const handleChatDownloadInvoice = async (order, contact) => {
                             <td>${product?.name || 'N/A'}</td>
                             <td>${product.quantity}</td>
                             <td>${product.discount} %</td>
-                            <td>₹ ${product.price.toFixed(2)}</td>
-                            <td>₹ ${product.totalAmount.toFixed(2)}</td>
+                            <td>₹ ${Math.round(product.price)}</td>
+                            <td>₹ ${Math.round(product.totalAmount)}</td>
                         </tr>
                     `)}
                 </table>
             </div>
                 <div class="content bold">
                     <div>Subtotal: ₹ ${totalAmount}</div>
-                    <div>Delivery charge: ₹ ${(order.deliveryCharge || 0).toFixed(2)}</div>
-                    <div>Shipping Fee: ₹ ${(order.shippingFee || 0).toFixed(2)}</div>
+                    <div>Delivery charge: ₹ ${Math.round(order.deliveryCharge || 0)}</div>
+                    <div>Shipping Fee: ₹ ${Math.round(order.shippingFee || 0)}</div>
                     <div>Total amount: ₹ ${finalTotal}</div>
                 </div>
             </div>
