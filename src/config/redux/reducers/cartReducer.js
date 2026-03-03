@@ -4,6 +4,7 @@ import {
   ADD_TO_CART,
   CLEAR_CART,
   REMOVE_ITEM,
+  LOAD_CART_SUCCESS
 } from '../actions/types';
 
 const initialState = {
@@ -30,12 +31,12 @@ const cartReducer = (state = initialState, action) => {
 
         // Increase variation quantities
         if (existingItem.variations) {
-            existingItem.variations = existingItem.variations.map(variation => {
+          existingItem.variations = existingItem.variations.map(variation => {
             if (variation.quantity > 0) {
-                return { ...variation, quantity: variation.quantity + 1 };
+              return { ...variation, quantity: variation.quantity + 1 };
             }
             return variation;
-            });
+          });
         }
 
         updatedCartItems[existingItemIndex] = existingItem;
@@ -60,13 +61,13 @@ const cartReducer = (state = initialState, action) => {
         ...state,
         cartItems: state.cartItems.map(item => {
           if (item._id === action.payload) {
-             const updatedItem = { ...item, quantity: item.quantity + 1 };
-             if (updatedItem.variations) {
-                 updatedItem.variations = updatedItem.variations.map(variation => {
-                      return { ...variation, quantity: variation.quantity + 1 };
-                 });
-             }
-             return updatedItem;
+            const updatedItem = { ...item, quantity: item.quantity + 1 };
+            if (updatedItem.variations) {
+              updatedItem.variations = updatedItem.variations.map(variation => {
+                return { ...variation, quantity: variation.quantity + 1 };
+              });
+            }
+            return updatedItem;
           }
           return item;
         }),
@@ -85,12 +86,12 @@ const cartReducer = (state = initialState, action) => {
 
                 // Decrease variation quantities if they are greater than zero
                 if (updatedItem.variations) {
-                    updatedItem.variations = updatedItem.variations.map(variation => {
-                      if (variation.quantity > 0) {
-                        return { ...variation, quantity: variation.quantity - 1 };
-                      }
-                      return variation;
-                    });
+                  updatedItem.variations = updatedItem.variations.map(variation => {
+                    if (variation.quantity > 0) {
+                      return { ...variation, quantity: variation.quantity - 1 };
+                    }
+                    return variation;
+                  });
                 }
 
                 return updatedItem;
@@ -115,6 +116,12 @@ const cartReducer = (state = initialState, action) => {
       return {
         ...state,
         cartItems: [],
+      };
+
+    case LOAD_CART_SUCCESS:
+      return {
+        ...state,
+        cartItems: action.payload,
       };
 
     default:

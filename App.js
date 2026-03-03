@@ -1,19 +1,19 @@
 // App.js
 
-import React, {useEffect} from 'react';
-import {Provider, useDispatch} from 'react-redux';
-import {NavigationContainer} from '@react-navigation/native';
+import React, { useEffect } from 'react';
+import { Provider, useDispatch } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native';
 import store from './src/config/redux/store';
 import RootNavigator from './src/navigators/RootNavigator';
-import {PaperProvider} from 'react-native-paper';
+import { PaperProvider } from 'react-native-paper';
 import {
   requestUserPermission,
   getToken,
   notificationListener,
 } from './firebaseMessaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {PermissionsAndroid} from 'react-native';
-import {requestStoragePermission} from './src/screens/MainScreens/orders/utils';
+import { PermissionsAndroid } from 'react-native';
+import { requestStoragePermission } from './src/screens/MainScreens/orders/utils';
 
 const App = () => {
   useEffect(() => {

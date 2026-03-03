@@ -1,8 +1,12 @@
 // PushNotificationConfig.js
 // Uses @notifee/react-native (replaces deprecated react-native-push-notification)
 
-import notifee, { AndroidImportance, AndroidVisibility } from '@notifee/react-native';
-import { navigate } from './src/utils/navigationRef';
+import notifee, {
+  AndroidImportance,
+  AndroidVisibility,
+  EventType,
+} from '@notifee/react-native';
+import {navigate} from './src/utils/navigationRef';
 
 const DEFAULT_CHANNEL_ID = 'default-channel-id';
 
@@ -19,7 +23,6 @@ export const createNotificationChannel = async () => {
 
 // Show local foreground notification
 export const showLocalNotification = async (title, message, data = {}) => {
-  // Ensure channel exists
   await createNotificationChannel();
 
   await notifee.displayNotification({
@@ -38,14 +41,13 @@ export const showLocalNotification = async (title, message, data = {}) => {
 
 // Handle notification press events (foreground)
 export const setupNotifeeListeners = () => {
-  return notifee.onForegroundEvent(({ type, detail }) => {
-    const { EventType } = require('@notifee/react-native');
+  return notifee.onForegroundEvent(({type, detail}) => {
     if (type === EventType.PRESS) {
       const data = detail.notification?.data || {};
       if (data?.type === 'order_cancelled' || data?.newStatus === 'Cancelled') {
-        navigate('Profile', { screen: 'Order History' });
+        navigate('Profile', {screen: 'Order History'});
       } else {
-        navigate('Profile', { screen: 'My order' });
+        navigate('Profile', {screen: 'My order'});
       }
     }
   });

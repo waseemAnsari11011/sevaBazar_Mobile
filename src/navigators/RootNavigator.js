@@ -5,6 +5,7 @@ import AuthNavigator from './AuthNavigator';
 import StackNavigator from './StackNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadData } from '../config/redux/actions/storageActions';
+import { loadCart } from '../config/redux/actions/cartActions';
 import SplashScreen from '../components/SplashScreen';
 import { fetchUserLocation } from '../config/redux/actions/locationActions'; // 👈 Import action
 
@@ -37,6 +38,7 @@ const RootNavigator = () => {
   useEffect(() => {
     const loadLocalData = async () => {
       await dispatch(loadData('user'));
+      await dispatch(loadCart());
     };
     loadLocalData();
   }, []);

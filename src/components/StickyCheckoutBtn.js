@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { formatCurrency } from '../utils/currency';
+import api from '../utils/api';
 
 const StickyComponent = ({ total, onCheckout, navigation }) => {
     const dispatch = useDispatch();
     const { data } = useSelector(state => state.local);
+    const { cartItems } = useSelector(state => state.cart);
     const userAddress = data?.user?.shippingAddresses?.find(addr => addr.isActive);
+    const [loading, setLoading] = useState(false);
 
 
     const handleCheckout = () => {
@@ -34,7 +37,40 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
                     },
                     {
                         text: "Confirm",
-                        onPress: () => navigation.navigate('Checkout')
+                        onPress: async () => {
+                            try {
+                                setLoading(true);
+                                const response = await api.get('/vendors/customer');
+                                if (response.status === 200) {
+                                    const availableVendors = response.data?.vendors || [];
+                                    const cartVendorId = cartItems[0]?.vendor?._id || cartItems[0]?.vendor;
+
+                                    if (!cartVendorId) {
+                                        navigation.navigate('Checkout');
+                                        return;
+                                    }
+
+                                    const isVendorAvailable = availableVendors.some(v => v._id === cartVendorId);
+
+                                    if (isVendorAvailable) {
+                                        navigation.navigate('Checkout');
+                                    } else {
+                                        Alert.alert(
+                                            "Service Unavailable",
+                                            "Sorry, the vendor for these items does not serve your current active location. Please change your address or remove items from this vendor.",
+                                            [{ text: "OK" }]
+                                        );
+                                    }
+                                } else {
+                                    Alert.alert("Error", "Failed to check vendor availability. Please try again.");
+                                }
+                            } catch (error) {
+                                console.error("Vendor check error:", error);
+                                Alert.alert("Error", "Could not verify vendor availability. Please check your connection.");
+                            } finally {
+                                setLoading(false);
+                            }
+                        }
                     }
                 ]
             );
@@ -62,8 +98,13 @@ const StickyComponent = ({ total, onCheckout, navigation }) => {
                 <TouchableOpacity
                     style={styles.button}
                     onPress={handleCheckout}
+                    disabled={loading}
                 >
-                    <Text style={styles.text}>Checkout</Text>
+                    {loading ? (
+                        <ActivityIndicator color="#fff" />
+                    ) : (
+                        <Text style={styles.text}>Checkout</Text>
+                    )}
                 </TouchableOpacity>
 
             </View>

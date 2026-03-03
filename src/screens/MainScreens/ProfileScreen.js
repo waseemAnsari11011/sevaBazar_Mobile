@@ -263,15 +263,6 @@ const ProfileScreen = ({ navigation }) => {
           {/* <View style={styles.borderBottom}></View> */}
         </View>
       </ScrollView>
-      <TouchableOpacity
-        onPress={() => Linking.openURL('https://ecarts.agency/')}
-        style={styles.developerCard}
-      >
-        <View style={styles.developerSubContainer}>
-          <Text style={styles.developerText}>Developed By Ecarts</Text>
-          <Ionicons name="open-outline" size={16} color="#000066" style={{ marginLeft: 5 }} />
-        </View>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -321,34 +312,6 @@ const styles = StyleSheet.create({
   footerSubText: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 80, // Add space so scroll content doesn't get hidden behind sticky card
-  },
-  developerCard: {
-    margin: 15,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#e9ecef',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-  },
-  developerSubContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  developerText: {
-    fontSize: 14,
-    color: '#000066',
-    fontWeight: 'bold',
+    marginBottom: 20, // Reduced space since developer card is removed
   },
 });

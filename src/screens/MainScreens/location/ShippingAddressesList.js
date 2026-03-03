@@ -54,7 +54,6 @@ const ShippingAddressesList = ({ navigation }) => {
       const response = await api.put(`/customer/${userId}/address/${addressId}/activate`);
       if (response.status === 200) {
         dispatch(saveData('user', response.data.user));
-        dispatch(clearCart());
 
         setShippingAddresses(response.data.user.shippingAddresses);
 
