@@ -1,26 +1,33 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native'; // Import the hook
-import ProductCard from './ProductCard'; // Assuming ProductCard is a component for displaying product details
-import Icon from './Icons/Icon'; // Adjust path according to your project structure
+import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import ProductCard from './ProductCard';
+import Icon from './Icons/Icon';
 import { resetFetchAllCategoryProducts } from '../config/redux/actions/getallCategoryProductsActions';
 import { useDispatch } from 'react-redux';
 import { resetProductsByCategory } from '../config/redux/actions/productsByCategoryActions';
 
 const AllCategoryProducts = ({ allCategoryProducts }) => {
-    const dispatch = useDispatch()
-    const navigation = useNavigation(); // Use the hook to get navigation
-
-
+    const dispatch = useDispatch();
+    const navigation = useNavigation();
 
     const renderProductItem = ({ item }) => {
+        // Check if product is in stock (at least one variation with quantity > 0)
+        const inStock =
+            item?.variations &&
+            item.variations.length > 0 &&
+            item.variations.some(v => (v.quantity ?? 0) > 0);
+
+        const handlePress = () => {
+            if (!inStock) {
+                Alert.alert('Out of Stock', 'This product is currently out of stock and cannot be ordered.');
+                return;
+            }
+            navigation.navigate('Details', { product: item });
+        };
+
         return (
-            <TouchableOpacity
-                style={{}} // Add styles if needed
-                onPress={() =>
-                    navigation.navigate('Details', { product: item })
-                }
-            >
+            <TouchableOpacity style={{}} onPress={handlePress}>
                 <ProductCard item={item} />
             </TouchableOpacity>
         );

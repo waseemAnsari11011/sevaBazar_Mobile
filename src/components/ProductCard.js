@@ -33,6 +33,10 @@ const ProductCard = ({ item = {}, navigation, disabled = false }) => {
       Alert.alert('Shop Closed', 'This shop is currently closed. You cannot view product details or place orders at this time.');
       return;
     }
+    if (!inStock) {
+      Alert.alert('Out of Stock', 'This product is currently out of stock and cannot be ordered.');
+      return;
+    }
     if (navigation && item) {
       navigation.navigate('Details', { product: item });
     }

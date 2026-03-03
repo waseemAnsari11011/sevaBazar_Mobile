@@ -1,75 +1,52 @@
-import { Platform } from 'react-native';
-import PushNotification from 'react-native-push-notification';
+// PushNotificationConfig.js
+// Uses @notifee/react-native (replaces deprecated react-native-push-notification)
 
+import notifee, { AndroidImportance, AndroidVisibility } from '@notifee/react-native';
 import { navigate } from './src/utils/navigationRef';
 
-PushNotification.configure({
-  // Called when Token is generated (iOS and Android)
-  onRegister: function (token) {
-    console.log('TOKEN:', token);
-  },
+const DEFAULT_CHANNEL_ID = 'default-channel-id';
 
-  onNotification: function (notification) {
-    console.log("NOTIFICATION CLICKED:", notification);
+// Create notification channel (Android)
+export const createNotificationChannel = async () => {
+  await notifee.createChannel({
+    id: DEFAULT_CHANNEL_ID,
+    name: 'Default Channel',
+    importance: AndroidImportance.HIGH,
+    vibration: true,
+    visibility: AndroidVisibility.PUBLIC,
+  });
+};
 
-    if (notification.userInteraction) {
-      const data = notification.data || notification;
+// Show local foreground notification
+export const showLocalNotification = async (title, message, data = {}) => {
+  // Ensure channel exists
+  await createNotificationChannel();
+
+  await notifee.displayNotification({
+    title: title,
+    body: message,
+    data: data,
+    android: {
+      channelId: DEFAULT_CHANNEL_ID,
+      importance: AndroidImportance.HIGH,
+      pressAction: {
+        id: 'default',
+      },
+    },
+  });
+};
+
+// Handle notification press events (foreground)
+export const setupNotifeeListeners = () => {
+  return notifee.onForegroundEvent(({ type, detail }) => {
+    const { EventType } = require('@notifee/react-native');
+    if (type === EventType.PRESS) {
+      const data = detail.notification?.data || {};
       if (data?.type === 'order_cancelled' || data?.newStatus === 'Cancelled') {
         navigate('Profile', { screen: 'Order History' });
       } else {
         navigate('Profile', { screen: 'My order' });
       }
     }
-
-    // (required) Called when a remote is received or opened, or local notification is opened
-    if (Platform.OS === 'ios' && typeof notification.finish === 'function') {
-      notification.finish('noData');
-    }
-  },
-
-  // Permissions to register.
-  permissions: {
-    alert: true,
-    badge: true,
-    sound: true,
-  },
-
-  // Should the initial notification be popped automatically
-  popInitialNotification: true,
-
-  // Request permissions on iOS
-  requestPermissions: true,
-});
-
-// Create Global Channel for Android
-PushNotification.createChannel(
-  {
-    channelId: "default-channel-id", // (required)
-    channelName: "Default Channel", // (required)
-    channelDescription: "A default channel for notifications", // (optional) default: undefined.
-    playSound: true, // (optional) default: true
-    soundName: "default", // (optional) default: "default".
-    importance: 4, // (optional) default: 4. Int value of the Android notification importance
-    vibrate: true, // (optional) default: true. Creates the default vibration pattern if true.
-  },
-  (created) => console.log(`createChannel returned '${created}'`) // (optional) callback returns whether the channel was created, false means it already existed.
-);
-
-export const showLocalNotification = (title, message, data = {}) => {
-  PushNotification.localNotification({
-    /* Android Only Properties */
-    channelId: "default-channel-id", // (required) channelId, if the channel doesn't exist, it will be created. 
-    autoCancel: true, // (optional) default: true
-    largeIcon: "ic_launcher", // (optional) default: "ic_launcher"
-    smallIcon: "ic_notification", // (optional) default: "ic_notification" with fallback for "ic_launcher"
-    bigText: message, // (optional) default: "message" prop
-    subText: "Notification", // (optional) default: none
-
-    /* iOS and Android properties */
-    title: title, // (optional)
-    message: message, // (required)
-    playSound: true, // (optional) default: true
-    soundName: 'default', // (optional) default: 'default'
-    userInfo: data, // (optional) default: {} (managed by the library as 'data' on Android)
   });
 };

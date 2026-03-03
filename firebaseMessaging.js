@@ -3,8 +3,7 @@
 import messaging from '@react-native-firebase/messaging';
 import { updateFcm } from './src/config/redux/actions/customerActions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { showLocalNotification } from './PushNotificationConfig';
-
+import { showLocalNotification, createNotificationChannel, setupNotifeeListeners } from './PushNotificationConfig';
 
 import { navigate } from './src/utils/navigationRef';
 
@@ -48,7 +47,12 @@ export const getToken = async () => {
 
 export const notificationListener = async () => {
     console.log('notificationListener');
-    // Assume a message-notification contains a "type" property in the data payload of the screen to open
+
+    // Create notifee channel on startup
+    await createNotificationChannel();
+
+    // Setup notifee foreground press handler
+    setupNotifeeListeners();
 
     messaging().onNotificationOpenedApp(remoteMessage => {
         console.log(

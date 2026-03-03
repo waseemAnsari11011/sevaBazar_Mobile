@@ -5,7 +5,7 @@ import {
   Image,
   TouchableOpacity,
   Dimensions,
-  TextInput
+  Alert,
 } from 'react-native';
 import React from 'react';
 import Icon from './Icons/Icon';
@@ -31,27 +31,43 @@ const CategoryProductsCard = ({ item, onPressNavigation }) => {
   };
 
   function calculateDiscountedPrice(price, discount) {
-    // Convert the price and discount from string to number
     const priceNumber = parseFloat(price);
     const discountNumber = parseFloat(discount);
-
-    // Check if both price and discount are valid numbers
     if (isNaN(priceNumber) || isNaN(discountNumber)) {
       throw new Error('Invalid input: price and discount should be valid numbers');
     }
-
-    // Calculate the discounted price
     const discountedPrice = priceNumber - (priceNumber * discountNumber / 100);
-
-    // Return the discounted price as a rounded integer
     return Math.round(discountedPrice).toString();
   }
 
+  // A product is in stock if it has at least one variation with quantity > 0
+  const inStock =
+    item?.variations &&
+    item.variations.length > 0 &&
+    item.variations.some(v => (v.quantity ?? 0) > 0);
+
+  const handlePress = () => {
+    if (!inStock) {
+      Alert.alert('Out of Stock', 'This product is currently out of stock and cannot be ordered.');
+      return;
+    }
+    if (onPressNavigation) onPressNavigation();
+  };
 
   return (
-
     <>
-      <TouchableOpacity style={styles.container} onPress={onPressNavigation}>
+      <TouchableOpacity
+        style={[styles.container, !inStock && styles.disabledCard]}
+        onPress={handlePress}
+        activeOpacity={!inStock ? 1 : 0.7}>
+
+        {/* Out of Stock Badge */}
+        {!inStock && (
+          <View style={styles.outOfStockBadge}>
+            <Text style={styles.outOfStockText}>Out of Stock</Text>
+          </View>
+        )}
+
         {item?.images && item.images.length > 0 ? (
           <Image source={{ uri: `${baseURL}${item.images[0]}` }} style={styles.productImage} />
         ) : item?.variations &&
@@ -68,6 +84,7 @@ const CategoryProductsCard = ({ item, onPressNavigation }) => {
             style={styles.productImage}
           />
         )}
+
         <View style={styles.detailsContainer}>
           <Text style={styles.productName}>{item.name}</Text>
           {item?.variations && item.variations.length > 0 ? (
@@ -91,49 +108,65 @@ const CategoryProductsCard = ({ item, onPressNavigation }) => {
               </Text>
             </>
           ) : (
-            <Text style={{ color: "red", marginTop: 5 }}>Out of Stock</Text>
+            <Text style={{ color: 'red', marginTop: 5 }}>Out of Stock</Text>
           )}
         </View>
       </TouchableOpacity>
     </>
-
   );
 };
 
 export default CategoryProductsCard;
 
 const styles = StyleSheet.create({
-
   container: {
     flexDirection: 'row',
     backgroundColor: 'white',
     borderRadius: 10,
     elevation: 3,
   },
+  disabledCard: {
+    opacity: 0.55,
+  },
+  outOfStockBadge: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: '#7f8c8d',
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    zIndex: 2,
+  },
+  outOfStockText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: '600',
+  },
   productImage: {
     width: windowWidth / 3,
     height: windowWidth / 3,
     marginRight: 15,
-    resizeMode: "contain"
+    resizeMode: 'contain',
   },
   detailsContainer: {
     flex: 1,
-    padding: 15
+    padding: 15,
   },
   productName: {
     fontWeight: 'bold',
     color: 'black',
-    fontSize: 13
+    fontSize: 13,
   },
   productWeight: {
     color: 'black',
     fontSize: 14,
-    fontWeight: "500"
+    fontWeight: '500',
   },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginTop: 7
+    marginTop: 7,
   },
   discountedPrice: {
     color: 'red',
@@ -143,21 +176,18 @@ const styles = StyleSheet.create({
   originalPrice: {
     textDecorationLine: 'line-through',
     marginLeft: 15,
-    fontSize: 17
+    fontSize: 17,
   },
   discountPercentage: {
     color: '#ff6600',
     marginTop: 2,
-    fontSize: 15
+    fontSize: 15,
   },
   addContainer: {
-    flexDirection: "row-reverse",
+    flexDirection: 'row-reverse',
   },
-
   addButtonText: {
     color: '#fff',
   },
-  callIconContainer: {
-    // Style for your call icon container
-  },
+  callIconContainer: {},
 });
